@@ -419,9 +419,9 @@ Load a fresh save on Day 6, hour 17:00. Step through 18:00. Expected: NO popup.
 
 Step through any non-{18, 22} hour boundary. Expected: nothing happens (no popup, no spawn, no message).
 
-- [ ] **Scenario 4: Hour-1 boundary at game start (turn 0)**
+- [ ] **Scenario 4: First-turn behavior**
 
-The hook fires at turn 0 (per `calendar::once_every(1_hours)` semantics — `(0 - 0) % 3600 == 0`). On a fresh game at turn 0, hour will be whatever the calendar starts at (typically 8 AM in spring). Expected: no popup, no spawn (event_n == 0 guard fires).
+On a brand-new game, `do_turn()` short-circuits the calendar increment (and therefore the hook fire) when `new_game == true`. So the very first `do_turn` does NOT fire the hook. The next `do_turn` increments `calendar::turn` and the hook fires only when an hour boundary is crossed. Expected on day 0: nothing happens (no popup, no spawn) until the first hour boundary is crossed, and even then the `event_n == 0` guard suppresses the mod's logic until day 7+.
 
 - [ ] **Scenario 5: Mod added to existing save**
 
