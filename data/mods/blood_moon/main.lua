@@ -8,7 +8,7 @@ local POPULATION_PER_EVENT = 5      -- added per subsequent event
 local POPULATION_MAX       = 200    -- hard cap
 local HORDE_DIRECTIONS     = 4
 local HORDE_DISTANCE_OMT   = 10
-local HORDE_RADIUS         = 2
+local HORDE_RADIUS         = 1     -- 1 keeps the whole population on one submap; >1 thins via add_mon_group's fractional spread
 local WARNING_HOUR         = 18
 local SPAWN_HOUR           = 22
 
