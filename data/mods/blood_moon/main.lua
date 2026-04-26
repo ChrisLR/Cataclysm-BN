@@ -60,11 +60,16 @@ local function spawn_blood_moon_hordes(event_n)
     if not avatar then return end
     local player_omt = avatar:global_omt_location()
 
+    -- Hordes live on the overmap surface (z=0). Vanilla place_mongroups hardcodes
+    -- this; horde movement ignores z anyway. If the player is in a basement/upper
+    -- floor when 22:00 hits, we still spawn at the surface OMT they're under/above.
+    local target_omt = Tripoint.new(player_omt.x, player_omt.y, 0)
+
     for _, offset in ipairs(OFFSETS) do
         local pos = Tripoint.new(
             player_omt.x + offset.x,
             player_omt.y + offset.y,
-            player_omt.z)
+            0)
 
         local mg = overmapbuffer.create_horde({
             type       = "GROUP_ZOMBIE",
@@ -73,7 +78,7 @@ local function spawn_blood_moon_hordes(event_n)
             radius     = HORDE_RADIUS,
             horde      = true,
             behaviour  = "roam",
-            target     = player_omt,
+            target     = target_omt,
         })
         if mg then mg:set_interest(100) end
     end
