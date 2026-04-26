@@ -7,7 +7,7 @@ local POPULATION_BASE      = 25     -- first event population (event_n == 1)
 local POPULATION_PER_EVENT = 5      -- added per subsequent event
 local POPULATION_MAX       = 200    -- hard cap
 local HORDE_DIRECTIONS     = 4
-local HORDE_DISTANCE_OMT   = 10
+local HORDE_DISTANCE_OMT   = 3      -- Hordes move ~1 submap per 5 in-game minutes (overmap.cpp:3796); 3 OMTs ≈ 30 min to arrival
 local HORDE_RADIUS         = 1     -- 1 keeps the whole population on one submap; >1 thins via add_mon_group's fractional spread
 local WARNING_HOUR         = 18
 local SPAWN_HOUR           = 22
@@ -60,10 +60,6 @@ local function spawn_blood_moon_hordes(event_n)
     if not avatar then return end
     local player_omt = avatar:global_omt_location()
 
-    gdebug.log_info(string.format(
-        "[blood_moon] spawn event_n=%d pop=%d per_horde=%d player_omt=(%d,%d,%d)",
-        event_n, population, per_horde, player_omt.x, player_omt.y, player_omt.z))
-
     -- Hordes live on the overmap surface (z=0). Vanilla place_mongroups hardcodes
     -- this; horde movement ignores z anyway. If the player is in a basement/upper
     -- floor when 22:00 hits, we still spawn at the surface OMT they're under/above.
@@ -84,17 +80,7 @@ local function spawn_blood_moon_hordes(event_n)
             behaviour  = "roam",
             target     = target_omt,
         })
-        if mg then
-            mg:set_interest(100)
-            gdebug.log_info(string.format(
-                "[blood_moon]   horde created at omt=(%d,%d,%d) target=(%d,%d,%d) pop=%d radius=%d",
-                pos.x, pos.y, pos.z, target_omt.x, target_omt.y, target_omt.z,
-                per_horde, HORDE_RADIUS))
-        else
-            gdebug.log_info(string.format(
-                "[blood_moon]   create_horde RETURNED NIL at omt=(%d,%d,%d)",
-                pos.x, pos.y, pos.z))
-        end
+        if mg then mg:set_interest(100) end
     end
 end
 
