@@ -96,15 +96,12 @@ local function track_player_for_horde()
     -- so both have get_pos_ms (catalua_bindings_creature.cpp:120).
     local player_pos = avatar:get_pos_ms()
     for _, m in ipairs(gapi.get_all_monsters()) do
-        -- Pin the wander target to the monster's OWN z. Setting it to player.z would
-        -- send cross-z monsters into pathfinding's z-transition search, which spams
-        -- "Failed to find a trivial path across z-levels" whenever there's no
-        -- staircase reachable from their tile. Same-z monsters still hunt the player
-        -- normally; basement/upper-floor monsters mass at the (x,y) under or over the
-        -- player on their own z and find their way up/down through stairs naturally.
-        local m_z = m:get_pos_ms().z
-        local target = Tripoint.new(player_pos.x, player_pos.y, m_z)
-        m:wander_to(target, TRACK_WANDER_FACTOR)
+        -- Skip tamed pets and other friendlies. Setting wander_pos on them is
+        -- harmless (their own AI overrides) but it's pointless work, and pets
+        -- shouldn't be conscripted into a horde anyway.
+        if m.friendly == 0 then
+            m:wander_to(player_pos, TRACK_WANDER_FACTOR)
+        end
     end
 
     -- signal_hordes uses absolute submap coords (different system from wander_to).
