@@ -11,12 +11,16 @@ local HORDE_DISTANCE_OMT   = 10
 local HORDE_RADIUS         = 1     -- 1 keeps the whole population on one submap; >1 thins via add_mon_group's fractional spread
 local WARNING_HOUR         = 18
 local SPAWN_HOUR           = 22
+local SUNRISE_HOUR         = 4      -- Blood moon ends at this hour
+local TRACK_WANDER_FACTOR  = 3600   -- wandf for tracked monsters; comfortably covers an hour of moves
+local TRACK_SIGNAL_POWER   = 100    -- "loudness" passed to signal_hordes during tracking
 
 -- BN runs 1 turn per second.
 local TURNS_PER_DAY = 24 * 60 * 60
 
 -- Persistent state (auto-saved with the world via mod_storage).
-storage.last_event_fired = storage.last_event_fired or 0
+storage.last_event_fired  = storage.last_event_fired or 0
+storage.blood_moon_active = storage.blood_moon_active or false
 
 local function current_event_n()
     local now           = gapi.current_turn()
@@ -75,22 +79,53 @@ local function spawn_blood_moon_hordes(event_n)
     end
 end
 
+-- Hourly nudge that keeps both loaded monsters and unloaded hordes drawn to the player.
+-- wander_to sets each monster's destination + wandf so it paths toward the player even
+-- without line-of-sight; signal_hordes does the same at the overmap level for off-screen hordes.
+local function track_player_for_horde()
+    local avatar = gapi.get_avatar()
+    if not avatar then return end
+
+    local player_pos = avatar:global_square_location()
+    for _, m in ipairs(gapi.get_all_monsters()) do
+        m:wander_to(player_pos, TRACK_WANDER_FACTOR)
+    end
+
+    local player_sm = avatar:global_sm_location()
+    overmapbuffer.signal_hordes(player_sm, TRACK_SIGNAL_POWER)
+end
+
 mod.on_hour_passed = function(params)
-    local hour = params.hour
-    if hour ~= WARNING_HOUR and hour ~= SPAWN_HOUR then return end
-
+    local hour    = params.hour
     local event_n = current_event_n()
-    if event_n == 0 then return end
 
-    if hour == WARNING_HOUR then
+    -- 6 PM: announce the imminent blood moon.
+    if hour == WARNING_HOUR and event_n > 0 then
         show_blood_moon_popup()
         return
     end
 
-    -- hour == SPAWN_HOUR
-    if event_n <= storage.last_event_fired then return end
-    storage.last_event_fired = event_n
-    gapi.add_msg(MsgType.bad,
-        "The blood moon hangs heavy. You hear distant moans from every direction...")
-    spawn_blood_moon_hordes(event_n)
+    -- 10 PM on a blood moon day: spawn the hordes and start tracking.
+    if hour == SPAWN_HOUR and event_n > 0 and event_n > storage.last_event_fired then
+        storage.last_event_fired  = event_n
+        storage.blood_moon_active = true
+        gapi.add_msg(MsgType.bad,
+            "The blood moon hangs heavy. You hear distant moans from every direction...")
+        spawn_blood_moon_hordes(event_n)
+        track_player_for_horde()
+        return
+    end
+
+    -- 4 AM: end the blood moon.
+    if hour == SUNRISE_HOUR and storage.blood_moon_active then
+        storage.blood_moon_active = false
+        gapi.add_msg(MsgType.good,
+            "Dawn breaks. The blood moon fades, and the world feels still.")
+        return
+    end
+
+    -- Any other hour while the blood moon is active: re-aim everything at the player.
+    if storage.blood_moon_active then
+        track_player_for_horde()
+    end
 end
