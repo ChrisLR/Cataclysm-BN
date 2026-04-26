@@ -571,6 +571,11 @@ void cata::detail::reg_character( sol::state &lua )
 
         SET_FX_T( global_sm_location, tripoint() const );
 
+        DOC( "Get the player's location in absolute overmap-tile (OMT) coordinates." );
+        luna::set_fx( ut, "global_omt_location", []( const Character & c ) -> tripoint {
+            return c.global_omt_location().raw();
+        } );
+
         SET_FX_T( has_mabuff, bool( const mabuff_id & ) const );
 
         SET_FX_T( mabuff_tohit_bonus, float() const );
