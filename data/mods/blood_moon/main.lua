@@ -36,6 +36,45 @@ local function show_blood_moon_popup()
     popup:query()
 end
 
+local OFFSETS = {
+    Tripoint.new( 0, -HORDE_DISTANCE_OMT, 0),  -- N
+    Tripoint.new( HORDE_DISTANCE_OMT,  0, 0),  -- E
+    Tripoint.new( 0,  HORDE_DISTANCE_OMT, 0),  -- S
+    Tripoint.new(-HORDE_DISTANCE_OMT,  0, 0),  -- W
+}
+
+local function blood_moon_population(event_n)
+    return math.min(POPULATION_MAX,
+                    POPULATION_BASE + (event_n - 1) * POPULATION_PER_EVENT)
+end
+
+local function spawn_blood_moon_hordes(event_n)
+    local population = blood_moon_population(event_n)
+    local per_horde  = math.ceil(population / HORDE_DIRECTIONS)
+
+    local avatar     = gapi.get_avatar()
+    if not avatar then return end
+    local player_omt = avatar:global_omt_location()
+
+    for _, offset in ipairs(OFFSETS) do
+        local pos = Tripoint.new(
+            player_omt.x + offset.x,
+            player_omt.y + offset.y,
+            player_omt.z)
+
+        local mg = overmapbuffer.create_horde({
+            type       = "GROUP_ZOMBIE",
+            pos        = pos,
+            population = per_horde,
+            radius     = HORDE_RADIUS,
+            horde      = true,
+            behaviour  = "roam",
+            target     = player_omt,
+        })
+        if mg then mg:set_interest(100) end
+    end
+end
+
 mod.on_hour_passed = function(params)
     local hour = params.hour
     if hour ~= WARNING_HOUR and hour ~= SPAWN_HOUR then return end
@@ -45,6 +84,13 @@ mod.on_hour_passed = function(params)
 
     if hour == WARNING_HOUR then
         show_blood_moon_popup()
+        return
     end
-    -- SPAWN_HOUR handled in the next task
+
+    -- hour == SPAWN_HOUR
+    if event_n <= storage.last_event_fired then return end
+    storage.last_event_fired = event_n
+    gapi.add_msg(MsgType.bad,
+        "The blood moon hangs heavy. You hear distant moans from every direction...")
+    spawn_blood_moon_hordes(event_n)
 end
