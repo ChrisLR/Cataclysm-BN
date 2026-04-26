@@ -10,8 +10,9 @@ A new content-mod (`data/mods/blood_moon`) plus one new engine-level Lua hook
 (`on_hour_passed`). Every 7 in-game days the player gets a 6 PM warning popup
 ("blood moon rising") and at 10 PM that same day, four zombie hordes spawn at
 the cardinal directions ~10 OMTs from the player and converge on them. Horde
-size scales with the number of blood moons that have occurred (25 zombies per
-event, capped at 200 total split across the four directions). Spawned monsters
+size scales with the number of blood moons that have occurred (first event:
+25 zombies, +5 per subsequent event, capped at 200 total split across the
+four directions). Spawned monsters
 follow the game's normal monstergroup time-gating (`GROUP_ZOMBIE`), so later
 events naturally include later-game zombie variants — no special evolution
 logic in the mod.
@@ -173,7 +174,8 @@ local OFFSETS = {
 }
 
 local function spawn_blood_moon_hordes(event_n)
-    local population = math.min(200, 25 * event_n)
+    -- event 1 = 25, event 2 = 30, event 3 = 35, ..., capped at 200 (event 36+)
+    local population = math.min(200, 20 + 5 * event_n)
     local per_horde  = math.ceil(population / 4)
 
     local avatar     = gapi.get_avatar()
@@ -205,9 +207,10 @@ Horde tuning rationale:
   them to chase the player wherever they are.
 - `target = player_omt` — initial target is the player's tile.
 - `set_interest(100)` — max drive toward target.
-- `population` capped at 200 total → 50 per horde at peak (event 8+).
+- `population` capped at 200 total → 50 per horde at peak (event 36+, ~day 252).
 - `population` floor: `math.ceil(25/4) = 7` at event 1, so each direction gets
-  ≥1 zombie always.
+  ≥1 zombie always (slight overshoot vs the nominal 25 due to per-direction
+  rounding — small and intentional, makes encounters feel even on all sides).
 
 ### Monster evolution
 
@@ -227,7 +230,7 @@ produces tougher zombies than one on day 7. No mod-side handling required.
     "id": "blood_moon",
     "name": "Blood Moon",
     "authors": [ "ChrisLR" ],
-    "description": "Every 7 days, a Blood Moon rises and unleashes hordes of zombies upon the player from every direction. Horde size grows with each blood moon, capped at 200.",
+    "description": "Every 7 days, a Blood Moon rises and unleashes hordes of zombies upon the player from every direction. The first event spawns 25 zombies, with 5 more added each event, capped at 200.",
     "category": "content",
     "dependencies": [ "bn" ],
     "lua_api_version": 2,
@@ -259,14 +262,19 @@ game.add_hook("on_hour_passed", function(...) return mod.on_hour_passed(...) end
 ## Constants and tunables (in `main.lua`)
 
 ```lua
-local DAYS_PER_EVENT      = 7
-local POPULATION_PER_EVENT = 25
-local POPULATION_MAX       = 200
+local DAYS_PER_EVENT       = 7
+local POPULATION_BASE      = 25     -- first event population
+local POPULATION_PER_EVENT = 5      -- added per subsequent event
+local POPULATION_MAX       = 200    -- hard cap
 local HORDE_DIRECTIONS     = 4
 local HORDE_DISTANCE_OMT   = 10
 local HORDE_RADIUS         = 2
 local WARNING_HOUR         = 18
 local SPAWN_HOUR           = 22
+
+-- Population formula:
+--   pop(event_n) = min(POPULATION_MAX,
+--                      POPULATION_BASE + (event_n - 1) * POPULATION_PER_EVENT)
 ```
 
 These are constants, not user-configurable settings.
