@@ -88,7 +88,12 @@ local function track_player_for_horde()
 
     local player_pos = avatar:global_square_location()
     for _, m in ipairs(gapi.get_all_monsters()) do
-        m:wander_to(player_pos, TRACK_WANDER_FACTOR)
+        -- Skip monsters on other z-levels: basement zombies, second-floor monsters,
+        -- sewer creatures etc. would otherwise spam "Failed to find a trivial path
+        -- across z-levels" and waste a wandf they can't act on.
+        if m:global_square_location().z == player_pos.z then
+            m:wander_to(player_pos, TRACK_WANDER_FACTOR)
+        end
     end
 
     local player_sm = avatar:global_sm_location()
