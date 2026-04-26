@@ -91,16 +91,19 @@ local function track_player_for_horde()
     local avatar = gapi.get_avatar()
     if not avatar then return end
 
-    local player_pos = avatar:global_square_location()
+    -- wander_to expects local-map (ms) coordinates: monster::wander_pos shifts with
+    -- the reality bubble (monster.cpp:1237). Both avatar and monster inherit Creature
+    -- so both have get_pos_ms (catalua_bindings_creature.cpp:120).
+    local player_pos = avatar:get_pos_ms()
     for _, m in ipairs(gapi.get_all_monsters()) do
-        -- Skip monsters on other z-levels: basement zombies, second-floor monsters,
-        -- sewer creatures etc. would otherwise spam "Failed to find a trivial path
-        -- across z-levels" and waste a wandf they can't act on.
-        if m:global_square_location().z == player_pos.z then
+        -- Skip cross-z monsters; pathfinder logs "Failed to find a trivial path
+        -- across z-levels" when there's no stairs/drop reachable from their tile.
+        if m:get_pos_ms().z == player_pos.z then
             m:wander_to(player_pos, TRACK_WANDER_FACTOR)
         end
     end
 
+    -- signal_hordes uses absolute submap coords (different system from wander_to).
     local player_sm = avatar:global_sm_location()
     overmapbuffer.signal_hordes(player_sm, TRACK_SIGNAL_POWER)
 end
