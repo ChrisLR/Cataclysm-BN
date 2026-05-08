@@ -94,6 +94,7 @@ struct mongroup {
     // storing it separately on mongroup.  Acceptable limitation for this PR.
     tripoint_abs_sm nemesis_target; // abs target for nemesis hordes
     int interest = 0; //interest to target in percents
+    float speed_modifier = 1.0f; // multiplies avg_speed() and divides movement_chance in move_hordes
     bool dying = false;
     bool horde = false;
     /** This property will be ignored if the vector is empty.

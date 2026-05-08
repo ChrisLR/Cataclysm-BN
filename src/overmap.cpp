@@ -3801,7 +3801,11 @@ void overmap::move_hordes()
         // 200 or over will move at max speed, and slower hordes will move less
         // frequently. The average horde speed for regular Z's is around 100,
         // or one space per 5 minutes.
-        if( one_in( movement_chance ) && rng( 0, 100 ) < mg.interest && rng( 0, 200 ) < mg.avg_speed() ) {
+        // speed_modifier scales effective speed and reduces terrain penalty proportionally.
+        const int effective_movement_chance = std::max( 1,
+            static_cast<int>( movement_chance / mg.speed_modifier ) );
+        const int effective_speed = static_cast<int>( mg.avg_speed() * mg.speed_modifier );
+        if( one_in( effective_movement_chance ) && rng( 0, 100 ) < mg.interest && rng( 0, 200 ) < effective_speed ) {
             // TODO: Handle moving to adjacent overmaps.
             if( mg.pos.x() > mg.target.x() ) {
                 mg.pos.x()--;

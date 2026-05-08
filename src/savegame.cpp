@@ -963,6 +963,7 @@ struct mongroup_bin_eq {
                a.population == b.population &&
                a.target == b.target &&
                a.interest == b.interest &&
+               a.speed_modifier == b.speed_modifier &&
                a.dying == b.dying &&
                a.horde == b.horde &&
                a.horde_behaviour == b.horde_behaviour &&
@@ -978,6 +979,7 @@ struct mongroup_hash {
         cata::hash_combine( ret, mg.population );
         cata::hash_combine( ret, mg.target );
         cata::hash_combine( ret, mg.interest );
+        cata::hash_combine( ret, mg.speed_modifier );
         cata::hash_combine( ret, mg.dying );
         cata::hash_combine( ret, mg.horde );
         cata::hash_combine( ret, mg.horde_behaviour );
@@ -1260,6 +1262,7 @@ void mongroup::io( Archive &archive )
     archive.io( "target", target, tripoint_om_sm() );
     archive.io( "nemesis_target", nemesis_target, tripoint_abs_sm() );
     archive.io( "interest", interest, 0 );
+    archive.io( "speed_modifier", speed_modifier, 1.0f );
     archive.io( "horde_behaviour", horde_behaviour, io::empty_default_tag() );
     archive.io( "monsters", monsters, io::empty_default_tag() );
 }

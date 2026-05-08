@@ -72,6 +72,7 @@ auto cata::detail::reg_monster_groups( sol::state &lua ) -> void
         SET_MEMB( radius );
         SET_MEMB( population );
         SET_MEMB( interest );
+        SET_MEMB( speed_modifier );
         SET_MEMB( horde );
         SET_MEMB( horde_behaviour );
         SET_MEMB( diffuse );
