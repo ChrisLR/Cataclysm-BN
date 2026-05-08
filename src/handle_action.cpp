@@ -493,7 +493,7 @@ static void pldrive( const tripoint &p )
             return;
         }
     } else {
-        if( empty( veh->get_avail_parts( "REMOTE_CONTROLS" ) ) ) {
+        if( veh->get_avail_parts( "REMOTE_CONTROLS" ).empty() ) {
             add_msg( m_info, _( "Can't drive this vehicle remotely.  It has no working controls." ) );
             return;
         }
@@ -1398,7 +1398,7 @@ static void fire()
             return;
         }
 
-        if( vp.part_with_feature( "CONTROLS", true ) ) {
+        if( vp.part_with_feature( "CONTROLS", true ) && vp->vehicle().has_part( "TURRET" ) ) {
             if( vp->vehicle().turrets_aim_and_fire_mult( u, turret_filter_types::MANUAL, true ) ) {
                 return;
             }
@@ -1566,8 +1566,6 @@ auto try_cast_spell( player &u, spell &sp ) -> bool
     return true;
 }
 
-} // namespace
-
 auto cast_spell() -> void
 {
     auto &u = g->u;
@@ -1627,6 +1625,8 @@ auto cast_last_spell() -> void
     auto &sp = u.magic->get_spell( *last_cast_spell );
     try_cast_spell( u, sp );
 }
+
+} // namespace
 
 void game::open_consume_item_menu()
 {
@@ -2302,6 +2302,10 @@ bool game::handle_action()
 
             case ACTION_UNLOAD:
                 avatar_action::unload( u );
+                break;
+
+            case ACTION_UNLOAD_ALL:
+                avatar_action::unload_all( u );
                 break;
 
             case ACTION_MEND:
