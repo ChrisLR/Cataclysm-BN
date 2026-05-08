@@ -169,6 +169,8 @@ local function track_player_for_horde()
     -- wander_to expects local-map (ms) coordinates: monster::wander_pos shifts with
     -- the reality bubble (monster.cpp:1237). Both avatar and monster inherit Creature
     -- so both have get_pos_ms (catalua_bindings_creature.cpp:120).
+    -- Zombies have can_climb_stairs=true by default (monstergenerator.cpp), so the
+    -- pathfinder will route them through stairs even when the goal is on a different z.
     local player_pos = avatar:get_pos_ms()
     for _, m in ipairs(gapi.get_all_monsters()) do
         -- Skip tamed pets and other friendlies.
@@ -182,10 +184,14 @@ local function track_player_for_horde()
         end
     end
 
-    -- signal_hordes uses absolute submap coords (different system from wander_to).
-    -- Only meaningful when surface hordes exist (z=0), but harmless otherwise.
+    -- Overmap hordes exist only at z=0; always signal them at the surface position
+    -- so they converge toward the player's x/y regardless of the player's z-level.
     local player_sm = avatar:global_sm_location()
-    overmapbuffer.signal_hordes(player_sm, TRACK_SIGNAL_POWER)
+    local player_z  = avatar:global_omt_location().z
+    local signal_sm = player_z < 0
+        and Tripoint.new(player_sm.x, player_sm.y, 0)
+        or  player_sm
+    overmapbuffer.signal_hordes(signal_sm, TRACK_SIGNAL_POWER)
 end
 
 mod.on_game_load = function()
