@@ -2062,6 +2062,24 @@ bool monster::bash_at( const tripoint &p )
         bashskill *= 0.5;
     }
     g->m.bash( p, bashskill );
+
+    // MF_ATTACKS_TREES: every bash shakes the tree regardless of whether it
+    // causes damage, so the player perched above always gets a balance check.
+    if( has_flag( MF_ATTACKS_TREES ) && here.has_flag( TFLAG_TREE, p ) ) {
+        const tripoint above{ p.xy(), p.z + 1 };
+        Character *character = g->critter_at<Character>( above );
+        if( character != nullptr && here.has_flag( TFLAG_UNSTABLE, above ) ) {
+            character->add_msg_if_player( m_warning,
+                                          _( "The tree shakes violently from the impact below!" ) );
+            if( character->stability_roll() < rng( 1, bashskill ) ) {
+                character->add_msg_player_or_npc( m_bad,
+                                                  _( "You lose your grip!" ),
+                                                  _( "<npcname> loses their grip!" ) );
+                g->fling_creature( character, rng_float( 0_degrees, 360_degrees ), 10 );
+            }
+        }
+    }
+
     moves -= 100;
     return true;
 }
