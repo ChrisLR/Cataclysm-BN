@@ -1168,6 +1168,52 @@ monster_action_t monster::decide_action() const
         destination.z = posz();
     }
 
+    // MF_ATTACKS_TREES: redirect toward a tree trunk to bash it when a hostile is
+    // perched in the treetop above.  Two detection paths:
+    //   (a) goal is already the treetop at z+1 (monster has LOS to player up there)
+    //   (b) scan adjacent tiles for trees with a hostile directly above (handles the
+    //       common case where the monster lost LOS once the player left ground level)
+    if( !pacified && !is_wandering() && has_flag( MF_ATTACKS_TREES ) && bash_skill() > 0 ) {
+        tripoint tree_target = tripoint_zero;
+        bool found_tree_target = false;
+
+        if( goal.z > posz() && !can_reach_to( goal ) ) {
+            const tripoint trunk{ goal.x, goal.y, posz() };
+            if( here.has_flag( TFLAG_TREE, trunk ) ) {
+                tree_target     = trunk;
+                found_tree_target = true;
+            }
+        }
+
+        if( !found_tree_target ) {
+            for( const tripoint &adj : here.points_in_radius( pos(), 1 ) ) {
+                if( adj == pos() || !here.has_flag( TFLAG_TREE, adj ) ) {
+                    continue;
+                }
+                const Creature *critter = g->critter_at( adj + tripoint_above, is_hallucination() );
+                if( critter != nullptr && attitude_to( *critter ) == Attitude::A_HOSTILE ) {
+                    tree_target     = adj;
+                    found_tree_target = true;
+                    break;
+                }
+            }
+        }
+
+        if( found_tree_target ) {
+            if( rl_dist( pos(), tree_target ) <= 1 ) {
+                // Adjacent to the tree: bash it directly, bypassing the normal
+                // bash_rating estimate check (trees are too hard for that threshold
+                // but the monster should still pound on them and make noise).
+                action.kind = monster_action_kind::bash;
+                action.dest = tree_target;
+                return action;
+            }
+            destination    = tree_target;
+            pathed_to_goal = false;
+            action.needs_repath = true;
+        }
+    }
+
     // -----------------------------------------------------------------------
     // (6) Candidate selection — reads only.
     //     shove_vehicle() is a write; deferred to execute_action.

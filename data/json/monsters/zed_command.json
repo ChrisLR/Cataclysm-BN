@@ -2,17 +2,24 @@
   {
     "id": "mon_zombie_master",
     "type": "MONSTER",
-    "name": { "str": "zombie master" },
+    "name": {
+      "str": "zombie master"
+    },
     "description": "Once human, its features have tightened, its lips pulled back into an unnatural grin, revealing rows of blackened teeth beneath its large, piercing eyes.  It stands tall and its movements are fluid and tightly controlled.  A feeling of danger permeates the air around it, and the light that falls on it seems somehow harsher and more glaring.",
     "default_faction": "zombie",
     "bodytype": "human",
-    "species": [ "ZOMBIE", "HUMAN" ],
+    "species": [
+      "ZOMBIE",
+      "HUMAN"
+    ],
     "diff": 20,
     "volume": "62500 ml",
     "weight": "81500 g",
     "hp": 200,
     "speed": 90,
-    "material": [ "flesh" ],
+    "material": [
+      "flesh"
+    ],
     "symbol": "Z",
     "color": "pink_red",
     "aggression": 100,
@@ -28,12 +35,28 @@
     "vision_day": 50,
     "vision_night": 15,
     "harvest": "zombie",
-    "path_settings": { "max_dist": 10 },
-    "special_attacks": [ [ "COMMAND_BUFF", 100 ] ],
-    "special_when_hit": [ "REVENGE_AGGRO", 100 ],
-    "anger_triggers": [ "HURT", "PLAYER_CLOSE", "PLAYER_WEAK" ],
+    "path_settings": {
+      "max_dist": 10
+    },
+    "special_attacks": [
+      [
+        "COMMAND_BUFF",
+        100
+      ]
+    ],
+    "special_when_hit": [
+      "REVENGE_AGGRO",
+      100
+    ],
+    "anger_triggers": [
+      "HURT",
+      "PLAYER_CLOSE",
+      "PLAYER_WEAK"
+    ],
     "death_drops": "default_zombie_death_drops",
-    "death_function": [ "NORMAL" ],
+    "death_function": [
+      "NORMAL"
+    ],
     "burn_into": "mon_zombie_scorched",
     "flags": [
       "SEES",
@@ -41,6 +64,7 @@
       "SMELLS",
       "WARM",
       "BASHES",
+      "ATTACKS_TREES",
       "POISON",
       "NO_BREATHE",
       "REVIVES",
@@ -53,17 +77,24 @@
   {
     "id": "mon_zombie_necro",
     "type": "MONSTER",
-    "name": { "str": "zombie necromancer" },
+    "name": {
+      "str": "zombie necromancer"
+    },
     "description": "A twisted mockery of the human form, emaciated, with jet black skin and glowing red eyes.  It is somehow painful to look at, awakening fears deep within your psyche, and even the air around it seems more sinister, somehow darker and more dangerous.",
     "default_faction": "zombie",
     "bodytype": "human",
-    "species": [ "ZOMBIE", "HUMAN" ],
+    "species": [
+      "ZOMBIE",
+      "HUMAN"
+    ],
     "diff": 20,
     "volume": "62500 ml",
     "weight": "81500 g",
     "hp": 100,
     "speed": 100,
-    "material": [ "flesh" ],
+    "material": [
+      "flesh"
+    ],
     "symbol": "Z",
     "color": "dark_gray",
     "aggression": 5,
@@ -76,11 +107,24 @@
     "vision_day": 50,
     "vision_night": 5,
     "harvest": "zombie",
-    "path_settings": { "max_dist": 10 },
-    "special_attacks": [ [ "RESURRECT", 0 ] ],
-    "anger_triggers": [ "HURT", "PLAYER_CLOSE", "PLAYER_WEAK" ],
+    "path_settings": {
+      "max_dist": 10
+    },
+    "special_attacks": [
+      [
+        "RESURRECT",
+        0
+      ]
+    ],
+    "anger_triggers": [
+      "HURT",
+      "PLAYER_CLOSE",
+      "PLAYER_WEAK"
+    ],
     "death_drops": "default_zombie_death_drops",
-    "death_function": [ "NORMAL" ],
+    "death_function": [
+      "NORMAL"
+    ],
     "burn_into": "mon_zombie_scorched",
     "flags": [
       "SEES",
@@ -101,18 +145,26 @@
   {
     "id": "mon_skeleton_master",
     "type": "MONSTER",
-    "name": { "str": "skeletal master" },
+    "name": {
+      "str": "skeletal master"
+    },
     "description": "A strange zombie covered in bone plates from face to toe.  Despite the added weight on its body its movements are coordinated, almost as if capable of analyzing your movements.",
     "default_faction": "zombie",
     "looks_like": "mon_skeleton_brute",
     "bodytype": "human",
-    "species": [ "ZOMBIE", "HUMAN", "SKELETON" ],
+    "species": [
+      "ZOMBIE",
+      "HUMAN",
+      "SKELETON"
+    ],
     "diff": 20,
     "volume": "62500 ml",
     "weight": "81500 g",
     "hp": 90,
     "speed": 60,
-    "material": [ "bone" ],
+    "material": [
+      "bone"
+    ],
     "symbol": "Z",
     "color": "red_white",
     "aggression": 5,
@@ -120,7 +172,12 @@
     "melee_skill": 4,
     "melee_dice": 3,
     "melee_dice_sides": 6,
-    "melee_damage": [ { "damage_type": "cut", "amount": 4 } ],
+    "melee_damage": [
+      {
+        "damage_type": "cut",
+        "amount": 4
+      }
+    ],
     "dodge": 2,
     "armor_cut": 15,
     "armor_bullet": 24,
@@ -129,10 +186,27 @@
     "vision_day": 30,
     "vision_night": 3,
     "harvest": "mr_bones",
-    "path_settings": { "max_dist": 10, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
-    "special_attacks": [ [ "COMMAND_BUFF", 100 ] ],
-    "special_when_hit": [ "REVENGE_AGGRO", 100 ],
-    "anger_triggers": [ "HURT", "PLAYER_CLOSE", "PLAYER_WEAK" ],
+    "path_settings": {
+      "max_dist": 10,
+      "allow_open_doors": true,
+      "avoid_traps": true,
+      "avoid_sharp": true
+    },
+    "special_attacks": [
+      [
+        "COMMAND_BUFF",
+        100
+      ]
+    ],
+    "special_when_hit": [
+      "REVENGE_AGGRO",
+      100
+    ],
+    "anger_triggers": [
+      "HURT",
+      "PLAYER_CLOSE",
+      "PLAYER_WEAK"
+    ],
     "death_drops": "default_zombie_death_drops",
     "burn_into": "mon_zombie_scorched",
     "flags": [
@@ -154,18 +228,27 @@
   {
     "id": "mon_skeleton_necro",
     "type": "MONSTER",
-    "name": { "str": "skeletal lich", "str_pl": "skeletal liches" },
+    "name": {
+      "str": "skeletal lich",
+      "str_pl": "skeletal liches"
+    },
     "description": "A twisted visage of the human body decked in bone from head to toe.  Its vague shape reminiscent of some tabletop monster, it walks and watches your actions with a cold and calculating demeanor.",
     "default_faction": "zombie",
     "looks_like": "mon_skeleton_brute",
     "bodytype": "human",
-    "species": [ "ZOMBIE", "HUMAN", "SKELETON" ],
+    "species": [
+      "ZOMBIE",
+      "HUMAN",
+      "SKELETON"
+    ],
     "diff": 20,
     "volume": "62500 ml",
     "weight": "81500 g",
     "hp": 100,
     "speed": 70,
-    "material": [ "bone" ],
+    "material": [
+      "bone"
+    ],
     "symbol": "Z",
     "color": "dark_gray",
     "aggression": 5,
@@ -173,7 +256,12 @@
     "melee_skill": 4,
     "melee_dice": 3,
     "melee_dice_sides": 6,
-    "melee_damage": [ { "damage_type": "cut", "amount": 4 } ],
+    "melee_damage": [
+      {
+        "damage_type": "cut",
+        "amount": 4
+      }
+    ],
     "dodge": 2,
     "armor_cut": 15,
     "armor_bullet": 24,
@@ -182,9 +270,20 @@
     "vision_day": 30,
     "vision_night": 3,
     "harvest": "mr_bones",
-    "path_settings": { "max_dist": 10 },
-    "special_attacks": [ [ "RESURRECT", 0 ] ],
-    "anger_triggers": [ "HURT", "PLAYER_CLOSE", "PLAYER_WEAK" ],
+    "path_settings": {
+      "max_dist": 10
+    },
+    "special_attacks": [
+      [
+        "RESURRECT",
+        0
+      ]
+    ],
+    "anger_triggers": [
+      "HURT",
+      "PLAYER_CLOSE",
+      "PLAYER_WEAK"
+    ],
     "death_drops": "default_zombie_death_drops",
     "burn_into": "mon_zombie_scorched",
     "flags": [
