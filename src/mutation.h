@@ -462,6 +462,8 @@ struct mutation_category_trait {
         std::string memorial_message_male() const;
         std::string memorial_message_female() const;
 
+        mutation_branch get_threshold_mutation(unsigned short tier) const;
+
         // Mutation category i.e "BIRD", "CHIMERA"
         mutation_category_id id;
         // The traits that you gain when you break the thresholds for this category

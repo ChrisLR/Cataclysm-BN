@@ -607,6 +607,8 @@ void cata::detail::reg_character( sol::state &lua )
         SET_MEMB( follower_ids );
 
         SET_MEMB( mutation_category_level );
+        SET_MEMB( thresh_category );
+        SET_MEMB( thresh_tier );
 
         // Magic system
         DOC( "Access the character's spellbook and mana pool." );
@@ -832,6 +834,24 @@ void cata::detail::reg_character( sol::state &lua )
                           sol::resolve<bool( const trait_id & )>( &UT_CLASS::mutate_towards )
                       ) );
 
+        luna::set_fx( ut, "mutate_threshold", [](
+            UT_CLASS & ut_obj,
+            const mutation_category_id &m_category,
+            const unsigned short tier
+            ) -> bool {
+                const mutation_category_trait cat = mutation_category_trait::get_category(m_category);
+                const mutation_branch thresh_mut = cat.get_threshold_mutation(tier);
+                if (thresh_mut.id == trait_id::NULL_ID()) {
+                    debugmsg("Threshold mutation for cat_id %s tier %s was NULL !?", cat.id, tier);
+                }
+                if (ut_obj.has_trait(thresh_mut.id)){return false;}
+                test_crossing_threshold(ut_obj, cat, tier);
+                if (ut_obj.has_trait(thresh_mut.id)) {
+                    ut_obj.set_mutation(thresh_mut.id);
+                    return true;
+                }
+                return false;
+        });
 
         SET_FX_T( remove_mutation, void( const trait_id &, bool ) );
 

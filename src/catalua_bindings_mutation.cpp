@@ -37,6 +37,8 @@ void cata::detail::mod_mutation_branch( sol::state &lua )
         SET_MEMB_RO( purifiable );
         DOC( "Whether this is a Threshold mutation, and thus especially difficult to mutate. One per character." );
         SET_MEMB_RO( threshold );
+        DOC( "Threshold tier of mutation, defaults to 0 for non post threshold." );
+        SET_MEMB_RO( threshold_tier );
         DOC( "Whether this trait is ONLY gained through professional training/experience (and/or quests)." );
         SET_MEMB_RO( profession );
         DOC( "Whether or not this mutation is limited to debug use." );
@@ -135,6 +137,9 @@ void cata::detail::mod_mutation_branch( sol::state &lua )
 
         DOC( "Returns a (long) list of every mutation in the game." );
         SET_FX_T( get_all, const std::vector<mutation_branch> &() );
+
+        DOC( "Returns the threshold related to this mutation for the given category." );
+        luna::set_fx( ut, "get_threshold_mutation", []( const UT_CLASS & mut, mutation_category_id category_id ) -> trait_id { return category_id.obj().get_threshold_mutation(mut.threshold_tier).id; } );
 
         // The string conversion function references this object's str_id.
         luna::set_fx( ut, sol::meta_function::to_string,

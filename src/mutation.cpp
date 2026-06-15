@@ -1939,3 +1939,8 @@ std::string Character::visible_mutations( const int visibility_cap ) const
     } );
     return trait_str;
 }
+
+mutation_branch mutation_category_trait::get_threshold_mutation(const unsigned short tier) const {
+    const trait_id traitId = get_threshold_mutation_for_tier(this->id, tier);
+    return traitId.obj();
+}
