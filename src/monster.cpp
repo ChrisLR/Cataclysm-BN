@@ -96,6 +96,7 @@ static const efftype_id effect_feral_infighting_punishment( "feral_infighting_pu
 static const efftype_id effect_feral_killed_recently( "feral_killed_recently" );
 static const efftype_id effect_grabbed( "grabbed" );
 static const efftype_id effect_grabbing( "grabbing" );
+static const efftype_id effect_harnessed( "harnessed" );
 static const efftype_id effect_heavysnare( "heavysnare" );
 static const efftype_id effect_hit_by_player( "hit_by_player" );
 static const efftype_id effect_in_pit( "in_pit" );
@@ -113,6 +114,7 @@ static const efftype_id effect_paralyzepoison( "paralyzepoison" );
 static const efftype_id effect_poison( "poison" );
 static const efftype_id effect_ridden( "ridden" );
 static const efftype_id effect_run( "run" );
+static const efftype_id effect_saddled("effect_saddled");
 static const efftype_id effect_smoke( "smoke" );
 static const efftype_id effect_stunned( "stunned" );
 static const efftype_id effect_supercharged( "supercharged" );
@@ -1408,6 +1410,10 @@ auto monster::shift( point_rel_sm sm_shift ) -> void
     }
 }
 
+bool monster::has_tack_item() const {
+    return static_cast<bool>(tack_item);
+}
+
 detached_ptr<item> monster::set_tack_item( detached_ptr<item> &&to )
 {
     if( to && to->typeId() != itype_id::NULL_ID() ) {
@@ -1418,6 +1424,7 @@ detached_ptr<item> monster::set_tack_item( detached_ptr<item> &&to )
 
 detached_ptr<item> monster::remove_tack_item()
 {
+    remove_effect( effect_saddled );
     return set_tack_item( detached_ptr<item>() );
 }
 
@@ -1460,6 +1467,10 @@ detached_ptr<item> monster::set_armor_item( detached_ptr<item> &&to )
 
 detached_ptr<item> monster::remove_armor_item()
 {
+    if (armor_item) {
+        armor_item->erase_var("pet_armor");
+        remove_effect( effect_monster_armor );
+    }
     return set_armor_item( detached_ptr<item>() );
 }
 
@@ -1490,6 +1501,40 @@ item *monster::get_storage_item() const
         return &*storage_item;
     }
     return nullptr;
+}
+
+void *monster::attach_saddle( monster &z )
+{
+    if( z.has_effect( effect_saddled ) ) {
+        z.remove_effect( effect_saddled );
+        get_avatar().i_add( z.remove_tack_item() );
+    } else {
+        item *loc = tack_loc();
+
+        if( !loc ) {
+            add_msg( _( "Never mind." ) );
+            return;
+        }
+        z.add_effect( effect_saddled, 1_turns );
+        z.set_tack_item( loc->detach() );
+    }
+}
+
+void *monster::remove_saddle( monster &z )
+{
+    if( z.has_effect( effect_saddled ) ) {
+        z.remove_effect( effect_saddled );
+        get_avatar().i_add( z.remove_tack_item() );
+    } else {
+        item *loc = tack_loc();
+
+        if( !loc ) {
+            add_msg( _( "Never mind." ) );
+            return;
+        }
+        z.add_effect( effect_saddled, 1_turns );
+        z.set_tack_item( loc->detach() );
+    }
 }
 
 detached_ptr<item> monster::set_battery_item( detached_ptr<item> &&to )
@@ -4304,6 +4349,10 @@ void monster::drop_items( const tripoint_bub_ms &p )
 void monster::drop_items()
 {
     drop_items( bub_pos() );
+}
+
+void monster::remove_harness() {
+    remove_effect( effect_harnessed );
 }
 
 void monster::add_corpse_component( detached_ptr<item> &&it )

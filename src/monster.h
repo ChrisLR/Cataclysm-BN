@@ -202,6 +202,8 @@ class monster : public Creature, public location_visitable<monster>
 
         // Movement
         auto shift( point_rel_sm sm_shift ) -> void; // Shifts local navigation state after a submap shift
+        bool has_tack_item() const;
+
         void set_goal( const tripoint_bub_ms &p );
         // Updates current pos AND our plans
         bool is_wandering() const; // Returns true if we have no plans
@@ -561,6 +563,9 @@ class monster : public Creature, public location_visitable<monster>
                 detached_ptr<item> *result = nullptr );
         std::vector<detached_ptr<item>> clear_items();
         void drop_items();
+
+        void remove_harness();
+
         void drop_items( const tripoint_bub_ms &p );
 
         /**

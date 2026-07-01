@@ -3,7 +3,6 @@
 
 #include <climits>
 #include <iterator>
-#include <ranges>
 #include <sstream>
 #include <string_view>
 
@@ -12,11 +11,8 @@
 #include "bionics.h"
 #include "bodypart.h"
 #include "calendar.h"
-#include "catalua.h"
 #include "catalua_bindings_utils.h"
-#include "calendar.h"
 #include "catalua_impl.h"
-#include "catalua_log.h"
 #include "catalua_luna.h"
 #include "catalua_luna_doc.h"
 #include "catalua_serde.h"
@@ -29,26 +25,20 @@
 #include "field_type.h"
 #include "flag.h"
 #include "make_static.h"
-#include "flag_trait.h"
 #include "game.h"
 #include "inventory.h"
 #include "json.h"
 #include "magic/magic.h"
 #include "map.h"
-#include "monfaction.h"
 #include "monster.h"
-#include "morale_types.h"
 #include "mtype.h"
-#include "mutation.h"
 #include "npc.h"
 #include "player.h"
 #include "player_activity.h"
 #include "pldata.h"
-#include "recipe.h"
 #include "requirements.h"
 #include "skill.h"
 #include "type_id.h"
-#include "trap.h"
 
 LUNA_VAL( player_activity, "PlayerActivity" )
 
@@ -466,6 +456,10 @@ void cata::detail::reg_monster( sol::state &lua )
         SET_FX_N_T( is_wandering, "is_wandering", bool() const );
 
         SET_FX_T( wander_to, void( const tripoint_bub_ms & p, int f ) );
+        luna::set_fx( ut, "remove_armor", []( monster & m ) { m.remove_armor_item(); } );
+        luna::set_fx( ut, "remove_harness", []( monster & m ) { m.remove_harness(); } );
+        luna::set_fx( ut, "remove_saddle", []( monster & m ) { return m.remove_tack_item() ; } );
+        luna::set_fx( ut, "remove_storage_item", []( monster & m ) { return m.remove_storage_item() ;} );
         luna::set_fx( ut, "set_move_target", sol::overload(
         []( monster & mon, const tripoint_bub_ms & p ) -> void {
             mon.set_dest( p );

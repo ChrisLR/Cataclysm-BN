@@ -927,17 +927,16 @@ bool monexamine::add_armor( monster &z )
 
 void monexamine::remove_harness( monster &z )
 {
-    z.remove_effect( effect_harnessed );
+    z.remove_harness();
     add_msg( m_info, _( "You unhitch %s from the vehicle." ), z.get_name() );
 }
 
 void monexamine::remove_armor( monster &z )
 {
     std::string pet_name = z.get_name();
-    if( z.get_armor_item() ) {
-        z.get_armor_item()->erase_var( "pet_armor" );
-        item *armor = z.get_armor_item();
-        get_map().add_item_or_charges( z.bub_pos(), armor->detach() );
+    if( item *armor = z.get_armor_item() ) {
+        z.remove_armor_item();
+        get_map().add_item_or_charges( z.bub_pos(), armor->detach());
         add_msg( pgettext( "pet armor", "You remove the %1$s from %2$s." ), armor->display_name(),
                  pet_name );
         // TODO: removing armor from a horse takes a lot longer than 2 seconds. This should be a long action.
