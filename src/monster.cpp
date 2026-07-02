@@ -116,7 +116,7 @@ static const efftype_id effect_paralyzepoison( "paralyzepoison" );
 static const efftype_id effect_poison( "poison" );
 static const efftype_id effect_ridden( "ridden" );
 static const efftype_id effect_run( "run" );
-static const efftype_id effect_saddled("effect_saddled");
+static const efftype_id effect_saddled( "effect_saddled" );
 static const efftype_id effect_smoke( "smoke" );
 static const efftype_id effect_stunned( "stunned" );
 static const efftype_id effect_supercharged( "supercharged" );
@@ -1412,8 +1412,9 @@ auto monster::shift( point_rel_sm sm_shift ) -> void
     }
 }
 
-bool monster::has_tack_item() const {
-    return static_cast<bool>(tack_item);
+bool monster::has_tack_item() const
+{
+    return static_cast<bool>( tack_item );
 }
 
 detached_ptr<item> monster::set_tack_item( detached_ptr<item> &&to )
@@ -1469,8 +1470,8 @@ detached_ptr<item> monster::set_armor_item( detached_ptr<item> &&to )
 
 detached_ptr<item> monster::remove_armor_item()
 {
-    if (armor_item) {
-        armor_item->erase_var("pet_armor");
+    if( armor_item ) {
+        armor_item->erase_var( "pet_armor" );
         remove_effect( effect_monster_armor );
     }
     return set_armor_item( detached_ptr<item>() );
@@ -4358,7 +4359,8 @@ void monster::drop_items()
     drop_items( bub_pos() );
 }
 
-void monster::remove_harness() {
+void monster::remove_harness()
+{
     remove_effect( effect_harnessed );
 }
 
