@@ -1506,37 +1506,37 @@ item *monster::get_storage_item() const
     return nullptr;
 }
 
-void *monster::attach_saddle( monster &z )
+void monster::attach_saddle( monster &z )
 {
     if( z.has_effect( effect_saddled ) ) {
         z.remove_effect( effect_saddled );
         get_avatar().i_add( z.remove_tack_item() );
     } else {
-        item *loc = tack_loc();
-
-        if( !loc ) {
-            add_msg( _( "Never mind." ) );
-            return;
-        }
-        z.add_effect( effect_saddled, 1_turns );
-        z.set_tack_item( loc->detach() );
+        // item *loc = tack_item;
+        //
+        // if( !loc ) {
+        //     add_msg( _( "Never mind." ) );
+        //     return;
+        // }
+        // z.add_effect( effect_saddled, 1_turns );
+        // z.set_tack_item( loc->detach() );
     }
 }
 
-void *monster::remove_saddle( monster &z )
+void monster::remove_saddle( monster &z )
 {
     if( z.has_effect( effect_saddled ) ) {
         z.remove_effect( effect_saddled );
         get_avatar().i_add( z.remove_tack_item() );
     } else {
-        item *loc = tack_loc();
-
-        if( !loc ) {
-            add_msg( _( "Never mind." ) );
-            return;
-        }
-        z.add_effect( effect_saddled, 1_turns );
-        z.set_tack_item( loc->detach() );
+        // item *loc = tack_loc();
+        //
+        // if( !loc ) {
+        //     add_msg( _( "Never mind." ) );
+        //     return;
+        // }
+        // z.add_effect( effect_saddled, 1_turns );
+        // z.set_tack_item( loc->detach() );
     }
 }
 

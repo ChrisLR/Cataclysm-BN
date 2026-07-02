@@ -30,6 +30,8 @@
 #include "json.h"
 #include "magic/magic.h"
 #include "map.h"
+// The next import seems unused but the build breaks if we remove it
+#include "monfaction.h"
 #include "monster.h"
 #include "mtype.h"
 #include "npc.h"
@@ -232,10 +234,8 @@ void cata::detail::reg_creature( sol::state &lua )
             if( bpid.has_value() )
             {
                 return cr.has_effect( eff, *bpid );
-            } else
-            {
-                return cr.has_effect( eff );
             }
+            return cr.has_effect( eff );
         } );
 
         luna::set_fx( ut, "get_effect", []( Creature & cr, const efftype_id & eff,
