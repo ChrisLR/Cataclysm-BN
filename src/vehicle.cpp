@@ -384,8 +384,7 @@ detached_ptr<item> vehicle_stack::remove( item *to_remove )
 units::volume vehicle_stack::max_volume() const
 {
     if( myorigin->part_flag( part_num, "CARGO" ) && !myorigin->part( part_num ).is_broken() ) {
-        // Set max volume for vehicle cargo to prevent integer overflow
-        return std::min( myorigin->part( part_num ).info().size, 10000_liter );
+        return myorigin->part( part_num ).info().size;
     }
     return 0_ml;
 }
@@ -5311,6 +5310,33 @@ bool vehicle::sufficient_wheel_config() const
         }
     }
     return true;
+}
+
+auto vehicle::vehicle_damage_summary() const -> std::pair<std::string, nc_color>
+{
+    const vehicle_part_range vpr = get_all_parts();
+    const int total_damage = std::accumulate( vpr.begin(), vpr.end(), 0,
+    []( int lhs, const vpart_reference & rhs ) {
+        return lhs + std::max( rhs.part().damage(), 0 );
+    } );
+    const int total_max = std::accumulate( vpr.begin(), vpr.end(), 0,
+    []( int lhs, const vpart_reference & rhs ) {
+        return lhs + rhs.part().max_damage();
+    } );
+    const int pct = total_max ? 100 * total_damage / total_max : 0;
+
+    if( total_damage == 0 ) {
+        return { _( "perfect" ), c_green };
+    } else if( pct < 5 ) {
+        return { _( "like new" ), c_light_green };
+    } else if( pct < 33 ) {
+        return { _( "dented" ), c_yellow };
+    } else if( pct < 66 ) {
+        return { _( "battered" ), c_magenta };
+    } else if( pct < 100 ) {
+        return { _( "wrecked" ), c_red };
+    }
+    return { _( "destroyed" ), c_dark_gray };
 }
 
 bool vehicle::is_owned_by( const Character &c, bool available_to_take ) const
