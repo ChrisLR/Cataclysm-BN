@@ -2242,6 +2242,14 @@ bool game::do_turn()
         m.process_items();
     }
     {
+        // Deferred drains must run before monmove()'s cleanup_dead() frees their sources.
+        ZoneScopedN( "do_turn_explosions_after_items" );
+        auto &explosions = explosion_handler::get_explosion_queue();
+        if( explosions.take_deferred_drain_request() ) {
+            explosions.execute();
+        }
+    }
+    {
         ZoneScopedN( "do_turn_creature_in_field" );
         m.creature_in_field( u );
     }
@@ -3390,6 +3398,7 @@ input_context get_default_mode_input_context()
     ctxt.register_action( "reset_move" );
     ctxt.register_action( "toggle_run" );
     ctxt.register_action( "toggle_crouch" );
+    ctxt.register_action( "toggle_prone" );
     ctxt.register_action( "open_movement" );
     ctxt.register_action( "open" );
     ctxt.register_action( "close" );
@@ -5593,6 +5602,7 @@ void game::cleanup_dead()
     if( npc_is_dead ) {
         for( auto it = active_npc.begin(); it != active_npc.end(); ) {
             if( ( *it )->is_dead() ) {
+                explosion_handler::get_explosion_queue().invalidate_source( it->get() );
                 if( !( *it )->is_manually_erased() ) {
                     // Normal death path — npc::erase() was not called, so do cleanup here.
                     remove_npc_follower( ( *it )->getID() );
@@ -7323,6 +7333,7 @@ void game::erase_npc( character_id id )
         debugmsg( "game::erase_npc: NPC (%d) not found in active_npc.", id.get_value() );
         return;
     }
+    explosion_handler::get_explosion_queue().invalidate_source( it->get() );
     ( *it )->get_mapbuffer().remove_active_npc( **it );
     active_npc.erase( it );
 }
@@ -7844,6 +7855,9 @@ void game::control_vehicle()
                 return;
             }
             u.controlling_vehicle = true;
+            if( u.movement_mode_is( CMM_PRONE ) ) {
+                u.set_movement_mode( CMM_WALK );
+            }
             add_msg( _( "You take control of the %s." ), veh->name );
         } else {
             if( !veh->handle_potential_theft( u ) ) {
@@ -10252,6 +10266,25 @@ void game::zoom_in_overmap()
 #endif
 }
 
+auto game::reapply_overmap_zoom() -> void
+{
+#if defined(TILES)
+    // a failed in-game tileset reload can leave a context with no tileset loaded
+    if( use_tiles && use_tiles_overmap && overmap_tilecontext &&
+        overmap_tilecontext->current_tileset() ) {
+        overmap_tilecontext->set_draw_scale( overmap_tileset_zoom );
+    }
+#endif
+}
+
+auto game::reset_overmap_zoom() -> void
+{
+#if defined(TILES)
+    overmap_tileset_zoom = DEFAULT_TILESET_ZOOM;
+    reapply_overmap_zoom();
+#endif
+}
+
 void game::reset_zoom()
 {
 #if defined(TILES)
@@ -10270,6 +10303,16 @@ void game::set_zoom( const float level )
 #else
     static_cast<void>( level );
 #endif // TILES
+}
+
+auto game::reapply_zoom() -> void
+{
+#if defined(TILES)
+    // rescale unconditionally: a shared overmap context may have changed the scale behind our back
+    if( use_tiles && tilecontext ) {
+        rescale_tileset( tileset_zoom );
+    }
+#endif
 }
 
 float game::get_zoom() const
@@ -12690,6 +12733,8 @@ bool game::walk_move( const tripoint_bub_ms &dest_loc, const bool via_ramp )
                 volume += 10;
             } else if( u.movement_mode_is( CMM_CROUCH ) ) {
                 volume -= 10;
+            } else if( u.movement_mode_is( CMM_PRONE ) ) {
+                volume -= 20;
             }
             sound_event se;
             se.origin = dest_loc;
