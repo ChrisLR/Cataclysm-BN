@@ -472,6 +472,10 @@ void cata::detail::reg_monster( sol::state &lua )
         luna::set_fx( ut, "get_storage_item", []( monster & m ) { return m.get_storage_item() ;} );
         luna::set_fx( ut, "remove_storage_item", []( monster & m ) { return m.remove_storage_item() ;} );
 
+        luna::set_fx( ut, "add_battery_item", []( monster & m, detached_ptr<item> &storage ) { return m.set_battery_item( std::move(storage) ) ;} );
+        luna::set_fx( ut, "get_battery_item", []( monster & m ) { return m.get_battery_item() ;} );
+        luna::set_fx( ut, "remove_battery_item", []( monster & m ) { return m.remove_battery_item() ;} );
+
         luna::set_fx( ut, "set_move_target", sol::overload(
         []( monster & mon, const tripoint_bub_ms & p ) -> void {
             mon.set_dest( p );
@@ -486,14 +490,6 @@ void cata::detail::reg_monster( sol::state &lua )
                 return;
             }
             mon.set_dest( target->bub_pos() );
-        } );
-        luna::set_fx( ut, "set_storage_item", []( monster & mon, item * storage ) -> void {
-            if( storage == nullptr )
-            {
-                mon.remove_storage_item();
-                return;
-            }
-            mon.set_storage_item( storage->detach() );
         } );
         luna::set_fx( ut, "clear_move_target", []( monster & mon ) -> void {
             mon.unset_dest();
