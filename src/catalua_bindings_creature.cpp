@@ -3,6 +3,7 @@
 
 #include <climits>
 #include <iterator>
+#include <ranges>
 #include <sstream>
 #include <string_view>
 
@@ -11,8 +12,11 @@
 #include "bionics.h"
 #include "bodypart.h"
 #include "calendar.h"
+#include "catalua.h"
 #include "catalua_bindings_utils.h"
+#include "calendar.h"
 #include "catalua_impl.h"
+#include "catalua_log.h"
 #include "catalua_luna.h"
 #include "catalua_luna_doc.h"
 #include "catalua_serde.h"
@@ -25,22 +29,26 @@
 #include "field_type.h"
 #include "flag.h"
 #include "make_static.h"
+#include "flag_trait.h"
 #include "game.h"
 #include "inventory.h"
 #include "json.h"
 #include "magic/magic.h"
 #include "map.h"
-// The next import seems unused but the build breaks if we remove it
 #include "monfaction.h"
 #include "monster.h"
+#include "morale_types.h"
 #include "mtype.h"
+#include "mutation.h"
 #include "npc.h"
 #include "player.h"
 #include "player_activity.h"
 #include "pldata.h"
+#include "recipe.h"
 #include "requirements.h"
 #include "skill.h"
 #include "type_id.h"
+#include "trap.h"
 
 LUNA_VAL( player_activity, "PlayerActivity" )
 
