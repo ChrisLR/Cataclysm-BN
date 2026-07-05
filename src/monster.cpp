@@ -1430,11 +1430,6 @@ auto monster::shift( point_rel_sm sm_shift ) -> void
     }
 }
 
-bool monster::has_tack_item() const
-{
-    return static_cast<bool>( tack_item );
-}
-
 detached_ptr<item> monster::set_tack_item( detached_ptr<item> &&to )
 {
     if( to && to->typeId() != itype_id::NULL_ID() ) {
@@ -1445,7 +1440,6 @@ detached_ptr<item> monster::set_tack_item( detached_ptr<item> &&to )
 
 detached_ptr<item> monster::remove_tack_item()
 {
-    remove_effect( effect_saddled );
     return set_tack_item( detached_ptr<item>() );
 }
 
@@ -1531,23 +1525,6 @@ void monster::attach_saddle( monster &z )
         get_avatar().i_add( z.remove_tack_item() );
     } else {
         // item *loc = tack_item;
-        //
-        // if( !loc ) {
-        //     add_msg( _( "Never mind." ) );
-        //     return;
-        // }
-        // z.add_effect( effect_saddled, 1_turns );
-        // z.set_tack_item( loc->detach() );
-    }
-}
-
-void monster::remove_saddle( monster &z )
-{
-    if( z.has_effect( effect_saddled ) ) {
-        z.remove_effect( effect_saddled );
-        get_avatar().i_add( z.remove_tack_item() );
-    } else {
-        // item *loc = tack_loc();
         //
         // if( !loc ) {
         //     add_msg( _( "Never mind." ) );
@@ -4370,11 +4347,6 @@ void monster::drop_items( const tripoint_bub_ms &p )
 void monster::drop_items()
 {
     drop_items( bub_pos() );
-}
-
-void monster::remove_harness()
-{
-    remove_effect( effect_harnessed );
 }
 
 void monster::add_corpse_component( detached_ptr<item> &&it )
