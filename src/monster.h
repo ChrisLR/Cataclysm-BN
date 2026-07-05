@@ -741,9 +741,9 @@ class monster : public Creature, public location_visitable<monster>
 
         item *get_storage_item() const;
 
-        void attach_saddle(monster &z);
+        void attach_saddle( monster &z );
 
-        void remove_saddle(monster &z);
+        void remove_saddle( monster &z );
 
         detached_ptr<item> set_storage_item( detached_ptr<item> &&to );
         detached_ptr<item> remove_storage_item( );
