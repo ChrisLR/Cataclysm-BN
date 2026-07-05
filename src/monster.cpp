@@ -96,7 +96,7 @@ static const efftype_id effect_feral_infighting_punishment( "feral_infighting_pu
 static const efftype_id effect_feral_killed_recently( "feral_killed_recently" );
 static const efftype_id effect_grabbed( "grabbed" );
 static const efftype_id effect_grabbing( "grabbing" );
-static const efftype_id effect_harnessed( "harnessed" );
+static const efftype_id effect_has_bag( "has_bag" );
 static const efftype_id effect_heavysnare( "heavysnare" );
 static const efftype_id effect_hit_by_player( "hit_by_player" );
 static const efftype_id effect_in_pit( "in_pit" );
@@ -114,7 +114,7 @@ static const efftype_id effect_paralyzepoison( "paralyzepoison" );
 static const efftype_id effect_poison( "poison" );
 static const efftype_id effect_ridden( "ridden" );
 static const efftype_id effect_run( "run" );
-static const efftype_id effect_saddled( "effect_saddled" );
+static const efftype_id effect_saddled( "monster_saddled" );
 static const efftype_id effect_smoke( "smoke" );
 static const efftype_id effect_stunned( "stunned" );
 static const efftype_id effect_supercharged( "supercharged" );
@@ -1434,12 +1434,14 @@ detached_ptr<item> monster::set_tack_item( detached_ptr<item> &&to )
 {
     if( to && to->typeId() != itype_id::NULL_ID() ) {
         has_processable_items = true;
+        add_effect( effect_saddled, 1_turns );
     }
     return tack_item.swap( std::move( to ) );
 }
 
 detached_ptr<item> monster::remove_tack_item()
 {
+    remove_effect( effect_saddled );
     return set_tack_item( detached_ptr<item>() );
 }
 
@@ -1476,6 +1478,7 @@ detached_ptr<item> monster::set_armor_item( detached_ptr<item> &&to )
 {
     if( to && to->typeId() != itype_id::NULL_ID() ) {
         has_processable_items = true;
+        add_effect( effect_monster_armor, 1_turns );
     }
     return armor_item.swap( std::move( to ) );
 }
@@ -1501,12 +1504,14 @@ detached_ptr<item> monster::set_storage_item( detached_ptr<item> &&to )
 {
     if( to && to->typeId() != itype_id::NULL_ID() ) {
         has_processable_items = true;
+        add_effect( effect_has_bag, 1_turns );
     }
     return storage_item.swap( std::move( to ) );
 }
 
 detached_ptr<item> monster::remove_storage_item()
 {
+    remove_effect( effect_has_bag );
     return set_storage_item( detached_ptr<item>() );
 }
 
@@ -1516,23 +1521,6 @@ item *monster::get_storage_item() const
         return &*storage_item;
     }
     return nullptr;
-}
-
-void monster::attach_saddle( monster &z )
-{
-    if( z.has_effect( effect_saddled ) ) {
-        z.remove_effect( effect_saddled );
-        get_avatar().i_add( z.remove_tack_item() );
-    } else {
-        // item *loc = tack_item;
-        //
-        // if( !loc ) {
-        //     add_msg( _( "Never mind." ) );
-        //     return;
-        // }
-        // z.add_effect( effect_saddled, 1_turns );
-        // z.set_tack_item( loc->detach() );
-    }
 }
 
 detached_ptr<item> monster::set_battery_item( detached_ptr<item> &&to )

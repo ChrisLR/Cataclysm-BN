@@ -694,7 +694,6 @@ bool monexamine::mfriend_menu( monster &z )
 void monexamine::attach_or_remove_saddle( monster &z )
 {
     if( z.has_effect( effect_saddled ) ) {
-        z.remove_effect( effect_saddled );
         get_avatar().i_add( z.remove_tack_item() );
     } else {
         item *loc = tack_loc();
@@ -703,7 +702,6 @@ void monexamine::attach_or_remove_saddle( monster &z )
             add_msg( _( "Never mind." ) );
             return;
         }
-        z.add_effect( effect_saddled, 1_turns );
         z.set_tack_item( loc->detach() );
     }
 }
@@ -790,7 +788,6 @@ void monexamine::attach_bag_to( monster &z )
     item &it = *loc;
     z.set_storage_item( it.detach( ) );
     add_msg( _( "You mount the %1$s on your %2$s." ), it.display_name(), pet_name );
-    z.add_effect( effect_has_bag, 1_turns );
     // Update encumbrance in case we were wearing it
     you.flag_encumbrance();
     you.moves -= 200;
@@ -810,7 +807,6 @@ void monexamine::remove_bag_from( monster &z )
     } else {
         add_msg( m_bad, _( "Your %1$s doesn't have a bag!" ), pet_name );
     }
-    z.remove_effect( effect_has_bag );
 }
 
 void monexamine::dump_items( monster &z )
@@ -919,7 +915,6 @@ bool monexamine::add_armor( monster &z )
     z.set_armor_item( loc->detach() );
     add_msg( pgettext( "pet armor", "You put the %1$s on your %2$s." ), armor.display_name(),
              pet_name );
-    z.add_effect( effect_monster_armor, 1_turns );
     // TODO: armoring a horse takes a lot longer than 2 seconds. This should be a long action.
     get_avatar().moves -= 200;
     return true;
@@ -927,7 +922,7 @@ bool monexamine::add_armor( monster &z )
 
 void monexamine::remove_harness( monster &z )
 {
-    z.remove_harness();
+    z.remove_effect( effect_harnessed );
     add_msg( m_info, _( "You unhitch %s from the vehicle." ), z.get_name() );
 }
 
@@ -944,7 +939,6 @@ void monexamine::remove_armor( monster &z )
     } else {
         add_msg( m_bad, _( "Your %1$s isn't wearing armor!" ), pet_name );
     }
-    z.remove_effect( effect_monster_armor );
 }
 
 void monexamine::play_with( monster &z )
