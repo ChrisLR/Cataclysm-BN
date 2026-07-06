@@ -1083,10 +1083,6 @@ const std::map<std::string, std::unique_ptr<lua_pet_callback_actor>> &get_lua_pe
     return pet_callback_actors;
 }
 
-bool has_lua()
-{
-}
-
 auto run_lua_activity_callback( const std::string &callback_id, player &who,
                                 player_activity &act ) -> void
 {

@@ -269,7 +269,6 @@ struct lua_menu_entry {
     }
 };
 
-/** Lua callbacks for per-mutation events. */
 class lua_pet_callback_actor
 {
     private:

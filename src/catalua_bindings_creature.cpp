@@ -469,12 +469,7 @@ void cata::detail::reg_monster( sol::state &lua )
 
         luna::set_fx( ut, "add_saddle_item", []( monster & m, detached_ptr<item> &saddle ) { return m.set_tack_item( std::move( saddle ) ); } );
         luna::set_fx( ut, "get_saddle_item", []( monster & m ) { return m.get_tack_item() ; } );
-        luna::set_fx( ut, "remove_saddle_item", []( monster & m )
-        {
-            auto tack_item = m.get_tack_item();
-            m.remove_tack_item();
-            return tack_item;
-        } );
+        luna::set_fx( ut, "remove_saddle_item", []( monster & m ) {return m.remove_tack_item();} );
 
         luna::set_fx( ut, "add_storage_item", []( monster & m, detached_ptr<item> &storage ) { return m.set_storage_item( std::move( storage ) ) ;} );
         luna::set_fx( ut, "get_storage_item", []( monster & m ) { return m.get_storage_item() ;} );
