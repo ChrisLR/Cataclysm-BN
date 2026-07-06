@@ -74,6 +74,8 @@ static const flag_id json_flag_TIE_UP( "TIE_UP" );
 static const flag_id json_flag_TACK( "TACK" );
 static const flag_id json_flag_MECH_BAT( "MECH_BAT" );
 
+static const int ITEM_RADIUS = 2;
+
 namespace
 {
 
@@ -497,7 +499,8 @@ static item *pet_armor_loc( monster &z )
                z.get_volume() <= it.get_pet_armor_max_vol();
     };
 
-    return game_menus::inv::titled_filter_menu( filter, get_avatar(), _( "Pet armor" ) );
+    return game_menus::inv::titled_filter_menu( filter, get_avatar(), _( "Pet armor" ), "",
+            ITEM_RADIUS );
 }
 
 static item *tack_loc()
@@ -506,7 +509,7 @@ static item *tack_loc()
         return it.has_flag( json_flag_TACK );
     };
 
-    return game_menus::inv::titled_filter_menu( filter, get_avatar(), _( "Tack" ) );
+    return game_menus::inv::titled_filter_menu( filter, get_avatar(), _( "Tack" ), "", ITEM_RADIUS );
 }
 
 void monexamine::remove_battery( monster &z )
@@ -778,7 +781,7 @@ void monexamine::attach_bag_to( monster &z )
     };
 
     avatar &you = get_avatar();
-    item *loc = game_menus::inv::titled_filter_menu( filter, you, _( "Bag item" ) );
+    item *loc = game_menus::inv::titled_filter_menu( filter, you, _( "Bag item" ), "", ITEM_RADIUS );
 
     if( !loc ) {
         add_msg( _( "Never mind." ) );
@@ -930,8 +933,7 @@ void monexamine::remove_armor( monster &z )
 {
     std::string pet_name = z.get_name();
     if( item *armor = z.get_armor_item() ) {
-        z.remove_armor_item();
-        get_map().add_item_or_charges( z.bub_pos(), armor->detach() );
+        get_map().add_item_or_charges( z.bub_pos(), z.remove_armor_item() );
         add_msg( pgettext( "pet armor", "You remove the %1$s from %2$s." ), armor->display_name(),
                  pet_name );
         // TODO: removing armor from a horse takes a lot longer than 2 seconds. This should be a long action.
