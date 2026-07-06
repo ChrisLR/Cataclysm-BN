@@ -311,16 +311,16 @@ item::item( const itype *type, time_point turn, int qty ) : type( type ),
 
     if( has_flag( flag_NANOFAB_TEMPLATE ) ) {
         // Define all nanofab subgroups from nanofab_recipes.json
-        auto all_groups = Item_group::get_all();
+        auto all_groups = item_controller->get_all_group_names();
 
         // Prepare a vector to hold nanofab groups dynamically
         std::vector<item_group_id> nanofab_groups;
 
         // Populate it dynamically (this is probably pretty performance intensive, but allows for modded templates)
         for( const auto &group : all_groups ) {
-            const std::string &name = group.id.str();
+            const std::string &name = group.str();
             if( name.starts_with( "nanofab_template_" ) ) {
-                nanofab_groups.push_back( group.id );
+                nanofab_groups.push_back( group );
             }
         }
 
@@ -4034,46 +4034,47 @@ void item::throw_info( std::vector < iteminfo > &info, const iteminfo_query *par
 
     if( dmg_bash || dmg_cut || dmg_stab ) {
         std::string sep;
-        info.emplace_back( "BASE", _( "<bold>Base throw damage</bold>: " ), "", iteminfo::no_newline );
+        info.emplace_back( "BASE_THROW", _( "<bold>Base throw damage</bold>: " ), "",
+                           iteminfo::no_newline );
         if( dmg_bash ) {
-            info.emplace_back( "BASE", _( "Bash: " ), "", iteminfo::no_newline, dmg_bash );
+            info.emplace_back( "BASE_THROW", _( "Bash: " ), "", iteminfo::no_newline, dmg_bash );
             sep = " ";
         }
         if( dmg_cut ) {
-            info.emplace_back( "BASE", sep + _( "Cut: " ), "", iteminfo::no_newline, dmg_cut );
+            info.emplace_back( "BASE_THROW", sep + _( "Cut: " ), "", iteminfo::no_newline, dmg_cut );
             sep = " ";
         }
         if( dmg_stab ) {
-            info.emplace_back( "BASE", sep + _( "Pierce: " ), "", iteminfo::no_newline, dmg_stab );
+            info.emplace_back( "BASE_THROW", sep + _( "Pierce: " ), "", iteminfo::no_newline, dmg_stab );
         }
-        info.emplace_back( "BASE", "\n", "", iteminfo::no_newline );
+        info.emplace_back( "BASE_THROW", "\n", "", iteminfo::no_newline );
     }
 
     if( proj_dmg_bash || proj_dmg_cut || proj_dmg_stab ) {
         std::string sep;
-        info.emplace_back( "BASE", _( "<bold>Throw damage</bold>: " ), "", iteminfo::no_newline );
+        info.emplace_back( "THROW", _( "<bold>Throw damage</bold>: " ), "", iteminfo::no_newline );
         if( proj_dmg_bash ) {
-            info.emplace_back( "BASE", _( "Bash: " ), "", iteminfo::no_newline, proj_dmg_bash );
+            info.emplace_back( "THROW", _( "Bash: " ), "", iteminfo::no_newline, proj_dmg_bash );
             sep = " ";
         }
         if( proj_dmg_cut ) {
-            info.emplace_back( "BASE", sep + _( "Cut: " ), "", iteminfo::no_newline, proj_dmg_cut );
+            info.emplace_back( "THROW", sep + _( "Cut: " ), "", iteminfo::no_newline, proj_dmg_cut );
             sep = " ";
         }
         if( proj_dmg_stab ) {
-            info.emplace_back( "BASE", sep + _( "Pierce: " ), "", iteminfo::no_newline, proj_dmg_stab );
+            info.emplace_back( "THROW", sep + _( "Pierce: " ), "", iteminfo::no_newline, proj_dmg_stab );
         }
-        info.emplace_back( "BASE", "\n", "", iteminfo::no_newline );
+        info.emplace_back( "THROW", "\n", "", iteminfo::no_newline );
     }
 
-    info.emplace_back( "BASE", _( "Throw range: " ), "<num>", iteminfo::no_flags, throw_range );
+    info.emplace_back( "THROW", _( "Throw range: " ), "<num>", iteminfo::no_flags, throw_range );
 
     const int throw_cost = ranged::throw_cost( you, *this );
-    info.emplace_back( "BASE", _( "Moves per throw: " ), "<num>", iteminfo::lower_is_better,
+    info.emplace_back( "THROW", _( "Moves per throw: " ), "<num>", iteminfo::lower_is_better,
                        throw_cost );
 
     const int stamina_cost = ranged::throw_stamina_cost( you, *this );
-    info.emplace_back( "BASE", _( "Stamina cost: " ), "<num>", iteminfo::lower_is_better,
+    info.emplace_back( "THROW", _( "Stamina cost: " ), "<num>", iteminfo::lower_is_better,
                        stamina_cost );
 
     insert_separation_line( info );
@@ -4506,6 +4507,22 @@ void item::final_info( std::vector<iteminfo> &info, const iteminfo_query &parts_
     }
 }
 
+void item::enchantment_info( std::vector<iteminfo> &info, const iteminfo_query &parts_ref,
+                             int batch,
+                             bool debug ) const
+{
+    const std::vector<enchantment> &enchs = get_enchantments();
+    if( is_null() || enchs.empty() || has_flag( flag_SECRET_ENCHANTMENTS ) ) {
+        return;
+    }
+    insert_separation_line( info );
+    for( const enchantment &ench : get_enchantments() ) {
+        for( std::string str : ench.get_effect_string( true ) ) {
+            info.emplace_back( "DESCRIPTION", str );
+        }
+    }
+    insert_separation_line( info );
+}
 std::vector<iteminfo> item::info() const
 {
     return info( iteminfo_query::no_conditions, 1, temperature_flag::TEMP_NORMAL );
@@ -4592,6 +4609,8 @@ std::vector<iteminfo> item::info( const iteminfo_query &parts_ref, int batch,
 
     repair_info( info, parts, batch, debug );
     disassembly_info( info, parts, batch, debug );
+
+    enchantment_info( info, parts_ref, batch, debug );
 
     final_info( info, parts_ref, batch, debug );
 
