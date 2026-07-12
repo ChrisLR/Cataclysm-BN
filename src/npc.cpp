@@ -1912,7 +1912,7 @@ void npc::shop_restock()
         return;
     }
 
-    restock = calendar::turn + 3_days * get_option<float>( "RESTOCK_DELAY_MULT" );;
+    restock = calendar::turn + 3_days * get_option<float>( "RESTOCK_DELAY_MULT" );
     if( is_player_ally() ) {
         return;
     }
