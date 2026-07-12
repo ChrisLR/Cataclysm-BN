@@ -817,7 +817,7 @@ lua_monster_callback_actor::lua_monster_callback_actor( const std::string &mon_s
         sol::protected_function &&on_tame,
         sol::protected_function &&get_examine_menu_entries,
         sol::protected_function &&on_examine_menu_entry
-                                              )
+                                                      )
     : mon_str_id( mon_str_id ),
       on_tame_func( std::move( on_tame ) ),
       get_examine_menu_entries_func( std::move( get_examine_menu_entries ) ),
@@ -840,8 +840,9 @@ void lua_monster_callback_actor::call_on_tame( Character &who, monster &pet ) co
     }
 }
 
-std::vector<lua_menu_entry> lua_monster_callback_actor::call_get_examine_menu_entries( Character &who,
-        monster &pet ) const
+std::vector<lua_menu_entry> lua_monster_callback_actor::call_get_examine_menu_entries(
+    Character &who,
+    monster &pet ) const
 {
     if( get_examine_menu_entries_func == sol::lua_nil ) {
         return std::vector<lua_menu_entry>();

@@ -279,10 +279,10 @@ class lua_monster_callback_actor
 
     public:
         lua_monster_callback_actor( const std::string &mon_str_id,
-                                sol::protected_function &&on_tame_func,
-                                sol::protected_function &&get_examine_menu_entries,
-                                sol::protected_function &&on_examine_menu_entry_func
-                              );
+                                    sol::protected_function &&on_tame_func,
+                                    sol::protected_function &&get_examine_menu_entries,
+                                    sol::protected_function &&on_examine_menu_entry_func
+                                  );
 
         void call_on_tame( Character &who, monster &pet ) const;
         std::vector<lua_menu_entry>  call_get_examine_menu_entries( Character &who, monster &pet ) const;

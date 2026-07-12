@@ -1011,9 +1011,9 @@ void reg_lua_icallback_actors( lua_state &state, Item_factory &ifactory )
                                                 sol::lua_nil );
                 auto on_examine_menu_entry = tbl.get_or<sol::function>( "on_examine_menu_entry", sol::lua_nil );
                 monster_callback_actors[key] = std::make_unique<lua_monster_callback_actor>(
-                                               key, std::move( on_tame ), std::move( get_examine_menu_entries ),
-                                               std::move( on_examine_menu_entry )
-                                           );
+                                                   key, std::move( on_tame ), std::move( get_examine_menu_entries ),
+                                                   std::move( on_examine_menu_entry )
+                                               );
 
             } catch( std::runtime_error &e ) {
                 debugmsg( "Failed to extract monster_examine_functions k='%s': %s", key, e.what() );

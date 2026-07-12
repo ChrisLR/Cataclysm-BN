@@ -71,7 +71,7 @@ class MonsterGenerator
         void check_monster_definitions() const;
 
         void resolve_lua_monster_callbacks(
-            const std::map<std::string, std::unique_ptr<lua_monster_callback_actor>> &actors);
+            const std::map<std::string, std::unique_ptr<lua_monster_callback_actor>> &actors );
 
         const std::vector<mtype> &get_all_mtypes() const;
         mtype_id get_valid_hallucination() const;
