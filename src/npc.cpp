@@ -1908,12 +1908,11 @@ int npc::max_willing_to_owe() const
 
 void npc::shop_restock()
 {
-    if( ( restock != calendar::turn_zero ) &&
-        ( ( calendar::turn - restock ) < 3_days * get_option<float>( "RESTOCK_DELAY_MULT" ) ) ) {
+    if( ( restock != calendar::turn_zero ) && ( calendar::turn < restock ) ) {
         return;
     }
 
-    restock = calendar::turn + 3_days * get_option<float>( "RESTOCK_DELAY_MULT" );
+    restock = calendar::turn + 3_days * get_option<float>( "RESTOCK_DELAY_MULT" );;
     if( is_player_ally() ) {
         return;
     }
