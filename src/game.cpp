@@ -12719,16 +12719,11 @@ bool game::walk_move( const tripoint_bub_ms &dest_loc, const bool via_ramp )
             u.mod_fatigue( 1 );
         }
     }
-    if( !u.has_artifact_with( AEP_STEALTH ) && !u.has_trait( trait_id( "DEBUG_SILENT" ) ) ) {
+    if( !u.has_artifact_with( AEP_STEALTH ) ) {
         int volume = u.is_stealthy() ? 30 : 50;
         volume *= u.mutation_value( "noise_modifier" );
         volume += u.bonus_from_enchantments( volume, enchantment_value_id( "NOISE" ) );
         if( volume > 0 ) {
-            if( u.is_wearing( itype_rm13_armor_on ) ) {
-                volume = 20;
-            } else if( u.has_bionic( bionic_id( "bio_ankles" ) ) ) {
-                volume = 70;
-            }
             if( u.movement_mode_is( CMM_RUN ) ) {
                 volume += 10;
             } else if( u.movement_mode_is( CMM_CROUCH ) ) {
@@ -12976,12 +12971,13 @@ auto game::place_player( const tripoint_bub_ms &dest_loc ) -> point_rel_sm
         u.stop_hauling();
     }
     const auto origin_before_setpos = m.get_abs_sub();
+    const tripoint_abs_ms abs_dest_loc = bub_to_abs( dest_loc );
     u.setpos( dest_loc );
     m.invalidate_visibility_caches();
     mon_info_cache_dirty = true;
     if( u.is_mounted() ) {
         monster *mon = u.mounted_creature.get();
-        mon->setpos( dest_loc );
+        mon->setpos( abs_dest_loc );
         mon->process_triggers();
         m.creature_in_field( *mon );
     }
@@ -15031,9 +15027,6 @@ auto game::vertical_shift( const int z_before, const int z_after ) -> void
     debug_assert_player_map_origin( "vertical_shift" );
 
     m.spawn_monsters( true );
-    // this may be required after a vertical shift if z-levels are not enabled
-    // the critter is unloaded/loaded, and it needs to reconstruct its rider data after being reloaded.
-    validate_mounted_npcs();
     vertical_notes( z_before, z_after );
     update_overmap_seen();
 }
@@ -16448,6 +16441,20 @@ std::vector<npc *> game::get_npcs_if( const std::function<bool( const npc & )> &
     for( npc &guy : all_npcs() ) {
         if( pred( guy ) ) {
             result.push_back( &guy );
+        }
+    }
+    return result;
+}
+
+std::vector<weak_ptr_fast<npc>> game::get_npcs_pointers_if( const std::function<bool( const npc & )>
+                             &pred )
+{
+    std::vector<weak_ptr_fast<npc>> result;
+    for( weak_ptr_fast<npc> guy : *all_npcs().items ) {
+        if( shared_ptr_fast<npc> true_guy = guy.lock() ) {
+            if( pred( *true_guy ) ) {
+                result.push_back( guy );
+            }
         }
     }
     return result;

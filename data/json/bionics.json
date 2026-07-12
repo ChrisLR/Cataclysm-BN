@@ -54,7 +54,8 @@
     "occupied_bodyparts": [ [ "leg_l", 3 ], [ "leg_r", 3 ] ],
     "flags": [ "BIONIC_FAULTY" ],
     "starting_bionic": true,
-    "points": -1
+    "points": -1,
+    "bio_enchantments": [ { "condition": "ALWAYS", "values": [ { "value": "NOISE", "add": 30 } ] } ]
   },
   {
     "id": "bio_armor_arms",
@@ -351,7 +352,10 @@
     "description": "You have been outfitted with a synthetic stomach and industrial-grade intestines.  Not only can you extract much more nutrition from food, but you are immune to foodborne illness, parasites, and can even eat rotten food.",
     "occupied_bodyparts": [ [ "torso", 5 ] ],
     "points": 3,
-    "flags": [ "BIONIC_NPC_USABLE", "BIONIC_SHOCKPROOF" ]
+    "flags": [ "BIONIC_NPC_USABLE", "BIONIC_SHOCKPROOF" ],
+    "bio_enchantments": [
+      { "condition": "ALWAYS", "flags": [ "EAT_ROTTEN", "CONSUME_UNCLEAN", "FOOD_PARASITE_IMMUNE", "FOOD_POISON_IMMUNE" ] }
+    ]
   },
   {
     "id": "bio_dis_acid",
@@ -445,7 +449,7 @@
     "id": "bio_eye_enhancer",
     "type": "bionic",
     "name": { "str": "Diamond Cornea" },
-    "description": "Your vision is greatly enhanced, giving you a +2 bonus to perception and fixing any vision problems.",
+    "description": "Your vision is greatly enhanced, giving you a +2 bonus to perception and fixing any vision problems short of total blindness.",
     "occupied_bodyparts": [ [ "eyes", 1 ] ],
     "stat_bonus": [ [ "PER", 2 ] ],
     "canceled_mutations": [ "HYPEROPIC", "MYOPIC" ],
@@ -456,13 +460,19 @@
     "id": "bio_eye_optic",
     "type": "bionic",
     "name": { "str": "Telescopic Lenses" },
-    "description": "The lenses in your eyes have been surgically removed and replaced with an array of high-powered, auto-focusing lenses.  They function as integrated binoculars, letting you see much farther than before, and any mundane vision problems you might have had are now gone.",
+    "description": "The lenses in your eyes have been surgically removed and replaced with an array of high-powered, auto-focusing lenses.  They function as integrated binoculars, letting you see much farther than before, and any mundane vision problems you might have had are now gone, including blindness.",
     "occupied_bodyparts": [ [ "eyes", 2 ] ],
-    "canceled_mutations": [ "HYPEROPIC", "MYOPIC" ],
+    "canceled_mutations": [ "HYPEROPIC", "MYOPIC", "BLIND" ],
     "can_uninstall": false,
     "points": 1,
     "no_uninstall_reason": "The telescopic lenses are part of the patient's eyes now, remove them and the patient would become blind",
-    "bio_enchantments": [ { "condition": "ALWAYS", "values": [ { "value": "OVERMAP_SIGHT", "add": 1 } ] } ]
+    "bio_enchantments": [
+      {
+        "condition": "ALWAYS",
+        "values": [ { "value": "OVERMAP_SIGHT", "add": 1 } ],
+        "flags": [ "UNDERWATER_SIGHT", "FIX_NEARSIGHTED" ]
+      }
+    ]
   },
   {
     "id": "bio_face_mask",
@@ -628,7 +638,7 @@
     "react_cost": "1 kJ",
     "time": 1,
     "points": 2,
-    "bio_enchantments": [ { "condition": "ALWAYS", "values": [ { "value": "BLISTER_COUNT", "add": -20 } ] } ]
+    "bio_enchantments": [ { "condition": "ACTIVE", "values": [ { "value": "BLISTER_COUNT", "add": -20 } ], "flags": [ "FIRE_FIELD_IMMUNE" ] } ]
   },
   {
     "id": "bio_hydraulics",
@@ -653,7 +663,8 @@
     "flags": [ "BIONIC_NPC_USABLE" ],
     "act_cost": "10 J",
     "starting_bionic": true,
-    "points": 1
+    "points": 1,
+    "bio_enchantments": [ { "condition": "ALWAYS", "flags": [ "INTERNAL_ALARMCLOCK", "WATCH", "RADIO", "THERMOMETER", "VIEW_DRONE_CAM" ] } ]
   },
   {
     "id": "bio_infrared",
@@ -665,7 +676,8 @@
     "act_cost": "5 J",
     "react_cost": "5 J",
     "time": 1,
-    "points": 1
+    "points": 1,
+    "bio_enchantments": [ { "condition": "ALWAYS", "flags": [ "INFRARED_VISION" ] } ]
   },
   {
     "id": "bio_int_enhancer",
@@ -760,7 +772,8 @@
     "description": "Your eyes have a thin membrane that closes over your eyes while underwater, negating any vision penalties.",
     "occupied_bodyparts": [ [ "eyes", 1 ] ],
     "points": 1,
-    "flags": [ "BIONIC_NPC_USABLE" ]
+    "flags": [ "BIONIC_NPC_USABLE" ],
+    "bio_enchantments": [ { "condition": "ALWAYS", "flags": [ "UNDERWATER_SIGHT" ] } ]
   },
   {
     "id": "bio_memory",
@@ -1539,7 +1552,8 @@
     "act_cost": "20 J",
     "react_cost": "20 J",
     "time": 1,
-    "included_bionics": [ "bio_electrosense_voltmeter", "bio_electrosense_bscanner" ]
+    "included_bionics": [ "bio_electrosense_voltmeter", "bio_electrosense_bscanner" ],
+    "bio_enchantments": [ { "condition": "ACTIVE", "flags": [ "ELECTROSENSE" ] } ]
   },
   {
     "id": "bio_electrosense_voltmeter",
