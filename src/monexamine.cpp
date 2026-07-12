@@ -11,6 +11,7 @@
 #include "avatar_action.h"
 #include "bodypart.h"
 #include "calendar.h"
+#include "catalua_hooks.h"
 #include "catalua_icallback_actor.h"
 #include "cata_utility.h"
 #include "character.h"
@@ -311,6 +312,29 @@ bool monexamine::pet_menu( monster &z )
             lua_entries.push_back( entry );
         }
     }
+
+    for( const auto hook_entries = cata::run_hooks( "on_monster_get_examine_menu_entries", [&](
+    auto & params ) { params["avatar"] = &you; params["monster"] = &z; } );
+    const auto value: hook_entries | std::views::values ) {
+        if( value.is<sol::table>() ) {
+            const sol::table entries_table = value.as<sol::table>();
+            const int size = entries_table.size();
+            for( int i = 1; i <= size; ++i ) {
+                sol::optional<sol::table> entry_opt = entries_table[i];
+                if( !entry_opt.has_value() ) {
+                    debugmsg( "Empty entry at index %d", i );
+                    continue;
+                }
+
+                const sol::table entry = *entry_opt;
+                std::string id = entry.get<std::string>( "menu_id" );
+                std::string label = entry.get<std::string>( "menu_label" );
+                auto lua_entry = lua_menu_entry( id, label );
+                lua_entries.push_back( lua_entry );
+            }
+        }
+    }
+
     std::ranges::sort( lua_entries, []( const lua_menu_entry & a, const lua_menu_entry & b ) {
         return a.menu_label > b.menu_label;
     } );

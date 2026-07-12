@@ -842,7 +842,7 @@ void lua_monster_callback_actor::call_on_tame( Character &who, monster &pet ) co
 
 std::vector<lua_menu_entry> lua_monster_callback_actor::call_get_examine_menu_entries(
     Character &who,
-    monster &pet ) const
+    monster &monster ) const
 {
     if( get_examine_menu_entries_func == sol::lua_nil ) {
         return std::vector<lua_menu_entry>();
@@ -851,7 +851,7 @@ std::vector<lua_menu_entry> lua_monster_callback_actor::call_get_examine_menu_en
         sol::state_view lua( get_examine_menu_entries_func.lua_state() );
         auto params = lua.create_table();
         params["avatar"] = &who;
-        params["pet"] = &pet;
+        params["monster"] = &monster;
         sol::protected_function_result res = get_examine_menu_entries_func( params );
         check_func_result( res );
         std::vector<lua_menu_entry> entries;
@@ -875,19 +875,19 @@ std::vector<lua_menu_entry> lua_monster_callback_actor::call_get_examine_menu_en
             }
 
         } else if( value.is<sol::nil_t>() ) {
-            debugmsg( "Wrong pet get_examine_menu_entries return type for '%s' ('%s')", pet.get_name(),
+            debugmsg( "Wrong pet get_examine_menu_entries return type for '%s' ('%s')", monster.get_name(),
                       mon_str_id );
         }
 
         return entries;
     } catch( std::runtime_error &e ) {
-        debugmsg( "Failed to run pet get_examine_menu_entries for '%s' ('%s'): %s", pet.get_name(),
+        debugmsg( "Failed to run pet get_examine_menu_entries for '%s' ('%s'): %s", monster.get_name(),
                   mon_str_id, e.what() );
     }
     return std::vector<lua_menu_entry>();
 }
 
-void lua_monster_callback_actor::call_on_examine_menu_entry( Character &who, monster &pet,
+void lua_monster_callback_actor::call_on_examine_menu_entry( Character &who, monster &monster,
         std::string entry ) const
 {
     if( on_examine_menu_entry_func == sol::lua_nil ) {
@@ -897,12 +897,13 @@ void lua_monster_callback_actor::call_on_examine_menu_entry( Character &who, mon
         sol::state_view lua( on_examine_menu_entry_func.lua_state() );
         auto params = lua.create_table();
         params["avatar"] = &who;
-        params["pet"] = &pet;
+        params["monster"] = &monster;
         params["entry"] = entry;
         sol::protected_function_result res = on_examine_menu_entry_func( params );
         check_func_result( res );
     } catch( std::runtime_error &e ) {
-        debugmsg( "Failed to run pet on_examine_menu_entry_func for '%s' ('%s'): %s", pet.get_name(), entry,
+        debugmsg( "Failed to run monster on_examine_menu_entry_func for '%s' ('%s'): %s",
+                  monster.get_name(), entry,
                   e.what() );
     }
 }
