@@ -1696,11 +1696,10 @@ void MonsterGenerator::check_monster_definitions() const
 void MonsterGenerator::resolve_lua_monster_callbacks(
     const std::map<std::string, std::unique_ptr<lua_monster_callback_actor>> &actors )
 {
-    for( auto &[id, actor] : lua_monster_actors ) {
-        if( !mon_templates->is_valid( id ) ) {
-            debugmsg( "monster_functions refers to unknown item type '%s'", id.c_str() );
+    for( const mtype &mt : mon_templates->get_all() ) {
+        auto it = actors.find( mt.id.str() );
+        if( it != actors.end() ) {
+            mt.lua_callbacks = it->second.get();
         }
-        auto mtype = mon_templates->obj( id );
-        mtype.lua_callbacks = actor.get();
     }
 }
