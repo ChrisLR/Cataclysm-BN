@@ -301,17 +301,14 @@ bool monexamine::pet_menu( monster &z )
         amenu.addentry( attack, true, 'A', _( "Attack" ) );
     }
 
-    // Call lua related hooks, resolved dynamically because of wildcard support
-    const auto lua_pet_actors = z.get_lua_pet_actors();
+    const auto cb_actor = z.get_lua_callbacks();
     std::vector<lua_menu_entry> lua_entries {};
     std::map<int, lua_menu_entry> lua_entries_map;
-    {};
-    for( const lua_pet_callback_actor *cb_actor : lua_pet_actors ) {
-        const auto entries = cb_actor->call_get_examine_menu_entries( you, z );
-        for( const auto entry : entries ) {
-            if( entry.valid() ) {
-                lua_entries.push_back( entry );
-            }
+    {}
+    const auto entries = cb_actor.call_get_examine_menu_entries( you, z );
+    for( const auto entry : entries ) {
+        if( entry.valid() ) {
+            lua_entries.push_back( entry );
         }
     }
     std::ranges::sort( lua_entries, []( const lua_menu_entry & a, const lua_menu_entry & b ) {
@@ -466,9 +463,7 @@ bool monexamine::pet_menu( monster &z )
             break;
     }
     if( !entry_str_id.empty() ) {
-        for( const lua_pet_callback_actor *cb_actor : lua_pet_actors ) {
-            cb_actor->call_on_examine_menu_entry( you, z, entry_str_id );
-        }
+        cb_actor.call_on_examine_menu_entry( you, z, entry_str_id );
     }
 
     return true;

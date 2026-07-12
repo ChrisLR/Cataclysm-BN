@@ -4392,18 +4392,7 @@ auto monster::get_faction_anger( mfaction_id target_faction ) const -> int
     return ( it != faction_anger.end() ) ? it->second : 0;
 }
 
-
-std::vector<lua_pet_callback_actor *> monster::get_lua_pet_actors() const
+lua_monster_callback_actor monster::get_lua_callbacks() const
 {
-    const auto type_id_str = type->id.str();
-    std::vector<lua_pet_callback_actor *> pet_actors;
-    for( const auto &ptr : cata::get_lua_pet_actors() | std::views::values ) {
-        if( ptr ) {
-            auto cb_actor = ptr.get();
-            if( auto mon_str_id = cb_actor->get_mon_str_id(); mon_str_id == "*" || mon_str_id == type_id_str ) {
-                pet_actors.emplace_back( cb_actor );
-            }
-        }
-    }
-    return pet_actors;
+    return *type->lua_callbacks;
 }

@@ -269,7 +269,7 @@ struct lua_menu_entry {
     }
 };
 
-class lua_pet_callback_actor
+class lua_monster_callback_actor
 {
     private:
         std::string mon_str_id;
@@ -278,7 +278,7 @@ class lua_pet_callback_actor
         sol::protected_function on_examine_menu_entry_func;
 
     public:
-        lua_pet_callback_actor( const std::string &mon_str_id,
+        lua_monster_callback_actor( const std::string &mon_str_id,
                                 sol::protected_function &&on_tame_func,
                                 sol::protected_function &&get_examine_menu_entries,
                                 sol::protected_function &&on_examine_menu_entry_func

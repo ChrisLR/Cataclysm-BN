@@ -813,7 +813,7 @@ bool lua_itrap_actor::call_can_trigger( const Character &who, const trap &trap,
 
 // --- pet_callback_actor ---
 
-lua_pet_callback_actor::lua_pet_callback_actor( const std::string &mon_str_id,
+lua_monster_callback_actor::lua_monster_callback_actor( const std::string &mon_str_id,
         sol::protected_function &&on_tame,
         sol::protected_function &&get_examine_menu_entries,
         sol::protected_function &&on_examine_menu_entry
@@ -823,7 +823,7 @@ lua_pet_callback_actor::lua_pet_callback_actor( const std::string &mon_str_id,
       get_examine_menu_entries_func( std::move( get_examine_menu_entries ) ),
       on_examine_menu_entry_func( std::move( on_examine_menu_entry ) ) {}
 
-void lua_pet_callback_actor::call_on_tame( Character &who, monster &pet ) const
+void lua_monster_callback_actor::call_on_tame( Character &who, monster &pet ) const
 {
     if( on_tame_func == sol::lua_nil ) {
         return;
@@ -840,7 +840,7 @@ void lua_pet_callback_actor::call_on_tame( Character &who, monster &pet ) const
     }
 }
 
-std::vector<lua_menu_entry> lua_pet_callback_actor::call_get_examine_menu_entries( Character &who,
+std::vector<lua_menu_entry> lua_monster_callback_actor::call_get_examine_menu_entries( Character &who,
         monster &pet ) const
 {
     if( get_examine_menu_entries_func == sol::lua_nil ) {
@@ -886,7 +886,7 @@ std::vector<lua_menu_entry> lua_pet_callback_actor::call_get_examine_menu_entrie
     return std::vector<lua_menu_entry>();
 }
 
-void lua_pet_callback_actor::call_on_examine_menu_entry( Character &who, monster &pet,
+void lua_monster_callback_actor::call_on_examine_menu_entry( Character &who, monster &pet,
         std::string entry ) const
 {
     if( on_examine_menu_entry_func == sol::lua_nil ) {
@@ -905,7 +905,7 @@ void lua_pet_callback_actor::call_on_examine_menu_entry( Character &who, monster
                   e.what() );
     }
 }
-std::string lua_pet_callback_actor::get_mon_str_id() const
+std::string lua_monster_callback_actor::get_mon_str_id() const
 {
     return mon_str_id;
 }
