@@ -3834,6 +3834,16 @@ void monster::make_pet()
     add_effect( effect_pet, 1_turns );
 }
 
+void monster::make_pet( Character &actor )
+{
+    // There is another call of make_pet in spawn_monsters_submap so the original call remains
+    make_pet();
+    type->lua_callbacks->call_on_tame( actor, *this );
+    cata::run_hooks( "on_monster_tame", [&](
+    auto & params ) { params["avatar"] = &actor; params["monster"] = *this; }
+                   );
+}
+
 bool monster::is_pet() const
 {
     return ( friendly == -1 && has_effect( effect_pet ) );

@@ -488,6 +488,8 @@ bool monexamine::pet_menu( monster &z )
     }
     if( !entry_str_id.empty() ) {
         cb_actor.call_on_examine_menu_entry( you, z, entry_str_id );
+        cata::run_hooks( "on_monster_on_examine_menu_entry", [&](
+        auto & params ) { params["avatar"] = &you; params["monster"] = &z; } );
     }
 
     return true;

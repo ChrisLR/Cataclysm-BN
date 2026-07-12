@@ -540,6 +540,9 @@ class monster : public Creature, public location_visitable<monster>
         void make_ally( const monster &z );
         // makes this monster a pet of the player
         void make_pet();
+
+        void make_pet( Character &actor );
+
         // check if this monster is a pet of the player
         bool is_pet() const;
 
