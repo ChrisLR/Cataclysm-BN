@@ -141,6 +141,8 @@ static ambient_parameters current_ambient;
 static std::unordered_map<std::string, int> unique_paths;
 static sfx_resources_t sfx_resources;
 static std::vector<id_and_variant> sfx_preload;
+static std::map<std::string, std::chrono::steady_clock::time_point> played_sound_time_map;
+static std::map<int, double> sound_durations;
 
 bool sounds::sound_enabled = false;
 
@@ -547,6 +549,27 @@ auto sfx::has_variant_sound( const std::string &id, const std::string &variant )
     return find_random_effect( id, variant ) != nullptr;
 }
 
+bool valid_last_time_played( MIX_Audio* audio, const int res_id, const std::string &variant) {
+    double sound_duration;
+    if (!sound_durations.contains(res_id)) {
+        // Divided by 4000 == Conversion from MS * 0.25
+        sound_duration = static_cast<double>(MIX_AudioFramesToMS(audio, MIX_GetAudioDuration(audio))) / 4000;
+        sound_durations[res_id] = sound_duration;
+    } else {
+        sound_duration = sound_durations[res_id];
+    }
+
+    const auto now = std::chrono::steady_clock::now();
+
+    if (const auto it = played_sound_time_map.find(variant); it != played_sound_time_map.end()) {
+        if (const auto delta = std::chrono::duration_cast<std::chrono::duration<double>>(now - it->second).count(); delta < sound_duration) {
+            return false; // Dont overplay sounds
+        }
+    }
+    played_sound_time_map[variant] = now;
+    return true;
+}
+
 // ── Playback ──────────────────────────────────────────────────────────────────
 
 // NOTE: Pitch shift is not supported. MIX_Audio is opaque — raw PCM buffer access
@@ -572,7 +595,12 @@ auto sfx::play_variant_sound( const std::string &id, const std::string &variant,
         }
     }
 
-    auto *audio = get_sfx_resource( eff->resource_id );
+    const auto res_id = eff->resource_id;
+    auto *audio = get_sfx_resource( res_id );
+    if (!valid_last_time_played(audio, res_id, variant)){
+        return;
+    }
+
     if( !audio ) {
         return;
     }
@@ -609,8 +637,9 @@ auto sfx::play_variant_sound( const std::string &id, const std::string &variant,
         return;
     }
 
-    auto *audio = get_sfx_resource( eff->resource_id );
-    if( !audio ) {
+    const auto res_id = eff->resource_id;
+    auto *audio = get_sfx_resource( res_id );
+    if (!valid_last_time_played(audio, res_id, variant)){
         return;
     }
 
@@ -638,7 +667,7 @@ auto sfx::play_variant_sound( const std::string &id, const std::string &variant,
 auto sfx::play_ambient_variant_sound( const std::string &id, const std::string &variant,
                                       const int volume, const channel channel,
                                       const int fade_in_duration,
-                                      double /*pitch*/, const int loops ) -> void
+                                      double /*pitch*/, const int loops) -> void
 {
     if( test_mode ) {
         return;
@@ -660,8 +689,9 @@ auto sfx::play_ambient_variant_sound( const std::string &id, const std::string &
         return;
     }
 
-    auto *audio = get_sfx_resource( eff->resource_id );
-    if( !audio ) {
+    const auto res_id = eff->resource_id;
+    auto *audio = get_sfx_resource( res_id );
+    if (!valid_last_time_played(audio, res_id, variant)){
         return;
     }
 
