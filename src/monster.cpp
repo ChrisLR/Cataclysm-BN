@@ -3838,7 +3838,10 @@ void monster::make_pet( Character &actor )
 {
     // There is another call of make_pet in spawn_monsters_submap so the original call remains
     make_pet();
-    type->lua_callbacks->call_on_tame( actor, *this );
+    if (const auto _lua_callbacks = type->lua_callbacks) {
+        _lua_callbacks->call_on_tame( actor, *this );
+    }
+
     cata::run_hooks( "on_monster_tame", [&](
     auto & params ) { params["avatar"] = &actor; params["monster"] = *this; }
                    );
@@ -4406,7 +4409,10 @@ auto monster::get_faction_anger( mfaction_id target_faction ) const -> int
     return ( it != faction_anger.end() ) ? it->second : 0;
 }
 
-lua_monster_callback_actor monster::get_lua_callbacks() const
+const lua_monster_callback_actor* monster::get_lua_callbacks() const
 {
-    return *type->lua_callbacks;
+    if (type && type->lua_callbacks) {
+        return type->lua_callbacks;
+    }
+    return nullptr;
 }

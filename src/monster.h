@@ -756,7 +756,7 @@ class monster : public Creature, public location_visitable<monster>
         void add_faction_anger( mfaction_id target_faction, int amount );
         auto get_faction_anger( mfaction_id target_faction ) const -> int;
 
-        lua_monster_callback_actor get_lua_callbacks() const;
+        const lua_monster_callback_actor* get_lua_callbacks() const;
 
         std::set<m_flag> monster_flags;
 

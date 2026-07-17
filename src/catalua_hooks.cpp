@@ -33,7 +33,7 @@ constexpr auto hook_names = std::array
     "on_game_started",
     "on_make_mapgen_factory_list",
     "on_mapgen_postprocess",
-    "on_mission_end"
+    "on_mission_end",
     "on_mission_start",
     "on_mon_death",
     "on_mon_effect",
@@ -42,7 +42,7 @@ constexpr auto hook_names = std::array
     "on_monster_do_turn",
     "on_monster_get_examine_menu_entries",
     "on_monster_loaded",
-    "on_monster_on_examine_menu_entry",
+    "on_monster_examine_menu_entry",
     "on_monster_spawn",
     "on_monster_tame",
     "on_monster_try_move",
