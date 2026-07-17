@@ -1154,17 +1154,21 @@ std::string monster::extended_description() const
         ss += std::string( _( "It has a head." ) ) + "\n";
     }
 
-    if( bonded_character_id == g->u.getID() ) {
-        ss += string_format( _( "It regards you as family. (%s)\n" ), pet_bond_level );
-    } else if( pet_bond_level > 5 ) {
-        ss += string_format( _( "It really likes you. (%s)\n" ), pet_bond_level );
-    } else if( pet_bond_level > 2 ) {
-        ss += string_format( _( "It likes you. (%s)\n" ), pet_bond_level );
-    } else if( pet_bond_level > 0 ) {
-        ss += string_format( _( "It is curious about you. (%s)\n" ), pet_bond_level );
-    } else {
-        ss += string_format( _( "It is unsure about you. (%s)\n" ), pet_bond_level );
+    if (is_pet()) {
+        if( bonded_character_id == g->u.getID() ) {
+            ss += string_format( _( "It regards you as family. (%s)\n" ), pet_bond_level );
+        } else if( pet_bond_level > 5 ) {
+            ss += string_format( _( "It really likes you. (%s)\n" ), pet_bond_level );
+        } else if( pet_bond_level > 2 ) {
+            ss += string_format( _( "It likes you. (%s)\n" ), pet_bond_level );
+        } else if( pet_bond_level > 0 ) {
+            ss += string_format( _( "It is curious about you. (%s)\n" ), pet_bond_level );
+        } else {
+            ss += string_format( _( "It is unsure about you. (%s)\n" ), pet_bond_level );
+        }
     }
+
+
 
     if( training_level > 0 && type->pet_training ) {
         const auto training_adj = []( float ratio ) -> const std::string {
