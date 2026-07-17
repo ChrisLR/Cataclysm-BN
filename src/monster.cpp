@@ -1168,8 +1168,6 @@ std::string monster::extended_description() const
         }
     }
 
-
-
     if( training_level > 0 && type->pet_training ) {
         const auto training_adj = []( float ratio ) -> const std::string {
             if( ratio > 1.5f )
