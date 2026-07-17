@@ -1692,7 +1692,6 @@ void MonsterGenerator::check_monster_definitions() const
     }
 }
 
-
 void MonsterGenerator::resolve_lua_monster_callbacks(
     const std::map<std::string, std::unique_ptr<lua_monster_callback_actor>> &actors )
 {

@@ -1098,11 +1098,6 @@ auto get_lua_activity_on_turn( const player_activity &act ) -> std::string
     return get_lua_activity_prefixed_value( act, lua_activity_on_turn_prefix );
 }
 
-const std::map<std::string, std::unique_ptr<lua_monster_callback_actor>> &get_lua_monster_actors()
-{
-    return monster_callback_actors;
-}
-
 auto run_lua_activity_callback( const std::string &callback_id, player &who,
                                 player_activity &act ) -> void
 {

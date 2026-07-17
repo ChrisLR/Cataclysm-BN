@@ -335,7 +335,6 @@ bool monexamine::pet_menu( monster &z )
         }
     }
 
-
     std::ranges::sort( lua_entries, []( const lua_menu_entry & a, const lua_menu_entry & b ) {
         return a.menu_label > b.menu_label;
     } );

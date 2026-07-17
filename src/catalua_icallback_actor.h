@@ -285,8 +285,9 @@ class lua_monster_callback_actor
                                   );
 
         void call_on_tame( Character &who, monster &pet ) const;
-        std::vector<lua_menu_entry>  call_get_examine_menu_entries( Character &who, monster &pet ) const;
-        void call_on_examine_menu_entry( Character &who, monster &pet, std::string entry ) const;
+        std::vector<lua_menu_entry>  call_get_examine_menu_entries( Character &who,
+                monster &monster ) const;
+        void call_on_examine_menu_entry( Character &who, monster &monster, std::string entry ) const;
 
         std::string get_mon_str_id() const;
 };

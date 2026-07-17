@@ -811,8 +811,6 @@ bool lua_itrap_actor::call_can_trigger( const Character &who, const trap &trap,
 }
 
 
-// --- pet_callback_actor ---
-
 lua_monster_callback_actor::lua_monster_callback_actor( const std::string &mon_str_id,
         sol::protected_function &&on_tame,
         sol::protected_function &&get_examine_menu_entries,
@@ -875,13 +873,13 @@ std::vector<lua_menu_entry> lua_monster_callback_actor::call_get_examine_menu_en
             }
 
         } else if( value.is<sol::nil_t>() ) {
-            debugmsg( "Wrong pet get_examine_menu_entries return type for '%s' ('%s')", monster.get_name(),
+            debugmsg( "Wrong monster get_examine_menu_entries return type for '%s' ('%s')", monster.get_name(),
                       mon_str_id );
         }
 
         return entries;
     } catch( std::runtime_error &e ) {
-        debugmsg( "Failed to run pet get_examine_menu_entries for '%s' ('%s'): %s", monster.get_name(),
+        debugmsg( "Failed to run monster get_examine_menu_entries for '%s' ('%s'): %s", monster.get_name(),
                   mon_str_id, e.what() );
     }
     return std::vector<lua_menu_entry>();
