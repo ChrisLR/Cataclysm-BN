@@ -1154,7 +1154,7 @@ std::string monster::extended_description() const
         ss += std::string( _( "It has a head." ) ) + "\n";
     }
 
-    if (is_pet()) {
+    if( is_pet() ) {
         if( bonded_character_id == g->u.getID() ) {
             ss += string_format( _( "It regards you as family. (%s)\n" ), pet_bond_level );
         } else if( pet_bond_level > 5 ) {
@@ -3842,7 +3842,7 @@ void monster::make_pet( Character &actor )
 {
     // There is another call of make_pet in spawn_monsters_submap so the original call remains
     make_pet();
-    if (const auto _lua_callbacks = type->lua_callbacks) {
+    if( const auto _lua_callbacks = type->lua_callbacks ) {
         _lua_callbacks->call_on_tame( actor, *this );
     }
 
@@ -4413,9 +4413,9 @@ auto monster::get_faction_anger( mfaction_id target_faction ) const -> int
     return ( it != faction_anger.end() ) ? it->second : 0;
 }
 
-const lua_monster_callback_actor* monster::get_lua_callbacks() const
+const lua_monster_callback_actor *monster::get_lua_callbacks() const
 {
-    if (type && type->lua_callbacks) {
+    if( type && type->lua_callbacks ) {
         return type->lua_callbacks;
     }
     return nullptr;

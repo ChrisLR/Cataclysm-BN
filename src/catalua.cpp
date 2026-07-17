@@ -604,17 +604,18 @@ auto has_hooks( std::string_view hook_name, const hook_opts &opts ) -> bool
 }
 
 
-auto get_hook_results(const sol::table &hook_results) -> std::vector<sol::object> {
+auto get_hook_results( const sol::table &hook_results ) -> std::vector<sol::object>
+{
     std::vector<sol::object> results_vec;
     const int n = hook_results.size();
-    for (int i = 1; i <= n; ++i) {
+    for( int i = 1; i <= n; ++i ) {
         sol::optional<sol::table> wrapper = hook_results[i];
-        if (!wrapper) continue;
+        if( !wrapper ) { continue; }
 
-        sol::object result = (*wrapper)["result"];
-        if (result.get_type() == sol::type::nil) continue;
+        sol::object result = ( *wrapper )["result"];
+        if( result.get_type() == sol::type::nil ) { continue; }
 
-        results_vec.push_back(result);
+        results_vec.push_back( result );
     }
     return results_vec;
 }
