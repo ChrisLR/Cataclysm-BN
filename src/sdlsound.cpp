@@ -553,9 +553,8 @@ bool valid_last_time_played( MIX_Audio *audio, const int res_id, const std::stri
 {
     double sound_duration;
     if( !sound_durations.contains( res_id ) ) {
-        // Divided by 4000 == Conversion from MS * 0.25
         sound_duration = static_cast<double>( MIX_AudioFramesToMS( audio,
-                                              MIX_GetAudioDuration( audio ) ) ) / 4000;
+                                              MIX_GetAudioDuration( audio ) ) ) / 1000; // Conversion from MS
         sound_durations[res_id] = sound_duration;
     } else {
         sound_duration = sound_durations[res_id];
