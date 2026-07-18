@@ -577,7 +577,7 @@ bool valid_last_time_played( MIX_Audio* audio, const int res_id, const std::stri
 // SDL_AudioStream sample-rate conversion if pitch variation is required.
 
 auto sfx::play_variant_sound( const std::string &id, const std::string &variant,
-                              const int volume ) -> void
+                              const int volume, const bool stacks) -> void
 {
     if( test_mode ) {
         return;
@@ -597,7 +597,7 @@ auto sfx::play_variant_sound( const std::string &id, const std::string &variant,
 
     const auto res_id = eff->resource_id;
     auto *audio = get_sfx_resource( res_id );
-    if (!valid_last_time_played(audio, res_id, variant)){
+    if (!stacks && !valid_last_time_played(audio, res_id, variant)){
         return;
     }
 
