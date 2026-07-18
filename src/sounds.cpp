@@ -98,6 +98,8 @@ static const itype_id fuel_type_battery( "battery" );
 
 static const itype_id itype_weapon_fire_suppressed( "weapon_fire_suppressed" );
 
+static const enchantment_value_id ench_val_SLEEP_DB_RESIST( "SLEEP_DB_RESIST" );
+
 static const std::unordered_set<sounds::sound_t> NO_STACK_SOUND_TYPES = {
     sounds::sound_t::background,
     sounds::sound_t::weather,
@@ -2744,8 +2746,7 @@ void sounds::process_sound_markers( Character *who )
             if( who->has_effect( effect_sleep ) ) {
                 const int diff_db_vol = mdBspl_to_dBspl( tile_vol - passive_sound_dampening - tile_vol );
                 int wake_up_vol = 10;
-                wake_up_vol += who->bonus_from_enchantments( wake_up_vol,
-                               enchantment_value_id( "SLEEP_DB_RESIST" ) );
+                wake_up_vol += who->bonus_from_enchantments( wake_up_vol, ench_val_SLEEP_DB_RESIST );
 
                 if( rng( wake_up_vol / 2, wake_up_vol ) <= db_vol && !who->has_effect( effect_narcosis ) ) {
                     who->wake_up();
