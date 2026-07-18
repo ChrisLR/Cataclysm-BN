@@ -2817,7 +2817,7 @@ void sounds::process_sound_markers( Character *who )
             if( !sfx_id.empty() ) {
 
                 sfx::play_variant_sound( sfx_id, sfx_variant, sfx::get_heard_volume( element.sound.origin,
-                                         element.sound.volume ), !NO_STACK_SOUND_TYPES.contains(element.sound.category) );
+                                         element.sound.volume ), !NO_STACK_SOUND_TYPES.contains( element.sound.category ) );
             }
 
             // Place footstep markers.
