@@ -3953,8 +3953,7 @@ void sfx::load_sound_effects( const JsonObject & ) { }
 void sfx::load_sound_effect_preload( const JsonObject & ) { }
 void sfx::load_playlist( const JsonObject & ) { }
 void sfx::play_variant_sound( const std::string &, const std::string &, int, units::angle, double,
-                              double ) { }
-void sfx::play_variant_sound( const std::string &, const std::string &, int ) { }
+                              double ) void sfx::play_variant_sound( const std::string &, const std::string &, int, bool ) { }
 void sfx::play_ambient_variant_sound( const std::string &, const std::string &, int, channel, int,
                                       double, int ) { }
 void sfx::play_activity_sound( const std::string &, const std::string &, int ) { }
