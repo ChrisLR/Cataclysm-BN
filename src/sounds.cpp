@@ -2816,7 +2816,6 @@ void sounds::process_sound_markers( Character *who )
             const std::string &sfx_id = element.sound.id;
             const std::string &sfx_variant = element.sound.variant;
             if( !sfx_id.empty() ) {
-
                 sfx::play_variant_sound( sfx_id, sfx_variant, sfx::get_heard_volume( element.sound.origin,
                                          element.sound.volume ), !NO_STACK_SOUND_TYPES.contains( element.sound.category ) );
             }
@@ -3953,7 +3952,8 @@ void sfx::load_sound_effects( const JsonObject & ) { }
 void sfx::load_sound_effect_preload( const JsonObject & ) { }
 void sfx::load_playlist( const JsonObject & ) { }
 void sfx::play_variant_sound( const std::string &, const std::string &, int, units::angle, double,
-                              double ) void sfx::play_variant_sound( const std::string &, const std::string &, int, bool ) { }
+                              double ) { }
+void sfx::play_variant_sound( const std::string &, const std::string &, int, bool ) { }
 void sfx::play_ambient_variant_sound( const std::string &, const std::string &, int, channel, int,
                                       double, int ) { }
 void sfx::play_activity_sound( const std::string &, const std::string &, int ) { }
