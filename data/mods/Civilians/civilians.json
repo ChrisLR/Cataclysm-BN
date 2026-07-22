@@ -1,10 +1,17 @@
 [
   {
+    "type": "MONSTER_FACTION",
+    "name": "civilians",
+	"base_faction": "human",
+	"hate": [ "zombie", "nether" ],
+	"friendly": [ "player", "human" ],
+  },
+  {
     "id": "mon_civilian_panic",
     "type": "MONSTER",
     "name": { "str": "panicked person" },
     "description": "This hysterical individual has a faint, yet fading, glint of intelligence in their bloodshot eyes.  They sometimes scream in fear and behave clearly irrationally.  This will quite likely cause their demise at the hands of the undead horde rather quickly.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -38,7 +45,7 @@
     "zombify_into": "mon_zombie",
     "dodge": 1,
     "death_drops": "default_civilian_death_drops",
-    "flags": [ "SEES", "HEARS", "WARM", "HUMAN", "CAN_OPEN_DOORS", "PATH_AVOID_DANGER_2", "PRIORITIZE_TARGETS", "GUILT" ]
+    "flags": [ "SEES", "HEARS", "WARM", "HUMAN", "CAN_OPEN_DOORS", "PATH_AVOID_DANGER_2", "PRIORITIZE_TARGETS", "GUILT", "ATTACKMON" ]
   },
   {
     "id": "mon_civilian_stationary",
@@ -151,7 +158,7 @@
     "type": "MONSTER",
     "name": { "str": "survivor hunter" },
     "description": "The Cataclysm weeded out the weak, and this person survived. To survive in this cruel world, they abandoned the comforts of the old era, wielding a crude but deadly makeshift bow, coldly aiming at any threat that dares approach.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -216,7 +223,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+	  "ATTACKMON"
     ]
   },
   {
@@ -224,7 +233,7 @@
     "type": "MONSTER",
     "name": { "str": "survivor hunter" },
     "description": "The Cataclysm weeded out the weak, and this person survived. To survive in this cruel world, they abandoned the comforts of the old era, wielding a crude but deadly makeshift crossbow, coldly aiming at any threat that dares approach.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -289,7 +298,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -297,7 +308,7 @@
     "type": "MONSTER",
     "name": { "str": "survivor gunner" },
     "description": "The cruel Cataclysm forced this civilian to become a cold-blooded survivor. Clutching a pistol with highly strung nerves, they are always ready to send any monster trying to take their life straight to hell with the bullets in their chamber.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -362,7 +373,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -370,7 +383,7 @@
     "type": "MONSTER",
     "name": { "str": "survivor fighter" },
     "description": "Long-term brushes with death have tempered this civilian into a fighter. Wearing pieced-together but practical makeshift armor and tightly gripping a bloodstained weapon, they are prepared to clash head-on with incoming horrors using their flesh and blood.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -415,7 +428,9 @@
       "BONES",
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
-      "PUSH_MON"
+      "PUSH_MON",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -423,7 +438,7 @@
     "type": "MONSTER",
     "name": { "str": "survivor guardian" },
     "description": "Whether they were a police officer, security guard, or soldier before the Cataclysm, the sense of duty from the old era still flows in their blood. Raising their shotgun, they are ready to repel enemies with explosive firepower. Even in the apocalypse, they still use gunfire to guard the remaining hope in this shattered world.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -489,7 +504,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -497,7 +514,7 @@
     "type": "MONSTER",
     "name": { "str": "survivor guardian" },
     "description": "Whether they were a police officer, security guard, or soldier before the Cataclysm, the sense of duty from the old era still flows in their blood. Raising their submachine gun, they are ready to shred enemies with a dense hail of bullets. Even in the apocalypse, they still use gunfire to guard the remaining hope in this shattered world.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -563,7 +580,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+	  "ATTACKMON"
     ]
   },
   {
@@ -571,7 +590,7 @@
     "type": "MONSTER",
     "name": { "str": "survivor child" },
     "description": "The cruelty of the Cataclysm stripped them of their innocence, but granted them a weed-like vitality. This child not only knows how to agilely dodge danger like a wild animal, but has also learned to throw makeshift bolas to restrain enemies, fighting for a chance of survival in desperate situations.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -632,7 +651,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+	  "ATTACKMON"
     ]
   },
   {
@@ -640,7 +661,7 @@
     "type": "MONSTER",
     "name": { "str": "veteran survivor hunter" },
     "description": "Time and scars are this survivor's best medals. With forged survival experience and exquisite makeshift gear, they have become a top hunter. They will use the fine longbow in their hands to coldly and silently hunt down any obstacle in their path.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -704,7 +725,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -712,7 +735,7 @@
     "type": "MONSTER",
     "name": { "str": "veteran survivor hunter" },
     "description": "Time and scars are this survivor's best medals. With forged survival experience and exquisite makeshift gear, they have become a top hunter. They will use the fine crossbow in their hands to coldly and silently hunt down any obstacle in their path.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -776,7 +799,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -784,7 +809,7 @@
     "type": "MONSTER",
     "name": { "str": "veteran survivor gunner" },
     "description": "The experience of countless battles has stripped away all fear and hesitation from this survivor. Wearing fine makeshift survival gear, their eyes are as sharp as a falcon's. As long as they draw their powerful pistol, no prey can escape their muzzle.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -848,7 +873,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -856,7 +883,7 @@
     "type": "MONSTER",
     "name": { "str": "veteran survivor fighter" },
     "description": "Masterful combat skills, scars covering their body, and a weather-beaten face all tell the legend of this survivor who fought their way out of mountains of corpses. Clad in heavy makeshift armor and wielding a deadly fine weapon, they are like a ruthless meat grinder, daring to face the deepest despair.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -900,7 +927,9 @@
       "BONES",
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
-      "PUSH_MON"
+      "PUSH_MON",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -908,7 +937,7 @@
     "type": "MONSTER",
     "name": { "str": "veteran survivor guardian" },
     "description": "This survivor's eyes and demeanor are as steady as a battle-hardened veteran's. Holding an accurate rifle, they swear to eliminate every threat in sight. The old badge on their body still shines in the dust; no one knows whether it's scavenged loot or the last proof of their adherence to the old era's order.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -970,7 +999,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -978,7 +1009,7 @@
     "type": "MONSTER",
     "name": { "str": "veteran survivor guardian" },
     "description": "This survivor's eyes and demeanor are as steady as a battle-hardened veteran's. Holding a powerful assault rifle, they swear to eliminate every threat in sight. The old badge on their body still shines in the dust; no one knows whether it's scavenged loot or the last proof of their adherence to the old era's order.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -1043,7 +1074,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   },
   {
@@ -1051,7 +1084,7 @@
     "type": "MONSTER",
     "name": { "str": "veteran survivor child" },
     "description": "Growing up in the cruel post-Cataclysm world, this child's eyes have long lost their childhood innocence, replaced by a wolf cub's coldness and alertness. Not only can they weave through the fingers of death with astonishing agility, but they also excel at using carefully woven nets to trap careless enemies in inescapable predicaments.",
-    "default_faction": "human",
+    "default_faction": "civilians",
     "bodytype": "human",
     "species": [ "HUMAN" ],
     "material": [ "hflesh" ],
@@ -1113,7 +1146,9 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      
+      "ATTACKMON"
     ]
   }
 ]
