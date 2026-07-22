@@ -3,8 +3,8 @@
     "type": "MONSTER_FACTION",
     "name": "civilians",
 	"base_faction": "human",
-	"hate": [ "zombie", "nether" ],
-	"friendly": [ "player", "human" ],
+	"hate": [ "zombie", "nether", "zombie_aquatic", "blob", "leech_plant", "jabberwock", "insect"],
+	"friendly": [ "player", "human" ]
   },
   {
     "id": "mon_civilian_panic",
@@ -45,7 +45,7 @@
     "zombify_into": "mon_zombie",
     "dodge": 1,
     "death_drops": "default_civilian_death_drops",
-    "flags": [ "SEES", "HEARS", "WARM", "HUMAN", "CAN_OPEN_DOORS", "PATH_AVOID_DANGER_2", "PRIORITIZE_TARGETS", "GUILT", "ATTACKMON" ]
+    "flags": [ "SEES", "HEARS", "WARM", "HUMAN", "CAN_OPEN_DOORS", "PATH_AVOID_DANGER_2", "PRIORITIZE_TARGETS", "GUILT", "FACTION_MEMORY", "ATTACKMON" ]
   },
   {
     "id": "mon_civilian_stationary",
@@ -224,7 +224,8 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-	  "ATTACKMON"
+	  "FACTION_MEMORY",
+      "ATTACKMON"
     ]
   },
   {
@@ -298,6 +299,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -372,6 +374,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -426,7 +429,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -502,6 +505,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -577,7 +581,8 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-	  "ATTACKMON"
+	  "FACTION_MEMORY",
+      "ATTACKMON"
     ]
   },
   {
@@ -647,7 +652,8 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-	  "ATTACKMON"
+	  "FACTION_MEMORY",
+      "ATTACKMON"
     ]
   },
   {
@@ -720,6 +726,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -793,6 +800,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -866,6 +874,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -919,7 +928,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -991,6 +1000,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -1065,6 +1075,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -1136,6 +1147,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   }
