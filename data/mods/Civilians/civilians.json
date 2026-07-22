@@ -2,11 +2,11 @@
   {
     "type": "MONSTER_FACTION",
     "name": "civilians",
-	"base_faction": "human",
-	"friendly": "civilians",
-	"hate": [ "zombie", "nether", "zombie_aquatic", "blob", "leech_plant", "jabberwock", "insect"],
-	"neutral": [ "bot" ],
-	"by_mood": "player"
+    "base_faction": "human",
+    "friendly": "civilians",
+    "hate": [ "zombie", "nether", "zombie_aquatic", "blob", "leech_plant", "jabberwock", "insect" ],
+    "neutral": [ "bot" ],
+    "by_mood": "player"
   },
   {
     "id": "mon_civilian_panic",
@@ -26,7 +26,7 @@
     "diff": 2,
     "aggression": -50,
     "aggro_character": false,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": -50,
     "vision_day": 10,
     "melee_dice": 1,
@@ -174,7 +174,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 15,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 100,
@@ -228,7 +228,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-	  "FACTION_MEMORY",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -250,7 +250,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 15,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 100,
@@ -303,7 +303,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
+      "HIT_AND_RUN"
     ]
   },
   {
@@ -320,7 +320,7 @@
     "symbol": "@",
     "color": "white",
     "aggro_character": false,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "harvest": "human",
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 15,
@@ -377,8 +377,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
-
+      "HIT_AND_RUN"
     ]
   },
   {
@@ -395,7 +394,7 @@
     "symbol": "@",
     "color": "white",
     "aggro_character": false,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "harvest": "human",
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 5,
@@ -432,7 +431,7 @@
       "BONES",
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
-      "PUSH_MON",
+      "PUSH_MON"
     ]
   },
   {
@@ -449,7 +448,7 @@
     "symbol": "@",
     "color": "white",
     "aggro_character": false,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "harvest": "human",
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 10,
@@ -507,7 +506,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
+      "HIT_AND_RUN"
     ]
   },
   {
@@ -524,7 +523,7 @@
     "symbol": "@",
     "color": "white",
     "aggro_character": false,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "harvest": "human",
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 10,
@@ -583,7 +582,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-	  "FACTION_MEMORY",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -605,7 +604,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 10,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 120,
@@ -655,7 +654,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-	  "FACTION_MEMORY",
+      "FACTION_MEMORY",
       "ATTACKMON"
     ]
   },
@@ -677,7 +676,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 15,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 100,
@@ -729,7 +728,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
+      "HIT_AND_RUN"
     ]
   },
   {
@@ -746,7 +745,7 @@
     "symbol": "@",
     "color": "white",
     "aggro_character": false,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "harvest": "human",
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 15,
@@ -802,7 +801,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
+      "HIT_AND_RUN"
     ]
   },
   {
@@ -823,7 +822,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 15,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 100,
@@ -875,7 +874,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
+      "HIT_AND_RUN"
     ]
   },
   {
@@ -896,7 +895,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 20,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 130,
@@ -928,7 +927,7 @@
       "BONES",
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
-      "PUSH_MON",
+      "PUSH_MON"
     ]
   },
   {
@@ -949,7 +948,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 20,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 100,
@@ -999,7 +998,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
+      "HIT_AND_RUN"
     ]
   },
   {
@@ -1020,7 +1019,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 20,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 100,
@@ -1073,7 +1072,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
+      "HIT_AND_RUN"
     ]
   },
   {
@@ -1094,7 +1093,7 @@
     "path_settings": { "max_dist": 30, "allow_open_doors": true, "avoid_traps": true, "avoid_sharp": true },
     "diff": 20,
     "aggression": 100,
-	"anger_triggers": [ "FRIEND_ATTACKED" ],
+    "anger_triggers": [ "FRIEND_ATTACKED" ],
     "morale": 100,
     "regen_morale": true,
     "speed": 140,
@@ -1144,7 +1143,7 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN",
+      "HIT_AND_RUN"
     ]
   }
 ]
