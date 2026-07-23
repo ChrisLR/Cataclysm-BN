@@ -1241,7 +1241,7 @@ void Creature::deal_projectile_attack( Creature *source, item *source_weapon,
     check_dead_state();
     attack.hit_critter = this;
     attack.missed_by = goodhit;
-    if (sourceplayer || sourcenpc) {
+    if( sourceplayer || sourcenpc ) {
         cata::run_hooks( "on_creature_attacked_by_character", [ &, this]( auto & params ) {
             params["char"] = source;
             params["target"] = this;
