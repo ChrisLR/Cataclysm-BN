@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "catalua_bindings_game_internal.h"
 #include "catalua_bindings_utils.h"
 #include "catalua_luna_doc.h"
@@ -73,6 +75,57 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
                 if( sp && !sp->is_dead() ) {
                     out[idx++] = sp.get();
                 }
+            }
+        }
+        return out;
+    } );
+
+    DOC( "Returns creatures satisfying filter as a Lua array." );
+    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters ) -> sol::table {
+        sol::state_view lua( s );
+        auto out = lua.create_table();
+
+        auto monsters = g->get_monsters_if([filters](const monster & mon) -> bool {
+            for (auto&& [key, value] : filters) {
+                std::string str_key = key.as<std::string>();
+                if ("id" == str_key) {
+                    const auto& ids = value.as<std::vector<mtype_id>>();
+                    if (std::ranges::find(ids, mon.type->id) == ids.end()) {
+                        return false;
+                    }
+                }
+                if ("faction" == str_key) {
+                    const auto& ids = value.as<std::vector<mfaction_id>>();
+                    if (auto it = std::ranges::find(ids, mon.faction); it == ids.end()) {
+                        return false;
+                    }
+                }
+                if ("species" == str_key) {
+                    const auto& filter_set = value.as<std::set<species_id>>();
+                    bool has_match = false;
+                    for (const auto& ms : mon.type->species) {
+                        if (filter_set.contains(ms)) {
+                            has_match = true;
+                        }
+                    }
+
+                    if (!has_match) {
+                        return false;
+                    }
+                }
+                if ("can_see" == str_key) {
+                    if (const auto& target = value.as<Creature>(); !mon.sees(target)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+
+        if( !monsters.empty() )
+        {
+            for (auto [index, mon] : monsters | std::views::enumerate) {
+                out[index] = *mon;
             }
         }
         return out;

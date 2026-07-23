@@ -1,6 +1,7 @@
 gdebug.log_info("Civilians: Initializing mod...")
 local mod = game.mod_runtime[game.current_mod]
 local storage = game.mod_storage[game.current_mod]
+local faction_civ_id = MonsterFactionId.new("civilians"):int_id()
 
 function merge_config(default_config, stored_config)
   if not stored_config then return default_config end
@@ -268,4 +269,49 @@ mod.on_mapgen_postprocess = function(params)
     end
   end
 end
+
+mod.civilian_attitude = function(monster, target)
+  if target == nil then
+    return nil  -- Use default behavior
+  end
+
+  -- Only hostile if THIS monster was attacked by this character
+  if target:is_character() and monster.last_attacker_id == target:id() then
+    return game.MonsterAttitude.Hostile
+  end
+
+  -- Friendly characters get a chance based on faction relations
+  if target:is_character() then
+    return game.MonsterAttitude.Neutral
+  end
+
+  return nil  -- Monster targets use default faction logic
+end
 gdebug.log_info("Civilians: Ready")
+
+mod.on_creature_attacked_by_character = function(params)
+  local char = params.char
+  local creature = params.target
+  local monster = creature:as_monster()
+  if monster.faction ~= faction_civ_id then
+    gdebug.log_info(string.format("Civilians: Not Civ, %s", monster.faction))
+    return
+  end
+  gdebug.log_info("Civilians: Is Civ")
+  local filters = {
+    ["sees"] = char,
+    --["faction"] = "civilians"
+  }
+  local monsters = gapi.get_monsters_if(filters)
+  local char_faction
+  if char:is_npc() then
+    char_faction = char:as_npc():get_monster_faction():str()
+  else
+    char_faction = "player"
+  end
+  for _, mon in ipairs(monsters) do
+    gdebug.log_info("Civilians: Mon!")
+    mon:add_faction_anger(char_faction, 100)
+    mon:set_attitude(MonsterAttitude.MATT_ATTACK)
+  end
+end

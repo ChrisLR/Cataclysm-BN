@@ -16436,6 +16436,18 @@ std::vector<Creature *> game::get_creatures_if( const std::function<bool( const 
     return result;
 }
 
+std::vector<monster *> game::get_monsters_if( const std::function<bool( const monster & )>
+        &pred )
+{
+    std::vector<monster *> result;
+    for( monster &mon : all_monsters() ) {
+        if( pred( mon ) ) {
+            result.push_back( &mon );
+        }
+    }
+    return result;
+}
+
 std::vector<npc *> game::get_npcs_if( const std::function<bool( const npc & )> &pred )
 {
     std::vector<npc *> result;
