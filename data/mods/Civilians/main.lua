@@ -286,20 +286,16 @@ end
 
 mod.civilian_attitude = function(monster, target)
   if target == nil then
-    return nil  -- Use default behavior
+    return nil -- Use default behavior
   end
 
   -- Only hostile if THIS monster was attacked by this character
-  if target:is_character() and monster.last_attacker_id == target:id() then
-    return game.MonsterAttitude.Hostile
-  end
+  if target:is_character() and monster.last_attacker_id == target:id() then return game.MonsterAttitude.Hostile end
 
   -- Friendly characters get a chance based on faction relations
-  if target:is_character() then
-    return game.MonsterAttitude.Neutral
-  end
+  if target:is_character() then return game.MonsterAttitude.Neutral end
 
-  return nil  -- Monster targets use default faction logic
+  return nil -- Monster targets use default faction logic
 end
 gdebug.log_info("Civilians: Ready")
 

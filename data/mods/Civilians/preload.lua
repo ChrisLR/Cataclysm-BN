@@ -13,12 +13,9 @@ game.add_hook("on_creature_attacked_by_character", function(...)
   if mod.on_creature_attacked_by_character then return mod.on_creature_attacked_by_character(...) end
 end)
 
-
-
 -- Register hook every 10 turns (10 seconds) (responsible for checking and executing civilian corpse pulping)
 gapi.add_on_every_x_hook(TimeDuration.from_turns(10), function(params)
   if mod and mod.on_every_10_turns_civilian_update then mod.on_every_10_turns_civilian_update() end
 end)
-
 
 gdebug.log_info("Civilians: Preload complete. Hooks registered.")
