@@ -81,7 +81,8 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
     } );
 
     DOC( "Returns creatures satisfying filter as a Lua array." );
-    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters, int limit = 25 ) -> sol::table {
+    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters,
+    int limit = 25 ) -> sol::table {
         sol::state_view lua( s );
         auto out = lua.create_table();
 
@@ -152,8 +153,9 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
                     auto mpos = mon.abs_pos();
                     for( const auto &other_mon : filter_set ) {
 
-                        if( mon.abs_pos() == other_mon.abs_pos() || std::ranges::any_of(filter_set,[&](const monster& m) -> bool { return mpos == m.abs_pos(); }) ) { continue;}
-                        if( mon.attitude_to( other_mon ) == A_HOSTILE || other_mon.attitude_to(mon) == A_HOSTILE ) {
+                        if( mon.abs_pos() == other_mon.abs_pos() ||
+                            std::ranges::any_of( filter_set, [&]( const monster & m ) -> bool { return mpos == m.abs_pos(); } ) ) { continue;}
+                        if( mon.attitude_to( other_mon ) == A_HOSTILE || other_mon.attitude_to( mon ) == A_HOSTILE ) {
                             has_match = true;
                             break;
                         }
