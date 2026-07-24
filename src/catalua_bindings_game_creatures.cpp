@@ -81,50 +81,94 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
     } );
 
     DOC( "Returns creatures satisfying filter as a Lua array." );
-    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters ) -> sol::table {
+    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters, int limit = 25 ) -> sol::table {
         sol::state_view lua( s );
         auto out = lua.create_table();
 
-        auto monsters = g->get_monsters_if([filters](const monster & mon) -> bool {
-            for (auto&& [key, value] : filters) {
+        auto monsters = g->get_monsters_if( [filters]( const monster & mon ) -> bool {
+            for( auto &&[key, value] : filters )
+            {
                 std::string str_key = key.as<std::string>();
-                if ("id" == str_key) {
-                    const auto& ids = value.as<std::vector<mtype_id>>();
-                    if (std::ranges::find(ids, mon.type->id) == ids.end()) {
+                if( "id" == str_key ) {
+                    const auto &ids = value.as<std::vector<mtype_id>>();
+                    if( std::ranges::find( ids, mon.type->id ) == ids.end() ) {
                         return false;
                     }
                 }
-                if ("faction" == str_key) {
-                    const auto& ids = value.as<std::vector<mfaction_id>>();
-                    if (auto it = std::ranges::find(ids, mon.faction); it == ids.end()) {
+                if( "faction" == str_key ) {
+                    const auto &ids = value.as<std::vector<mfaction_id>>();
+                    if( auto it = std::ranges::find( ids, mon.faction ); it == ids.end() ) {
                         return false;
                     }
                 }
-                if ("species" == str_key) {
-                    const auto& filter_set = value.as<std::set<species_id>>();
+                if( "species" == str_key ) {
+                    const auto &filter_set = value.as<std::set<species_id>>();
                     bool has_match = false;
-                    for (const auto& ms : mon.type->species) {
-                        if (filter_set.contains(ms)) {
+                    for( const auto &ms : mon.type->species ) {
+                        if( filter_set.contains( ms ) ) {
                             has_match = true;
+                            break;
                         }
                     }
 
-                    if (!has_match) {
+                    if( !has_match ) {
                         return false;
                     }
                 }
-                if ("can_see" == str_key) {
-                    if (const auto& target = value.as<Creature>(); !mon.sees(target)) {
+                if( "sees" == str_key ) {
+                    const auto &filter_set = value.as<std::vector<monster>>();
+                    bool has_match = false;
+                    for( const auto &other_mon : filter_set ) {
+                        if( mon.sees( other_mon ) ) {
+                            has_match = true;
+                            break;
+                        }
+                    }
+                    if( !has_match ) {
+                        return false;
+                    }
+                }
+                if( "within_range_of" == str_key ) {
+
+                    const auto value_tbl = value.as<sol::table>();
+                    auto range = value_tbl["range"].get<float>();
+                    auto monsters = value_tbl["monsters"].get<std::vector<monster>>();
+
+                    bool has_match = false;
+                    for( const auto &other_mon : monsters ) {
+                        if( range > std::round( rl_dist_exact( mon.abs_pos(), other_mon.abs_pos() ) ) ) {
+                            has_match = true;
+                            break;
+                        }
+                    }
+                    if( !has_match ) {
+                        return false;
+                    }
+
+                }
+                if( "hostile_to" == str_key ) {
+                    const auto &filter_set = value.as<std::vector<monster>>();
+                    bool has_match = false;
+                    auto mpos = mon.abs_pos();
+                    for( const auto &other_mon : filter_set ) {
+
+                        if( mon.abs_pos() == other_mon.abs_pos() || std::ranges::any_of(filter_set,[&](const monster& m) -> bool { return mpos == m.abs_pos(); }) ) { continue;}
+                        if( mon.attitude_to( other_mon ) == A_HOSTILE || other_mon.attitude_to(mon) == A_HOSTILE ) {
+                            has_match = true;
+                            break;
+                        }
+                    }
+                    if( !has_match ) {
                         return false;
                     }
                 }
             }
             return true;
-        });
+        } );
 
         if( !monsters.empty() )
         {
-            for (auto [index, mon] : monsters | std::views::enumerate) {
+            for( auto [index, mon] : monsters | std::views::enumerate ) {
                 out[index] = *mon;
             }
         }

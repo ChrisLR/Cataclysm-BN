@@ -16437,6 +16437,23 @@ std::vector<Creature *> game::get_creatures_if( const std::function<bool( const 
 }
 
 std::vector<monster *> game::get_monsters_if( const std::function<bool( const monster & )>
+        &pred, int limit )
+{
+    std::vector<monster *> result;
+    int i = 0;
+    for( monster &mon : all_monsters() ) {
+        if( pred( mon ) ) {
+            result.push_back( &mon );
+            i++;
+            if (i >= limit) {
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<monster *> game::get_monsters_if( const std::function<bool( const monster & )>
         &pred )
 {
     std::vector<monster *> result;

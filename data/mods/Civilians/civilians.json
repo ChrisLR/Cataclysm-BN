@@ -225,8 +225,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-      "FACTION_MEMORY",
-      "ATTACKMON"
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -299,7 +298,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -372,7 +372,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -425,7 +426,8 @@
       "BONES",
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
-      "PUSH_MON"
+      "PUSH_MON",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -499,7 +501,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -574,8 +577,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-      "FACTION_MEMORY",
-      "ATTACKMON"
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -645,8 +647,7 @@
       "CAN_OPEN_DOORS",
       "PUSH_MON",
       "HIT_AND_RUN",
-      "FACTION_MEMORY",
-      "ATTACKMON"
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -718,7 +719,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -790,7 +792,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -862,7 +865,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -914,7 +918,8 @@
       "BONES",
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
-      "PUSH_MON"
+      "PUSH_MON",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -984,7 +989,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -1057,7 +1063,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   },
   {
@@ -1127,7 +1134,8 @@
       "PATH_AVOID_DANGER_2",
       "CAN_OPEN_DOORS",
       "PUSH_MON",
-      "HIT_AND_RUN"
+      "HIT_AND_RUN",
+      "FACTION_MEMORY"
     ]
   }
 ]

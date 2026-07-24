@@ -534,11 +534,14 @@ class game : public submap_load_listener
          * are checked ( and returned ). Returned pointers are never null.
          */
         std::vector<Creature *> get_creatures_if( const std::function<bool( const Creature & )> &pred );
+
+        std::vector<monster *> get_monsters_if(const std::function<bool(const monster &)> &pred, int limit);
+
         /**
          * Returns all monsters matching a predicate. Only living ( not dead ) monsters
          * are checked ( and returned ). Returned pointers are never null.
          */
-        std::vector<monster *> get_monsters_if(const std::function<bool(const monster &)> &pred);
+        std::vector<monster *> get_monsters_if( const std::function<bool( const monster & )> &pred );
 
         std::vector<npc *> get_npcs_if( const std::function<bool( const npc & )> &pred );
         std::vector<weak_ptr_fast<npc>> get_npcs_pointers_if( const std::function<bool( const npc & )>
