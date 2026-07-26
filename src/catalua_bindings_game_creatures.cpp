@@ -168,8 +168,9 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
 
         if( !monsters.empty() )
         {
-            for( auto [index, mon] : monsters | std::views::enumerate ) {
+            for (std::size_t index = 0; auto& mon : monsters) {
                 out[index] = *mon;
+                ++index;
             }
         }
         return out;
