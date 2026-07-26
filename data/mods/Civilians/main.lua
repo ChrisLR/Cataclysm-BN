@@ -2,6 +2,7 @@ gdebug.log_info("Civilians: Initializing mod...")
 local mod = game.mod_runtime[game.current_mod]
 local storage = game.mod_storage[game.current_mod]
 local faction_civ_id = MonsterFactionId.new("civilians"):int_id()
+local faction_zombie_id = MonsterFactionId.new('zombie'):int_id()
 
 function merge_config(default_config, stored_config)
   if not stored_config then return default_config end
@@ -113,8 +114,12 @@ local FLAG_FIELD_DRESS_FAILED = JsonFlagId.new("FIELD_DRESS_FAILED")
 -- Corpse Pulping Function Area
 -- ============================================================================
 
+local function pos_as_key(tripoint)
+  return string.format("%d:%d:%d", tripoint.x, tripoint.y, tripoint.z)
+end
+
 --- Process civilian corpse pulping behavior
-local function process_civilian_corpse_pulping(monster, map)
+local function process_civilian_corpse_pulping(monster, map, checked_positions)
   gdebug.log_info("Civilians: Process pulp")
   local m_pos = monster:get_pos_ms()
   ---@type Item?
@@ -125,19 +130,23 @@ local function process_civilian_corpse_pulping(monster, map)
   -- 2. Scan surroundings for unpulped corpses (radius 8 tiles)
   local points = map:points_in_radius(m_pos, CONFIG.PULPING_RADIUS, 0)
   for _, pt in ipairs(points) do
-    if map:has_items_at(pt) then
-      local map_stack = map:get_items_at(pt)
-      for _, item in ipairs(map_stack:items()) do
-        if item and not item:is_null() and item:is_corpse() then
-          -- Determine if the corpse has not been pulped yet
-          local is_pulped = item:has_flag(FLAG_PULPED) or item:has_flag(FLAG_FIELD_DRESS_FAILED)
-          local is_max_damage = item:get_damage() >= item:get_max_damage()
+    local pos_key = pos_as_key(pt)
+    if checked_positions[pos_key] == nil then
+      checked_positions[pos_key] = true -- Do not check same position twice
+      if map:has_items_at(pt) then
+        local map_stack = map:get_items_at(pt)
+        for _, item in ipairs(map_stack:items()) do
+          if item and not item:is_null() and item:is_corpse() then
+            -- Determine if the corpse has not been pulped yet
+            local is_pulped = item:has_flag(FLAG_PULPED) or item:has_flag(FLAG_FIELD_DRESS_FAILED)
+            local is_max_damage = item:get_damage() >= item:get_max_damage()
 
-          if not (is_pulped or is_max_damage) then
-            found_corpse = item
-            corpse_pos = pt
-            gdebug.log_info("Civilians: Found corpse")
-            break
+            if not (is_pulped or is_max_damage) then
+              found_corpse = item
+              corpse_pos = pt
+              gdebug.log_info("Civilians: Found corpse")
+              break
+            end
           end
         end
       end
@@ -145,7 +154,7 @@ local function process_civilian_corpse_pulping(monster, map)
     if found_corpse then break end
   end
 
-  if not found_corpse or corpse_pos == nil then
+  if not found_corpse or found_corpse == nil or not corpse_pos or corpse_pos == nil then
     gdebug.log_info("Civilians: No corpse found")
     return
   end
@@ -154,6 +163,7 @@ local function process_civilian_corpse_pulping(monster, map)
   -- 3. Determine distance and execute action
   local dist = coords.rl_dist(m_pos, corpse_pos) or math.maxinteger
   if dist <= 1 then
+    gdebug.log_info("Civilians: Close enough, pulping")
     -- Close enough, execute pulping action
     found_corpse:set_damage(found_corpse:get_max_damage())
     found_corpse:set_flag(FLAG_PULPED)
@@ -169,6 +179,7 @@ local function process_civilian_corpse_pulping(monster, map)
     -- Deduct some moves to simulate attack action
     monster:mod_moves(-100)
   else
+    gdebug.log_info("Civilians: Too far from corpse, wander.")
     -- Too far, let the civilian walk over there
     monster:wander_to(corpse_pos, 100)
   end
@@ -185,8 +196,10 @@ function mod.on_every_10_turns_civilian_update()
   local hostiles = gapi.get_monsters_if({
     ["within_range_of"] = {["range"] = 10, ["monsters"] = civilians},
     --["sees"] = civilians,
-    --["hostile_to"] = civilians,
-  }, 1) -- Limit of one because any hostile is enough.
+    ["hostile_to"] = civilians,
+    --["faction"] = {faction_zombie_id},
+    --["limit"] = 1,
+  })
 
   -- Dont process if no civilians or hostiles in sight
   if not map or not civilians or (hostiles and #hostiles > 0) then
@@ -200,6 +213,7 @@ function mod.on_every_10_turns_civilian_update()
     return
   end
 
+  local checked_positions = {}
   gdebug.log_info("Civilians: Iterating")
   for _, mon in ipairs(civilians) do
     if mon and not mon:is_dead() then
@@ -207,7 +221,7 @@ function mod.on_every_10_turns_civilian_update()
       -- Only civilians in the whitelist will execute corpse pulping
       if CONFIG.CAN_PULP_CIVILIANS[mon_id] then
         -- This means not all civilians will be pulping at the same time
-        if gapi.rng(1, 100) <= CONFIG.PULPING_CHANCE then process_civilian_corpse_pulping(mon, map) end
+        if gapi.rng(1, 100) <= CONFIG.PULPING_CHANCE then process_civilian_corpse_pulping(mon, map, checked_positions) end
       end
     end
   end
