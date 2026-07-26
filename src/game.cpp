@@ -16445,7 +16445,7 @@ std::vector<monster *> game::get_monsters_if( const std::function<bool( const mo
         if( pred( mon ) ) {
             result.push_back( &mon );
             i++;
-            if (i >= limit) {
+            if( i >= limit ) {
                 break;
             }
         }

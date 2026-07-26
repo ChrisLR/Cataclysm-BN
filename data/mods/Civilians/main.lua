@@ -192,9 +192,9 @@ function mod.on_every_10_turns_civilian_update()
 
   local map = gapi.get_map()
   -- Ideally, we change the API to filter creatures/monsters in C++ first.
-  local civilians = gapi.get_monsters_if({["faction"] = {faction_civ_id}}, CONFIG.PULPING_NUM_RESULT_LIMIT)
+  local civilians = gapi.get_monsters_if({ ["faction"] = { faction_civ_id } }, CONFIG.PULPING_NUM_RESULT_LIMIT)
   local hostiles = gapi.get_monsters_if({
-    ["within_range_of"] = {["range"] = 10, ["monsters"] = civilians},
+    ["within_range_of"] = { ["range"] = 10, ["monsters"] = civilians },
     --["sees"] = civilians,
     ["hostile_to"] = civilians,
     --["faction"] = {faction_zombie_id},
@@ -203,12 +203,8 @@ function mod.on_every_10_turns_civilian_update()
 
   -- Dont process if no civilians or hostiles in sight
   if not map or not civilians or (hostiles and #hostiles > 0) then
-    if not civilians then
-      gdebug.log_info("Civilians: No civs")
-    end
-    if hostiles and #hostiles > 0 then
-      gdebug.log_info(string.format("Civilians: Has %s hostiles", #hostiles))
-    end
+    if not civilians then gdebug.log_info("Civilians: No civs") end
+    if hostiles and #hostiles > 0 then gdebug.log_info(string.format("Civilians: Has %s hostiles", #hostiles)) end
 
     return
   end
@@ -324,7 +320,7 @@ mod.on_creature_attacked_by_character = function(params)
   gdebug.log_info("Civilians: Is Civ")
   local filters = {
     ["sees"] = char,
-    ["faction"] = {faction_civ_id}
+    ["faction"] = { faction_civ_id },
   }
   local monsters = gapi.get_monsters_if(filters)
   local char_faction

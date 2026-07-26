@@ -535,7 +535,8 @@ class game : public submap_load_listener
          */
         std::vector<Creature *> get_creatures_if( const std::function<bool( const Creature & )> &pred );
 
-        std::vector<monster *> get_monsters_if(const std::function<bool(const monster &)> &pred, int limit);
+        std::vector<monster *> get_monsters_if( const std::function<bool( const monster & )> &pred,
+                                                int limit );
 
         /**
          * Returns all monsters matching a predicate. Only living ( not dead ) monsters
