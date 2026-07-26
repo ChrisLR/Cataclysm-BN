@@ -2,7 +2,7 @@ gdebug.log_info("Civilians: Initializing mod...")
 local mod = game.mod_runtime[game.current_mod]
 local storage = game.mod_storage[game.current_mod]
 local faction_civ_id = MonsterFactionId.new("civilians"):int_id()
-local faction_zombie_id = MonsterFactionId.new('zombie'):int_id()
+local faction_zombie_id = MonsterFactionId.new("zombie"):int_id()
 
 function merge_config(default_config, stored_config)
   if not stored_config then return default_config end
@@ -114,9 +114,7 @@ local FLAG_FIELD_DRESS_FAILED = JsonFlagId.new("FIELD_DRESS_FAILED")
 -- Corpse Pulping Function Area
 -- ============================================================================
 
-local function pos_as_key(tripoint)
-  return string.format("%d:%d:%d", tripoint.x, tripoint.y, tripoint.z)
-end
+local function pos_as_key(tripoint) return string.format("%d:%d:%d", tripoint.x, tripoint.y, tripoint.z) end
 
 --- Process civilian corpse pulping behavior
 local function process_civilian_corpse_pulping(monster, map, checked_positions)
@@ -217,7 +215,9 @@ function mod.on_every_10_turns_civilian_update()
       -- Only civilians in the whitelist will execute corpse pulping
       if CONFIG.CAN_PULP_CIVILIANS[mon_id] then
         -- This means not all civilians will be pulping at the same time
-        if gapi.rng(1, 100) <= CONFIG.PULPING_CHANCE then process_civilian_corpse_pulping(mon, map, checked_positions) end
+        if gapi.rng(1, 100) <= CONFIG.PULPING_CHANCE then
+          process_civilian_corpse_pulping(mon, map, checked_positions)
+        end
       end
     end
   end

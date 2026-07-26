@@ -81,19 +81,19 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
     } );
 
     DOC( "Returns creatures satisfying filter as a Lua array." );
-    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters) -> sol::table {
+    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters ) -> sol::table {
         sol::state_view lua( s );
         auto out = lua.create_table();
-        std::vector<const monster*> monsters;
+        std::vector<const monster *> monsters;
         bool past_limits = false;
-        for (const auto& mon : g->all_monsters()) {
-            if (past_limits){break;}
+        for( const auto &mon : g->all_monsters() )
+        {
+            if( past_limits ) {break;}
             bool matching = true;
-            for( auto &&[key, value] : filters )
-            {
+            for( auto &&[key, value] : filters ) {
                 std::string str_key = key.as<std::string>();
-                if ("limit" == str_key) {
-                    if (const auto limit_value = value.as<size_t>(); monsters.size() >= limit_value) {
+                if( "limit" == str_key ) {
+                    if( const auto limit_value = value.as<size_t>(); monsters.size() >= limit_value ) {
                         past_limits = true;
                         matching = false;
                         break;
@@ -150,7 +150,7 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
                     auto mpos = mon.abs_pos();
                     bool has_match = false;
                     for( const auto &other_mon : other_monsters ) {
-                        if (mpos == other_mon.abs_pos()) { continue; }
+                        if( mpos == other_mon.abs_pos() ) { continue; }
                         if( range > std::round( rl_dist_exact( mpos, other_mon.abs_pos() ) ) ) {
                             has_match = true;
                             break;
@@ -167,8 +167,8 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
                     bool has_match = false;
                     auto mpos = mon.abs_pos();
                     for( const auto &other_mon : filter_set ) {
-                        if (mpos == other_mon.abs_pos()) { continue; }
-                        if( mon.attitude_to( other_mon ) == A_HOSTILE || other_mon.attitude_to(mon) == A_HOSTILE ) {
+                        if( mpos == other_mon.abs_pos() ) { continue; }
+                        if( mon.attitude_to( other_mon ) == A_HOSTILE || other_mon.attitude_to( mon ) == A_HOSTILE ) {
                             has_match = true;
                             break;
                         }
@@ -179,14 +179,14 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
                     }
                 }
             }
-            if (matching) {
-                monsters.push_back(&mon);
+            if( matching ) {
+                monsters.push_back( &mon );
             }
         }
 
         if( !monsters.empty() )
         {
-            for (std::size_t index = 0; auto& mon : monsters) {
+            for( std::size_t index = 0; auto &mon : monsters ) {
                 out[index] = *mon;
                 ++index;
             }
