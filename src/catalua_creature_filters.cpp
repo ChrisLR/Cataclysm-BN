@@ -120,7 +120,7 @@ std::vector<monster*> filter_monsters_from_lua(sol::table &filters) {
         .mon = nullptr,
         .output = monsters
     };
-    for (monster& mon : g->all_monsters()) {
+    for (monster &mon : g->all_monsters()) {
         context.mon = &mon;
         bool matching = true;
         for( auto &&[key, value] : filters ) {
@@ -136,7 +136,7 @@ std::vector<monster*> filter_monsters_from_lua(sol::table &filters) {
             }
         }
         if (matching) {
-            monsters.push_back(*mon);
+            monsters.push_back(&mon);
         }
         if (context.past_limit) {
             break;
