@@ -90,7 +90,7 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
         if( !monsters.empty() )
         {
             for( std::size_t i = 0; i < monsters.size(); ++i ) {
-                out[i + 1] = monsters[i].get();
+                out[i + 1] = monsters[i];
             }
         }
         return out;

@@ -8,7 +8,7 @@
 #include "monster.h"
 
 using LuaValue = sol::basic_object<sol::basic_reference<>>;
-using MonsterVec = std::vector<std::__shared_ptr<monster, __gnu_cxx::_S_single>>;
+using MonsterVec = std::vector<monster *>;
 
 namespace
 {
@@ -106,9 +106,9 @@ static const std::unordered_map<std::string, std::function<bool( FilterContext &
     {"hostile_to", []( const FilterContext & context ) -> bool { return filter_hostile_to( context );}},
 };
 
-MonsterVec filter_monsters_from_lua( const sol::table &filters )
+std::vector<monster *> filter_monsters_from_lua( const sol::table &filters )
 {
-    MonsterVec monsters;
+    std::vector<monster *> monsters;
     FilterContext context = {
         .value = nullptr,
         .mon = nullptr,
@@ -116,8 +116,8 @@ MonsterVec filter_monsters_from_lua( const sol::table &filters )
     };
     if( const auto rng = g->all_monsters(); rng.items ) {
         for( const auto &wp : *rng.items ) {
-            const auto sp = wp.lock();
-            if (!sp){ continue; }
+            const auto sp = std::static_pointer_cast<monster>( wp.lock() );
+            if( !sp ) { continue; }
 
             const monster *mon = sp.get();
             context.mon = mon;
@@ -135,7 +135,7 @@ MonsterVec filter_monsters_from_lua( const sol::table &filters )
                 }
             }
             if( matching ) {
-                monsters.push_back( sp );
+                monsters.push_back( sp.get() );
             }
             if( context.past_limit ) {
                 break;
