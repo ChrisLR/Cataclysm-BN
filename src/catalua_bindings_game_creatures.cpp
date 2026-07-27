@@ -82,23 +82,24 @@ auto reg_game_api_creature_queries( luna::userlib &lib ) -> void
     } );
 
     DOC( "Returns creatures satisfying filter as a Lua array." );
-    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters) -> sol::table {
+    luna::set_fx( lib, "get_monsters_if", []( sol::this_state s, sol::table filters ) -> sol::table {
         sol::state_view lua( s );
         auto out = lua.create_table();
-        std::vector<monster*> monsters = filter_monsters_from_lua(filters);
-        printf("Filtered monsters=%lu\n", monsters.size());
+        std::vector<monster *> monsters = filter_monsters_from_lua( filters );
+        printf( "Filtered monsters=%lu\n", monsters.size() );
         if( !monsters.empty() )
         {
-            for (std::size_t index = 1; index < monsters.size() + 1; ++index){
+            for( std::size_t index = 1; index < monsters.size() + 1; ++index ) {
                 out[index] = *monsters[index];
-                printf("Added one\n");
+                printf( "Added one\n" );
             }
-        } else {
-            printf("No monsters found\n");
+        } else
+        {
+            printf( "No monsters found\n" );
         }
 
 
-        printf("Out monsters=%lu\n", out.size());
+        printf( "Out monsters=%lu\n", out.size() );
 
         return out;
     } );

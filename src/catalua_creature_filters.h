@@ -6,7 +6,7 @@
 
 class monster;
 
-std::vector<monster*> filter_monsters_from_lua(sol::table &filters);
+std::vector<monster *> filter_monsters_from_lua( sol::table &filters );
 
 
 #endif //CATACLYSMBN_CATALUA_CREATURE_FILTERS_H
