@@ -117,28 +117,28 @@ MonsterVec filter_monsters_from_lua( const sol::table &filters )
     if( const auto rng = g->all_monsters(); rng.items ) {
         for( const auto &wp : *rng.items ) {
             const auto sp = wp.lock();
-            if( sp ) {   // pred sees the monster
-                const monster *mon = sp.get();
-                context.mon = mon;
-                bool matching = true;
-                for( auto &&[key, value] : filters ) {
-                    context.value = &value;
-                    auto str_key = key.as<std::string>();
-                    if( auto it = handlers.find( str_key ); it != handlers.end() ) {
-                        if( const auto filter_result = it->second( context ); !filter_result ) {
-                            matching = false;
-                            break;
-                        }
-                    } else {
-                        debugmsg( "Unknown filter %s", str_key.c_str() );
+            if (!sp){ continue; }
+
+            const monster *mon = sp.get();
+            context.mon = mon;
+            bool matching = true;
+            for( auto &&[key, value] : filters ) {
+                context.value = &value;
+                auto str_key = key.as<std::string>();
+                if( auto it = handlers.find( str_key ); it != handlers.end() ) {
+                    if( const auto filter_result = it->second( context ); !filter_result ) {
+                        matching = false;
+                        break;
                     }
+                } else {
+                    debugmsg( "Unknown filter %s", str_key.c_str() );
                 }
-                if( matching ) {
-                    monsters.push_back( sp );
-                }
-                if( context.past_limit ) {
-                    break;
-                }
+            }
+            if( matching ) {
+                monsters.push_back( sp );
+            }
+            if( context.past_limit ) {
+                break;
             }
         }
     }

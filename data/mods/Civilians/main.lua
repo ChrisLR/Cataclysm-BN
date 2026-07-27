@@ -83,7 +83,7 @@ local _default_config = {
   -- List of civilians allowed to pulp corpses (excludes panic, stationary, parent, and normal child)
   PULPING_ENABLED = true,
   PULPING_CIV_LIMIT = 25,
-  PULPING_RADIUS = 10,
+  PULPING_RADIUS = 4,
   PULPING_CHANCE = 50,
   CAN_PULP_CIVILIANS = {
     ["mon_civilian_zombiefighter"] = true,
@@ -118,7 +118,6 @@ local function pos_as_key(tripoint) return string.format("%d:%d:%d", tripoint.x,
 
 --- Process civilian corpse pulping behavior
 local function process_civilian_corpse_pulping(monster, map, checked_positions)
-  gdebug.log_info("Civilians: Process pulp")
   local m_pos = monster:get_pos_ms()
   ---@type Item?
   local found_corpse = nil
@@ -142,7 +141,6 @@ local function process_civilian_corpse_pulping(monster, map, checked_positions)
             if not (is_pulped or is_max_damage) then
               found_corpse = item
               corpse_pos = pt
-              gdebug.log_info("Civilians: Found corpse")
               break
             end
           end
@@ -153,7 +151,6 @@ local function process_civilian_corpse_pulping(monster, map, checked_positions)
   end
 
   if not found_corpse or found_corpse == nil or not corpse_pos or corpse_pos == nil then
-    gdebug.log_info("Civilians: No corpse found")
     return
   end
   ---@cast corpse_pos TripointBubMs
@@ -161,7 +158,6 @@ local function process_civilian_corpse_pulping(monster, map, checked_positions)
   -- 3. Determine distance and execute action
   local dist = coords.rl_dist(m_pos, corpse_pos) or math.maxinteger
   if dist <= 1 then
-    gdebug.log_info("Civilians: Close enough, pulping")
     -- Close enough, execute pulping action
     found_corpse:set_damage(found_corpse:get_max_damage())
     found_corpse:set_flag(FLAG_PULPED)
@@ -177,7 +173,6 @@ local function process_civilian_corpse_pulping(monster, map, checked_positions)
     -- Deduct some moves to simulate attack action
     monster:mod_moves(-100)
   else
-    gdebug.log_info("Civilians: Too far from corpse, wander.")
     -- Too far, let the civilian walk over there
     monster:wander_to(corpse_pos, 100)
   end
