@@ -150,9 +150,7 @@ local function process_civilian_corpse_pulping(monster, map, checked_positions)
     if found_corpse then break end
   end
 
-  if not found_corpse or found_corpse == nil or not corpse_pos or corpse_pos == nil then
-    return
-  end
+  if not found_corpse or found_corpse == nil or not corpse_pos or corpse_pos == nil then return end
   ---@cast corpse_pos TripointBubMs
 
   -- 3. Determine distance and execute action
