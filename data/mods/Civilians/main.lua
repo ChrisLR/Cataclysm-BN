@@ -197,12 +197,8 @@ function mod.on_every_10_turns_civilian_update()
   })
 
   -- Dont process if no civilians or hostiles in sight
-  if not map or not civilians then
-    return
-  end
-  if hostiles and #hostiles > 0 then
-    return
-  end
+  if not map or not civilians then return end
+  if hostiles and #hostiles > 0 then return end
 
   local checked_positions = {}
   for _, mon in ipairs(civilians) do
