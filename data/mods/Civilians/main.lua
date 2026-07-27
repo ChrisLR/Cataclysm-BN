@@ -82,9 +82,9 @@ local _default_config = {
 
   -- List of civilians allowed to pulp corpses (excludes panic, stationary, parent, and normal child)
   PULPING_ENABLED = true,
-  PULPING_NUM_RESULT_LIMIT = 25,
+  PULPING_CIV_LIMIT = 25,
   PULPING_RADIUS = 10,
-  PULPING_CHANCE = 100,
+  PULPING_CHANCE = 50,
   CAN_PULP_CIVILIANS = {
     ["mon_civilian_zombiefighter"] = true,
     ["mon_civilian_police"] = true,
@@ -186,35 +186,25 @@ end
 -- Execute corpse pulping check for all civilians every 10 turns
 function mod.on_every_10_turns_civilian_update()
   if not CONFIG.PULPING_ENABLED then return end
-  gdebug.log_info("Civilians: Processing 10th turn")
-
   local map = gapi.get_map()
-  -- Ideally, we change the API to filter creatures/monsters in C++ first.
-  local civilians = gapi.get_monsters_if({ ["faction_ids"] = { faction_civ_id } })
+  local civilians = gapi.get_monsters_if({ ["faction_ids"] = { faction_civ_id }, ["limit"] = CONFIG.PULPING_CIV_LIMIT })
   local hostiles = gapi.get_monsters_if({
     ["faction_ids"] = {faction_zombie_id},
     ["within_range_of"] = { ["range"] = 10, ["monsters"] = civilians },
     ["sees"] = civilians,
     ["hostile_to"] = civilians,
-    --["limit"] = 1,
+    ["limit"] = 1,
   })
 
   -- Dont process if no civilians or hostiles in sight
   if not map or not civilians then
-    gdebug.log_info("Civilians: No civs")
     return
   end
-  if #hostiles > 0 then
-    gdebug.log_info(string.format("Civilians: Has %s hostiles", #hostiles))
-    for _, hostile in ipairs(hostiles) do
-      gdebug.log_info(hostile)
-    end
+  if hostiles and #hostiles > 0 then
     return
   end
-  gdebug.log_info(hostiles)
 
   local checked_positions = {}
-  gdebug.log_info("Civilians: Iterating")
   for _, mon in ipairs(civilians) do
     if mon and not mon:is_dead() then
       local mon_id = mon:get_type():str()
@@ -299,45 +289,4 @@ mod.on_mapgen_postprocess = function(params)
     end
   end
 end
-
-mod.civilian_attitude = function(monster, target)
-  if target == nil then
-    return nil -- Use default behavior
-  end
-
-  -- Only hostile if THIS monster was attacked by this character
-  if target:is_character() and monster.last_attacker_id == target:id() then return game.MonsterAttitude.Hostile end
-
-  -- Friendly characters get a chance based on faction relations
-  if target:is_character() then return game.MonsterAttitude.Neutral end
-
-  return nil -- Monster targets use default faction logic
-end
 gdebug.log_info("Civilians: Ready")
-
-mod.on_creature_attacked_by_character = function(params)
-  local char = params.char
-  local creature = params.target
-  local monster = creature:as_monster()
-  if monster.faction ~= faction_civ_id then
-    gdebug.log_info(string.format("Civilians: Not Civ, %s", monster.faction))
-    return
-  end
-  gdebug.log_info("Civilians: Is Civ")
-  local filters = {
-    ["sees"] = char,
-    ["faction"] = { faction_civ_id },
-  }
-  local monsters = gapi.get_monsters_if(filters)
-  local char_faction
-  if char:is_npc() then
-    char_faction = char:as_npc():get_monster_faction():str()
-  else
-    char_faction = "player"
-  end
-  for _, mon in ipairs(monsters) do
-    gdebug.log_info("Civilians: Mon!")
-    mon:add_faction_anger(char_faction, 100)
-    mon:set_attitude(MonsterAttitude.MATT_ATTACK)
-  end
-end
