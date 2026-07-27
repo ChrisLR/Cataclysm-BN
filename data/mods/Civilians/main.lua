@@ -192,7 +192,7 @@ function mod.on_every_10_turns_civilian_update()
   -- Ideally, we change the API to filter creatures/monsters in C++ first.
   local civilians = gapi.get_monsters_if({ ["faction_ids"] = { faction_civ_id } })
   local hostiles = gapi.get_monsters_if({
-    ["faction_ids"] = {faction_zombie_id},
+    ["faction_ids"] = { faction_zombie_id },
     ["within_range_of"] = { ["range"] = 10, ["monsters"] = civilians },
     ["sees"] = civilians,
     ["hostile_to"] = civilians,
