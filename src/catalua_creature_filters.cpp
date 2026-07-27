@@ -117,7 +117,7 @@ MonsterVec filter_monsters_from_lua( const sol::table &filters )
     if( const auto rng = g->all_monsters(); rng.items ) {
         for( const auto &wp : *rng.items ) {
             const auto sp = wp.lock();
-            if (!sp){ continue; }
+            if( !sp ) { continue; }
 
             const monster *mon = sp.get();
             context.mon = mon;
