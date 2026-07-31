@@ -79,6 +79,7 @@
 #include "trap.h"
 #include "weather.h"
 #include "profile.h"
+#include "units_utility.h"
 
 static const ammo_effect_str_id ammo_effect_WHIP( "WHIP" );
 
@@ -390,7 +391,7 @@ monster::monster( const mtype_id &id ) : monster()
     if( monster::has_flag( MF_AQUATIC ) ) {
         fish_population = dice( 1, 20 );
     }
-    upgrade_time = next_upgrade_time();
+    upgrade_time = next_upgrade_time() + to_days<int>( calendar::turn - calendar::turn_zero );
 }
 
 monster::monster( const mtype_id &id, const tripoint_bub_ms &p ) : monster( id )
@@ -1269,6 +1270,7 @@ std::string monster::extended_description() const
         } else {
             ss += string_format( _( "It is unsure about you. (%s)\n" ), pet_bond_level );
         }
+        ss += string_format(_("It carries %s / %s\n"), static_cast<int>(convert_weight(get_carried_weight())), static_cast<int>( convert_weight(weight_capacity())));
     }
 
     if( training_level > 0 && type->pet_training ) {
@@ -3288,7 +3290,10 @@ void monster::process_turn()
             }
         }
     }
-
+    if (is_pet()) {
+        // Only pets can upgrade in range of the player, monsters only upgrade on load.
+        try_upgrade(false);
+    }
     Creature::process_turn();
 }
 
