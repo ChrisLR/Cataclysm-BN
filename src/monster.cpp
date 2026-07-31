@@ -1270,7 +1270,9 @@ std::string monster::extended_description() const
         } else {
             ss += string_format( _( "It is unsure about you. (%s)\n" ), pet_bond_level );
         }
-        ss += string_format(_("It carries %s / %s\n"), static_cast<int>(convert_weight(get_carried_weight())), static_cast<int>( convert_weight(weight_capacity())));
+        ss += string_format( _( "It carries %s / %s\n" ),
+                             static_cast<int>( convert_weight( get_carried_weight() ) ),
+                             static_cast<int>( convert_weight( weight_capacity() ) ) );
     }
 
     if( training_level > 0 && type->pet_training ) {
@@ -3290,9 +3292,9 @@ void monster::process_turn()
             }
         }
     }
-    if (is_pet()) {
+    if( is_pet() ) {
         // Only pets can upgrade in range of the player, monsters only upgrade on load.
-        try_upgrade(false);
+        try_upgrade( false );
     }
     Creature::process_turn();
 }

@@ -2367,8 +2367,8 @@ bool game::do_turn()
     }
     if( action_time_scale::once_every_this_tick( 1_minutes ) ) {
         mapbuffer &map_buffer = m.get_mapbuffer();
-        for (auto const& view : m.active_submap_views(0)) {
-            map_buffer.process_visible_plants_randomly(view.abs_pos());
+        for( auto const &view : m.active_submap_views( 0 ) ) {
+            map_buffer.process_visible_plants_randomly( view.abs_pos() );
 
         }
     }

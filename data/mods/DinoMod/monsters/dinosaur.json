@@ -2092,7 +2092,11 @@
     "reproduction": { "baby_egg": "egg_triceratops", "baby_count": 20, "baby_timer": 40 },
     "baby_flags": [ "SPRING", "SUMMER" ],
     "special_attacks": [ [ "EAT_CROP", 2400 ], { "id": "impale" } ],
-    "petfood": { "food": [ "DINOFOOD_C" ], "feed": "The %s seems to like you!", "pet": "The %s closes its eyes and enjoys the attention." },
+    "petfood": {
+      "food": [ "DINOFOOD_C" ],
+      "feed": "The %s seems to like you!",
+      "pet": "The %s closes its eyes and enjoys the attention."
+    },
     "flags": [ "SEES", "SMELLS", "HEARS", "ANIMAL", "PATH_AVOID_DANGER_1", "BASHES", "PET_MOUNTABLE" ],
     "harvest": "triceratops",
     "anger_triggers": [ "HURT", "FRIEND_ATTACKED", "PLAYER_NEAR_BABY" ],

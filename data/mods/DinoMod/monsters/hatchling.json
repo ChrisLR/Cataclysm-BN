@@ -217,7 +217,7 @@
     "name": "dark gray and yellow hatchling",
     "default_faction": "velociraptor_hatchling",
     "upgrades": { "age_grow": 20, "into": "mon_velociraptor" },
-	"petfood": { "food": [ "DINOFOOD_A" ] }
+    "petfood": { "food": [ "DINOFOOD_A" ] }
   },
   {
     "id": "mon_deinonychus_hatchling",

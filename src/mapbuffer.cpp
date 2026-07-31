@@ -4342,7 +4342,8 @@ static uint32_t submap_offset( const tripoint_abs_sm &pos )
     return h % 144;
 }
 
-void mapbuffer::process_visible_plants_randomly(const tripoint_abs_sm &pos) {
+void mapbuffer::process_visible_plants_randomly( const tripoint_abs_sm &pos )
+{
     auto *const tmpsub = lookup_submap_in_memory( pos );
     const auto last_touched = tmpsub->last_touched;
     const auto elapsed = calendar::turn - last_touched;
@@ -4353,16 +4354,16 @@ void mapbuffer::process_visible_plants_randomly(const tripoint_abs_sm &pos) {
         return;
     }
 
-    const auto offset = submap_offset(pos);
+    const auto offset = submap_offset( pos );
     const time_duration current_time = calendar::turn - calendar::turn_zero;
-    const auto dat = to_minutes<int>(current_time);
+    const auto dat = to_minutes<int>( current_time );
     const int slot = dat % 144;  // 0-143, cycles every 144 min
     constexpr auto lookup_options = mapbuffer_lookup_options {
         .mode = mapbuffer_lookup_mode::resident_only,
     };
     const auto idx = static_cast<int>( offset + slot ) % 144;  // 0-143
-    const auto p = point_sm_ms(idx % SEEX, idx / SEEX);
-    const tripoint_abs_ms abs_pos = project_combine(pos, p);
+    const auto p = point_sm_ms( idx % SEEX, idx / SEEX );
+    const tripoint_abs_ms abs_pos = project_combine( pos, p );
     const auto options = actualize_tile_options {
         .buffer = *this,
         .sm = *tmpsub,
