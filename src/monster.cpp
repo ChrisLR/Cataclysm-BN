@@ -390,6 +390,7 @@ monster::monster( const mtype_id &id ) : monster()
     if( monster::has_flag( MF_AQUATIC ) ) {
         fish_population = dice( 1, 20 );
     }
+    upgrade_time = next_upgrade_time();
 }
 
 monster::monster( const mtype_id &id, const tripoint_bub_ms &p ) : monster( id )
@@ -428,6 +429,7 @@ monster::monster( const monster &source ) : Creature( source ),
     lastseen_turn = source.lastseen_turn;
     staircount = source.staircount;
     ammo = source.ammo;
+    upgrade_time = source.upgrade_time;
 
     for( const item * const &it : source.corpse_components ) {
         corpse_components.push_back( item::spawn( *it ) );
