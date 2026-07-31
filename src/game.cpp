@@ -2365,6 +2365,13 @@ bool game::do_turn()
         ZoneScopedN( "do_turn_weather_effects" );
         handle_weather_effects( weather.weather_id );
     }
+    if( action_time_scale::once_every_this_tick( 1_minutes ) ) {
+        mapbuffer &map_buffer = m.get_mapbuffer();
+        for (auto const& view : m.active_submap_views(0)) {
+            map_buffer.process_visible_plants_randomly(view.abs_pos());
+
+        }
+    }
 
     {
         ZoneScopedN( "do_turn_wait_activity_redraw" );
