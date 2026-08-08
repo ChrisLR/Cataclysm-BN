@@ -39,9 +39,14 @@ game.add_hook("on_character_death", function(...) return mod.minirose.on_charact
 game.mapgen_functions["slimepit"] = function(...) return mod.slimepit.draw(...) end
 game.mapgen_functions["lab"] = function(...) return mod.lab.draw(...) end
 game.mapgen_functions["lab_ice"] = function(...) return mod.lab.ice_draw(...) end
+
+-- Enchanter
+game.enchanter_can_use_on["cvd_machine"] = function(...) return mod.cvd_machine.can_use_on(...) end
+
 game.add_hook("on_make_mapgen_factory_list", function(params)
   params.results:insert(#params.results + 1, "lab_1side")
   params.results:insert(#params.results + 1, "lab_4side")
+  params.results:insert(#params.results + 1, "lab_4side_filler")
   params.results:insert(#params.results + 1, "lab_finale_1level")
   params.results:insert(#params.results + 1, "lab_1side_ice")
   params.results:insert(#params.results + 1, "lab_finale_1level_ice")
