@@ -757,7 +757,6 @@ class mapbuffer
          */
         void transfer_all_to( mapbuffer &dest );
 
-
     private:
         using submap_map_t = std::unordered_map<tripoint_abs_sm, std::unique_ptr<submap>>;
         struct vehicle_footprint_entry {
