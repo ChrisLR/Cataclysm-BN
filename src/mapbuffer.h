@@ -757,7 +757,6 @@ class mapbuffer
          */
         void transfer_all_to( mapbuffer &dest );
 
-        void process_visible_plants_randomly( const tripoint_abs_sm & );
 
     private:
         using submap_map_t = std::unordered_map<tripoint_abs_sm, std::unique_ptr<submap>>;
