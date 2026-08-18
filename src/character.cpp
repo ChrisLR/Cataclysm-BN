@@ -231,6 +231,7 @@ static const skill_id skill_throw( "throw" );
 
 static const species_id HUMAN( "HUMAN" );
 static const species_id ROBOT( "ROBOT" );
+static const species_id ROBOT_FLYING( "ROBOT_FLYING" );
 
 namespace
 {
@@ -7509,7 +7510,8 @@ bool Character::sees_with_specials( const Creature &critter ) const
 
     // electroreceptors grants vision of robots and electric monsters through walls
     if( has_enchantment_flag( ench_flag_ELECTROSENSE ) &&
-        ( critter.in_species( ROBOT ) || critter.has_flag( MF_ELECTRIC ) ) ) {
+        ( critter.in_species( ROBOT ) || critter.in_species( ROBOT_FLYING ) ||
+          critter.has_flag( MF_ELECTRIC ) || critter.has_flag( MF_ELECTRONIC ) ) ) {
         return true;
     }
 
@@ -8289,9 +8291,11 @@ void Character::set_stamina( int new_stamina )
 
 void Character::mod_stamina( int mod, bool skill )
 {
+    int lost_stamina = ( stamina + mod >= 0 ) ? mod : -stamina;
     // If we're burning stamina then train athletics, unless we're losing stamina due to status effects or other non-standard causes.
-    if( skill && mod < 0 ) {
-        as_player()->practice( skill_swimming, roll_remainder( std::abs( mod ) / 500.0 ), 10, true );
+    if( skill && lost_stamina < 0 ) {
+        as_player()->practice( skill_swimming, roll_remainder( std::abs( lost_stamina ) / 500.0 ), 10,
+                               true );
         // Athletics skill also reduces stamina drain for relevant activities.
         const int skill = get_skill_level( skill_swimming );
         const float skill_cost = std::max( 0.667f, ( ( 30.0f - skill ) / 30.0f ) );
@@ -10960,12 +10964,12 @@ int Character::bodytemp_modifier_traits_floor() const
     return mod;
 }
 
-int Character::temp_corrected_by_climate_control( int temperature )
+int Character::temp_corrected_by_climate_control( int temperature, bodypart_id id )
 {
     // Climate Control eases the effects of high and low ambient temps
     if( temperature > BODYTEMP_NORM ) {
         temperature -= bonus_from_enchantments( temperature,
-                                                enchantment_value_id( "CLIMATE_CONTROL_COOLING" ) );
+                                                enchantment_value_id( "CLIMATE_CONTROL_COOLING_" + to_upper_case( id.id().str() ) ) );
         if( in_climate_control() ) {
             temperature -= 1250;
         }
@@ -10975,7 +10979,7 @@ int Character::temp_corrected_by_climate_control( int temperature )
             temperature += 1250;
         }
         temperature += bonus_from_enchantments( temperature,
-                                                enchantment_value_id( "CLIMATE_CONTROL_HEATING" ) );
+                                                enchantment_value_id( "CLIMATE_CONTROL_HEATING_" + to_upper_case( id.id().str() ) ) );
         return std::min( BODYTEMP_NORM, temperature );
     }
     return temperature;
