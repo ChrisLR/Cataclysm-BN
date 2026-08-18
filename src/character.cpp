@@ -6268,7 +6268,7 @@ std::map<bodypart_id, std::vector<const item *>> set_clothing_map(
         )
 {
     for( auto &pr : chr.get_body() ) {
-        const bodypart_id &bp_id = pr.first;
+        const bodypart_str_id &bp_id = pr.first;
         clothing_map.emplace( bp_id, std::vector<const item *>() );
         bonus_clothing_map.emplace( bp_id, std::vector<const item *>() );
         // HACK: we're using temp_conv here to temporarily save
@@ -6276,7 +6276,6 @@ std::map<bodypart_id, std::vector<const item *>> set_clothing_map(
         bodypart &bp = pr.second;
         bp.set_temp_conv( bp.get_temp_cur() );
     }
-    return clothing_map;
 }
 
 std::map<bodypart_id, std::vector<const item *>> set_bonus_clothing_map( const Character &chr,
@@ -6285,7 +6284,6 @@ std::map<bodypart_id, std::vector<const item *>> set_bonus_clothing_map( const C
 {
     const auto &all_bps = chr.get_all_body_parts();
     for( const item *it : chr.worn ) {
-        if (!it || it == nullptr || it->typeId() == itype_id::NULL_ID()) continue;
         // TODO: Port body part set id changes
         const body_part_set &covered = it->get_covered_body_parts();
         for( const bodypart_id &bp : all_bps ) {
