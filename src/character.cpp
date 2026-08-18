@@ -6610,7 +6610,7 @@ void update_bodytemp_bps( Character &chr, BodyTemperatureModifiers &body_mods )
                                           body_mods.heat_radiation ) );
         }
         apply_blisters( chr, bp, body_mods );
-        bp_conv = chr.temp_corrected_by_climate_control( bp_conv );
+        bp_conv = chr.temp_corrected_by_climate_control( bp_conv, bp);
         bp_conv = adjust_bp_conv_for_bonus_warmth( chr, bp, bp_stats, bp_conv, body_mods,
                   clothing_warmth_adjusted_bonus );
 
