@@ -6587,9 +6587,9 @@ void update_bodytemp_bps( Character &chr, BodyTemperatureModifiers &body_mods )
         // Produces a smooth curve between 30.0 and 60.0.
         double homeostasis_adjustment = 30.0 * ( 1.0 + scaled_temperature );
         const int clothing_warmth_adjustment = static_cast<int>( homeostasis_adjustment *
-                                         body_mods.warmth_per_bp[bp] );
+                                               body_mods.warmth_per_bp[bp] );
         const int clothing_warmth_adjusted_bonus = static_cast<int>( homeostasis_adjustment *
-                                             body_mods.warmth_per_bp_bonus[bp] );
+                body_mods.warmth_per_bp_bonus[bp] );
 
         double bp_windpower = body_mods.total_windpower * ( 1 - body_mods.wind_res_per_bp[bp] / 100.0 );
         int bp_wind_chill = submerged_bp ? 0 : get_local_windchill( units::to_fahrenheit(
