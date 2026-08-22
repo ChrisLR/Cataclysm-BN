@@ -6119,7 +6119,6 @@ struct BodyTemperatureModifiers {
     units::temperature water_temperature;
     int water_temperature_celsius;
     int water_temperature_scaled; // Scaled so that 0C is 0 (FREEZING) and 30C is 5k (NORM).
-    int wind_chill;
     double total_windpower;
 
     // Worn items are not split by bp, so using a map prevents having to iterate all worn items for each bp
@@ -6138,11 +6137,11 @@ std::map<bodypart_id, int> get_wind_resistance( const Character &chr,
     std::map<bodypart_id, int> wind_res_per_bp = warmth::wind_resistance_from_clothing( clothing_map );
     std::map<bodypart_id, int> wind_res_per_bp_bonus = warmth::wind_resistance_from_clothing(
                 bonus_clothing_map );
-    for( std::pair<const bodypart_id, int> &bp_wind_res : wind_res_per_bp ) {
-        int exposed = std::max( 0, 100 - bp_wind_res.second );
-        int exposed_bonus = std::max( 0, 100 - wind_res_per_bp_bonus.at( bp_wind_res.first ) );
-        int exposed_final = exposed * exposed_bonus / ( 100 * 100 );
-        bp_wind_res.second = 100 - exposed_final;
+    for( auto &pair : wind_res_per_bp ) {
+        const int exposed = std::max( 0, 100 - pair.second );
+        const int exposed_bonus = std::max( 0, 100 - wind_res_per_bp_bonus[ pair.first ] );
+        const int exposed_final = exposed * exposed_bonus / ( 100 * 100 );
+        pair.second = 100 - exposed_final;  // Modifies the actual map value
     }
     if( chr.has_active_mutation( trait_SHELL2 ) ) {
         for( auto &val : wind_res_per_bp | std::views::values ) {
@@ -6265,31 +6264,35 @@ void apply_comfort_morale( Character &chr, const bodypart_id &bp, const bodypart
 std::map<bodypart_id, std::vector<const item *>> set_clothing_map(
             Character &chr,
             std::map<bodypart_id, std::vector<const item *>> &clothing_map,
-            std::map<bodypart_id, std::vector<const item *>> &bonus_clothing_map
+            std::map<bodypart_id, std::vector<const item *>> &bonus_clothing_map,
+            std::vector<bodypart_id> body_part_ids
         )
 {
-    for( auto &pr : chr.get_body() ) {
-        const bodypart_str_id &bp_id = pr.first;
-        clothing_map.emplace( bp_id, std::vector<const item *>() );
-        bonus_clothing_map.emplace( bp_id, std::vector<const item *>() );
-        // HACK: we're using temp_conv here to temporarily save
-        //       temperature values from before equalization.
-        bodypart &bp = pr.second;
-        bp.set_temp_conv( bp.get_temp_cur() );
+    for( const auto &bp_id : body_part_ids ) {
+        if (bp_id.is_valid()) {
+            clothing_map.emplace(bp_id, std::vector<const item *>() );
+            bonus_clothing_map.emplace(bp_id, std::vector<const item *>() );
+        }
     }
 }
 
 std::map<bodypart_id, std::vector<const item *>> set_bonus_clothing_map( const Character &chr,
         std::map<bodypart_id, std::vector<const item *>> &clothing_map,
-        std::map<bodypart_id, std::vector<const item *>> &bonus_clothing_map )
+        std::map<bodypart_id, std::vector<const item *>> &bonus_clothing_map
+        )
 {
-    const auto &all_bps = chr.get_all_body_parts();
     for( const item *it : chr.worn ) {
-        // TODO: Port body part set id changes
         const body_part_set &covered = it->get_covered_body_parts();
-        for( const bodypart_id &bp : all_bps ) {
+
+        for( auto &pr : chr.get_body() ) {
+            const bodypart_id &bp = pr.first;
+
+            if( bp.id().is_empty() || bp.id().str().empty() ) {
+                continue;
+            }
+
             if( covered.test( bp.id() ) ) {
-                clothing_map[bp.id()].emplace_back( it );
+                clothing_map[bp].emplace_back( it );
             }
             if( it->has_flag( flag_HOOD ) ) {
                 bonus_clothing_map[body_part_head].emplace_back( it );
@@ -6355,7 +6358,8 @@ void apply_frostbite( Character &chr, const bodypart_id &bp, bodypart &bp_stats,
         int wetness_percentage = 100 * bp_stats.get_wetness() / bp_stats.get_drench_capacity(); // 0 - 100
         // Warmth gives a slight buff to temperature resistance
         // Wetness gives a heavy nerf to temperature resistance
-        double adjusted_warmth = body_mods.warmth_per_bp.at( bp ) - wetness_percentage;
+        const auto it = body_mods.warmth_per_bp.find( bp );
+        const int adjusted_warmth = (it != body_mods.warmth_per_bp.end()) ? it->second : 0;
         int Ftemperature = static_cast<int>( units::to_fahrenheit( body_mods.ambient_temperature ) + 0.2 *
                                              adjusted_warmth );
         // Windchill reduced by your armor
@@ -6549,7 +6553,10 @@ void apply_blisters( Character &chr, const bodypart_id &bp, BodyTemperatureModif
     // BLISTERS : Skin gets blisters from intense heat exposure.
     // Fire protection protects from blisters.
     // Heatsinks give near-immunity.
-    if( blister_count - body_mods.fire_armor_per_bp[bp] > 0 ) {
+    const auto fire_it = body_mods.fire_armor_per_bp.find( bp );
+    const int fire_armor = (fire_it != body_mods.fire_armor_per_bp.end()) ? fire_it->second : 0;
+
+    if( blister_count - fire_armor > 0 ) {
         chr.add_effect( effect_blisters, 1_turns, bp.id() );
         if( body_mods.has_pyromania ) {
             chr.add_morale( MORALE_PYROMANIA_NEARFIRE, 10, 10, 1_hours,
@@ -6568,9 +6575,14 @@ void apply_blisters( Character &chr, const bodypart_id &bp, BodyTemperatureModif
 void update_bodytemp_bps( Character &chr, BodyTemperatureModifiers &body_mods )
 {
     for( auto &pr : chr.get_body() ) {
-        const bodypart_id &bp = pr.first;
+        const bodypart_str_id &bp_str = pr.first;
+        if( bp_str.is_empty() || bp_str.str().empty() ) {
+            continue;
+        }
+
+        const bodypart_id bp = bp_str.id();
         bodypart &bp_stats = pr.second;
-        if( bp_stats.is_affected_by_temperature() ) {
+        if( !bp_stats.is_affected_by_temperature() ) {
             continue;
         }
 
@@ -6707,15 +6719,19 @@ void Character::update_bodytemp( const map &m, const weather_manager &weather )
                                 weather.winddirection, body_mods.sheltered );
 
     equalize_temperature( *this );
-    set_clothing_map( *this, body_mods.clothing_map, body_mods.clothing_map_bonus );
-    set_bonus_clothing_map( *this, body_mods.clothing_map, body_mods.clothing_map_bonus );
+    const auto bodypart_ids = this->get_all_body_parts(true);
+    set_clothing_map( *this, body_mods.clothing_map, body_mods.clothing_map_bonus, bodypart_ids );
+    set_bonus_clothing_map( *this, body_mods.clothing_map, body_mods.clothing_map_bonus);
     body_mods.warmth_per_bp = warmth::from_clothing( body_mods.clothing_map );
     body_mods.warmth_per_bp_bonus = warmth::bonus_from_clothing( body_mods.clothing_map_bonus );
     for( const auto &pr : warmth::from_effects( *this ) ) {
         body_mods.warmth_per_bp_bonus[pr.first] += pr.second;
     }
-    std::map<bodypart_id, int> wind_res_per_bp = get_wind_resistance( *this, body_mods.clothing_map,
-            body_mods.clothing_map_bonus );
+    body_mods.wind_res_per_bp = get_wind_resistance(
+                                    *this,
+                                    body_mods.clothing_map,
+                                    body_mods.clothing_map_bonus
+                                );
 
     update_bodytemp_bps( *this, body_mods );
 }
