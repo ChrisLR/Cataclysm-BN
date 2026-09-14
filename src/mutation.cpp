@@ -149,7 +149,8 @@ bool Character::has_trait_flag( const trait_flag_str_id &b ) const
     } );
 }
 
-bool Character::has_trait_type(const std::string &mut_type) const {
+bool Character::has_trait_type( const std::string &mut_type ) const
+{
     return std::ranges::any_of( cached_mutations,
     [&mut_type]( const mutation_branch * mut ) -> bool {
         return mut->types.contains( mut_type );

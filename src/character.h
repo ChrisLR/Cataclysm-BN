@@ -814,7 +814,7 @@ class Character : public Creature, public location_visitable<Character>
         /** Returns true if player has a trait with a flag */
         bool has_trait_flag( const trait_flag_str_id &b ) const;
 
-        bool has_trait_type(const std::string &mut_type) const;
+        bool has_trait_type( const std::string &mut_type ) const;
 
         /** Returns true if character has a trait which cancels the entered trait. */
         bool has_opposite_trait( const trait_id &flag ) const;
