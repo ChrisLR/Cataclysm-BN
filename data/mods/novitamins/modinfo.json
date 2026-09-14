@@ -16,6 +16,6 @@
   },
   {
     "type": "ITEM_BLACKLIST",
-    "items": [ "calcium_tablet", "bonemeal_tablet", "flavored_bonemeal_tablet" ]
+    "items": [ "calcium_tablet", "bonemeal_tablet", "flavored_bonemeal_tablet", "inj_vitb", "inj_iron" ]
   }
 ]
