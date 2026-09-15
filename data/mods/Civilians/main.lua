@@ -331,7 +331,7 @@ local OPT_VANISH_BASE_RATE = {
   name = "Vanish Base Rate",
   type = 'number',
   min_val = 0.01, max_val = 1.0,
-  desc = "Fractional chance of lower bound spawn chance"
+  desc = "Lower bound spawn chance"
 }
 ---@type mod_option
 local OPT_PULPING_ENABLED = {
@@ -365,16 +365,16 @@ local OPT_PULPING_CHANCE = {
   desc = "Chance of pulping each turn"
 }
 
-local ALL_OPTIONS = {}
-table.insert(ALL_OPTIONS, OPT_SPAWN_CHANCE)
-table.insert(ALL_OPTIONS, OPT_RARE_CHANCE)
-table.insert(ALL_OPTIONS, OPT_VANISH_PERIOD_DAYS)
-table.insert(ALL_OPTIONS, OPT_VANISH_BASE_RATE)
-table.insert(ALL_OPTIONS, OPT_PULPING_ENABLED)
-table.insert(ALL_OPTIONS, OPT_PULPING_CIV_LIMIT)
-table.insert(ALL_OPTIONS, OPT_PULPING_RADIUS)
-table.insert(ALL_OPTIONS, OPT_PULPING_CHANCE)
-
+local ALL_OPTIONS = {
+    OPT_SPAWN_CHANCE,
+    OPT_RARE_CHANCE,
+    OPT_VANISH_PERIOD_DAYS,
+    OPT_VANISH_BASE_RATE,
+    OPT_PULPING_ENABLED,
+    OPT_PULPING_CIV_LIMIT,
+    OPT_PULPING_RADIUS,
+    OPT_PULPING_CHANCE
+}
 
 ---@param opt mod_option
 ---@return integer | string | boolean | nil
@@ -388,8 +388,9 @@ local prompt_setting = function(opt)
             )
         )
         prompt:title(opt.name)
-        value = prompt:query_int()
-        if value == 0 then return tonumber(_stored_config[opt.key]) end
+        value = prompt:query_str()
+        value = tonumber(value)
+        if value == 0 or value == nil then return tonumber(_stored_config[opt.key]) end
         if value < opt.min_val then return nil end
         if value > opt.max_val then return nil end
     elseif opt.type == 'boolean' then
