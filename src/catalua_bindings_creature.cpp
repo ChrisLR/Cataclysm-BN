@@ -1,42 +1,35 @@
-#include "catalua_bindings.h"
-#include "catalua_coord.h"
-
-#include <climits>
-#include <iterator>
-#include <ranges>
-#include <sstream>
-#include <string_view>
-
 #include "activity_type.h"
 #include "avatar.h"
 #include "bionics.h"
 #include "bodypart.h"
 #include "calendar.h"
 #include "catalua.h"
+#include "catalua_bindings.h"
 #include "catalua_bindings_utils.h"
-#include "calendar.h"
+#include "catalua_coord.h"
 #include "catalua_impl.h"
 #include "catalua_log.h"
 #include "catalua_luna.h"
 #include "catalua_luna_doc.h"
 #include "catalua_serde.h"
 #include "character.h"
-#include "crafting.h"
+#include "character_martial_arts.h"
 #include "craft_command.h"
+#include "crafting.h"
 #include "creature.h"
 #include "damage.h"
 #include "disease.h"
 #include "enums.h"
-#include "field.h"
-#include "field_type.h"
 #include "flag.h"
-#include "make_static.h"
 #include "flag_trait.h"
 #include "game.h"
 #include "inventory.h"
 #include "json.h"
 #include "magic/magic.h"
-#include "map.h"
+#include "make_static.h"
+#include "map/field.h"
+#include "map/field_type.h"
+#include "map/map.h"
 #include "monfaction.h"
 #include "monster.h"
 #include "morale_types.h"
@@ -49,8 +42,14 @@
 #include "recipe.h"
 #include "requirements.h"
 #include "skill.h"
-#include "type_id.h"
 #include "trap.h"
+#include "type_id.h"
+
+#include <climits>
+#include <iterator>
+#include <ranges>
+#include <sstream>
+#include <string_view>
 
 LUNA_VAL( player_activity, "PlayerActivity" )
 
@@ -782,6 +781,8 @@ void cata::detail::reg_character( sol::state &lua )
 
         SET_FX_T( has_trait_flag, bool( const trait_flag_str_id & b ) const );
 
+        SET_FX_T( has_trait_type, bool( const std::string & mut_type ) const );
+
         SET_FX_T( has_opposite_trait, bool( const trait_id & flag ) const );
 
         SET_FX_T( set_mutation, void( const trait_id & ) );
@@ -1271,6 +1272,9 @@ void cata::detail::reg_character( sol::state &lua )
 
         luna::set_fx( ut, "knows_recipe", []( const UT_CLASS & utObj, const recipe_id & rec ) -> bool { return utObj.knows_recipe( &( rec.obj() ) ); } );
         luna::set_fx( ut, "learn_recipe", []( UT_CLASS & utObj, const recipe_id & rec ) -> void { utObj.learn_recipe( &( rec.obj() ) ); } );
+
+        luna::set_fx( ut, "knows_martial_art", []( const UT_CLASS & utObj, const matype_id & ma_type_id ) -> bool { return utObj.martial_arts_data->has_martialart( ma_type_id ); } );
+        luna::set_fx( ut, "learn_martial_art", []( const UT_CLASS & utObj, const matype_id & ma_type_id ) -> void { utObj.martial_arts_data->add_martialart( ma_type_id ); } );
 
         SET_FX_T( suffer, void() );
 
