@@ -55,6 +55,7 @@
 #include <set>
 #include <tuple>
 #include <utility>
+#include "catalua_hooks.h"
 
 static const trait_id trait_NONE("NONE");
 static const trait_id trait_BRAWLER("BRAWLER");
@@ -782,6 +783,17 @@ auto spell::has_flag(const spell_flag& flag) const -> bool { return type->spell_
 auto spell::is_spell_class(const trait_id& mid) const -> bool { return mid == type->spell_class; }
 
 auto spell::can_cast(Character& guy) const -> bool {
+    const auto hook_results = cata::run_hooks(
+        "on_spell_try_cast",
+        [ &, this]( sol::table & params ) {
+            params["char"] = &guy;
+            params["spell"] = *this;
+        } );
+
+    if( !hook_results.get_or( "allowed", true )) {
+        return false;
+    }
+
     if (!type->spell_components.is_empty()
         && !type->spell_components->can_make_with_inventory(
             guy.crafting_inventory(guy.bub_pos(), 0), return_true<item>)) {
