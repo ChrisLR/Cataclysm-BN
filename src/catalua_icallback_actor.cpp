@@ -959,8 +959,7 @@ bool lua_ispell_actor::call_on_try_cast( Character &who, spell &sp ) const
     return true;
 }
 
-void lua_ispell_actor::call_on_cast( Character &who, spell &sp,
-                                     const tripoint_bub_ms &target_pos ) const
+void lua_ispell_actor::call_on_cast( Character &who, spell &sp ) const
 {
     if( on_cast_func == sol::lua_nil ) {
         return;
@@ -970,7 +969,6 @@ void lua_ispell_actor::call_on_cast( Character &who, spell &sp,
         auto params = lua.create_table();
         params["char"] = &who;
         params["spell"] = &sp;
-        params["target_pos"] = &target_pos;
         sol::protected_function_result res = on_cast_func( params );
         check_func_result( res );
     } catch( std::runtime_error &e ) {

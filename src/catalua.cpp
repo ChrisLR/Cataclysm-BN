@@ -365,6 +365,9 @@ void init_global_state_tables( lua_state &state, const std::vector<mod_id> &modl
     gt["enchanter_can_make"] = lua.create_table();
     gt["enchanter_can_use_on"] = lua.create_table();
 
+    // spell functions
+    gt["spell_functions"] = lua.create_table();
+
     // hooks
     cata::define_hooks( state );
 

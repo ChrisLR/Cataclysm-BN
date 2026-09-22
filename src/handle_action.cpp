@@ -109,6 +109,8 @@
 #include <sstream>
 #include <utility>
 
+#include "catalua_hooks.h"
+
 static const activity_id ACT_FERTILIZE_PLOT( "ACT_FERTILIZE_PLOT" );
 static const activity_id ACT_MOVE_LOOT( "ACT_MOVE_LOOT" );
 static const activity_id ACT_MULTIPLE_BUTCHER( "ACT_MULTIPLE_BUTCHER" );
@@ -1804,6 +1806,16 @@ auto try_cast_spell( player &u, spell &sp ) -> bool
         add_msg( game_message_params{ m_bad, gmf_bypass_cooldown },
                  _( "You cannot cast Blood Magic without a cutting implement." ) );
         return false;
+    }
+
+    const auto hook_results = cata::run_hooks("on_spell_try_cast", [&](sol::table& params) {
+        params["char"] = &u;
+        params["spell"] = &sp;
+    });
+    if (!hook_results.get_or("allowed", true)) { return false; }
+
+    if( sp.type->lua_callbacks ) {
+        if (!sp.type->lua_callbacks->call_on_try_cast(*u.as_character(), sp)){ return false;}
     }
 
     start_spellcasting_activity( u, sp );
