@@ -1144,6 +1144,7 @@ void resolve_extra_lua_callbacks()
     MonsterGenerator::generator().resolve_lua_monster_callbacks( monster_callback_actors );
     mutation_branch::resolve_lua_callbacks( mutation_callback_actors );
     trap::resolve_lua_callbacks( lua_itrap_actors );
+    spell_type::resolve_lua_callbacks( lua_ispell_actors );
 }
 
 void run_on_every_x_hooks( lua_state &state )
