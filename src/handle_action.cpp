@@ -1808,14 +1808,14 @@ auto try_cast_spell( player &u, spell &sp ) -> bool
         return false;
     }
 
-    const auto hook_results = cata::run_hooks("on_spell_try_cast", [&](sol::table& params) {
+    const auto hook_results = cata::run_hooks( "on_spell_try_cast", [&]( sol::table & params ) {
         params["char"] = &u;
         params["spell"] = &sp;
-    });
-    if (!hook_results.get_or("allowed", true)) { return false; }
+    } );
+    if( !hook_results.get_or( "allowed", true ) ) { return false; }
 
     if( sp.type->lua_callbacks ) {
-        if (!sp.type->lua_callbacks->call_on_try_cast(*u.as_character(), sp)){ return false;}
+        if( !sp.type->lua_callbacks->call_on_try_cast( *u.as_character(), sp ) ) { return false;}
     }
 
     start_spellcasting_activity( u, sp );
