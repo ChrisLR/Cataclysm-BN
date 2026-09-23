@@ -973,7 +973,7 @@ void lua_ispell_actor::call_on_cast( Character &who, spell &sp, tripoint_bub_ms 
         sol::protected_function_result res = on_cast_func( params );
         check_func_result( res );
     } catch( std::runtime_error &e ) {
-        debugmsg( "Failed to run ispell on_try_cast for '%s' ('%s'): %s", who.get_name(), sp.name(),
+        debugmsg( "Failed to run ispell on_cast for '%s' ('%s'): %s", who.get_name(), sp.name(),
                   e.what() );
     }
 }

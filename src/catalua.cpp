@@ -1127,7 +1127,7 @@ void reg_lua_icallback_actors( lua_state &state, Item_factory &ifactory )
                 }
                 const auto tbl = ref.second.as<sol::table>();
                 auto on_try_cast = tbl.get_or<sol::function>( "on_try_cast", sol::lua_nil );
-                auto on_cast = tbl.get_or<sol::function>( "on_try_cast", sol::lua_nil );
+                auto on_cast = tbl.get_or<sol::function>( "on_cast", sol::lua_nil );
 
                 lua_ispell_actors[key] = std::make_unique<lua_ispell_actor>(
                                              key, std::move( on_try_cast ), std::move( on_cast ) );
