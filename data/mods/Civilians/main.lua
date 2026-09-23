@@ -154,12 +154,11 @@ function mod.on_every_10_turns_civilian_update()
   if not options.pulping_enabled.get_value() then return end
   local map = gapi.get_map()
   if not map then return end
-  local civilians = gapi.get_monsters_if({ ["faction_ids"] = { faction_civ_id }, ["limit"] = CONFIG.PULPING_CIV_LIMIT })
+  local pulping_civ_limit = options.pulping_civ_limit.get_value()
+  local civilians = gapi.get_monsters_if({ ["faction_ids"] = { faction_civ_id }, ["limit"] = pulping_civ_limit })
   -- Dont process if no civilians in sight
   if not civilians then return end
 
-  local pulping_civ_limit = options.pulping_civ_limit.get_value()
-  local civilians = gapi.get_monsters_if({ ["faction_ids"] = { faction_civ_id }, ["limit"] = pulping_civ_limit })
   local hostiles = gapi.get_monsters_if({
     ["faction_ids"] = { faction_zombie_id },
     ["within_range_of"] = { ["range"] = 10, ["monsters"] = civilians },
