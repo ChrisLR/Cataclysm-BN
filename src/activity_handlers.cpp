@@ -4914,7 +4914,7 @@ void activity_handlers::spellcasting_finish( player_activity *act, player *p )
         params["target_pos"] = &target;
     } );
     if( spell_being_cast.type->lua_callbacks ) {
-        spell_being_cast.type->lua_callbacks->call_on_cast(*p->as_character(), spell_being_cast, target);
+        spell_being_cast.type->lua_callbacks->call_on_cast( *p->as_character(), spell_being_cast, target );
     }
 }
 
