@@ -400,7 +400,7 @@
     "skill_used": "cooking",
     "difficulty": 2,
     "time": "1 m",
-    "charges": 20,
+    "charges": 10,
     "autolearn": true,
     "qualities": [ { "id": "PRESSURIZATION", "level": 1 } ],
     "batch_time_factors": [ 75, 1 ],
@@ -408,7 +408,8 @@
       [ [ "r_paint", 1 ], [ "p_paint", 1 ] ],
       [ [ "g_paint", 1 ], [ "y_paint", 1 ] ],
       [ [ "b_paint", 1 ], [ "c_paint", 1 ] ],
-      [ [ "w_paint", 1 ], [ "k_paint", 1 ] ]
+      [ [ "w_paint", 1 ], [ "k_paint", 1 ] ],
+      [ [ "chem_butane", 75 ] ]
     ]
   },
   {
@@ -473,7 +474,7 @@
     "book_learn": [ [ "welding_book", 2 ] ],
     "qualities": [ { "id": "PRESSURIZATION", "level": 1 } ],
     "//": "Refills an existing can, working like welding tank recipe",
-    "components": [ [ [ "spray_can", 1 ] ], [ [ "spray_paint", 10 ] ] ],
+    "components": [ [ [ "spray_can", 1 ] ], [ [ "spray_paint", 20 ] ] ],
     "flags": [ "CRAFT_WITH_FULL_MAG" ]
   },
   {
@@ -615,29 +616,6 @@
       [ [ "thermostat", 1 ] ],
       [ [ "light_bulb", 1 ] ],
       [ [ "motor_tiny", 1 ] ]
-    ]
-  },
-  {
-    "type": "recipe",
-    "result": "incubator",
-    "category": "CC_OTHER",
-    "subcategory": "CSC_OTHER_OTHER",
-    "skill_used": "fabrication",
-    "difficulty": 4,
-    "time": "40 m",
-    "reversible": true,
-    "decomp_learn": 4,
-    "book_learn": [ [ "textbook_mechanics", 4 ], [ "manual_mechanics", 4 ], [ "textbook_fabrication", 4 ] ],
-    "using": [ [ "soldering_standard", 20 ], [ "welding_standard", 5 ] ],
-    "qualities": [ { "id": "HAMMER", "level": 1 }, { "id": "SCREW", "level": 1 }, { "id": "SAW_M", "level": 1 } ],
-    "components": [
-      [ [ "sheet_metal", 3 ] ],
-      [ [ "sheet_metal_small", 2 ] ],
-      [ [ "steel_chunk", 2 ] ],
-      [ [ "cable", 2 ] ],
-      [ [ "thermostat", 1 ] ],
-      [ [ "motor_tiny", 1 ] ],
-      [ [ "element", 2 ] ]
     ]
   },
   {

@@ -21,8 +21,6 @@
 #include "effect.h"
 #include "enums.h"
 #include "explosion.h"
-#include "field.h"
-#include "field_type.h"
 #include "flag.h"
 #include "game.h"
 #include "game_constants.h"
@@ -36,9 +34,11 @@
 #include "iuse.h"
 #include "iuse_actor.h"
 #include "line.h"
-#include "map.h"
+#include "map/field.h"
+#include "map/field_type.h"
+#include "map/map.h"
+#include "map/mapdata.h"
 #include "map_iterator.h"
-#include "mapdata.h"
 #include "messages.h"
 #include "mission.h"
 #include "monster.h"
@@ -56,6 +56,8 @@
 #include "profile.h"
 #include "projectile.h"
 #include "ranged.h"
+#include "reload/reload.h"
+#include "reload/reload_selection.h"
 #include "ret_val.h"
 #include "rng.h"
 #include "sounds.h"
@@ -122,8 +124,7 @@ auto run_lua_npc_ai( npc &who ) -> bool
         return false;
     }
 
-    std::unique_lock lock( cata::lua_lock );
-    auto *lua_state = cata::get_active_lua_state();
+    auto *lua_state = DynamicDataLoader::get_instance().lua.get();
     if( lua_state == nullptr ) {
         return false;
     }
@@ -1833,7 +1834,7 @@ void npc::check_or_reload_cbm()
     if( !checklist.empty() ) {
         for( auto& [bid, itm] : checklist ) {
             bionic &bio = get_bionic_state( bid );
-            const item *it_loc = character_funcs::select_ammo( *this, *itm ).ammo;
+            const item *it_loc = reload_selection::prepare( *this, *itm ).selected.ammo;
             if( it_loc && wants_to_reload_with( *itm, *it_loc, ai_cache.danger > 0 ) ) {
                 do_reload( *itm );
                 bio.ammo_loaded =
@@ -1865,7 +1866,7 @@ item &npc::find_reloadable()
         if( !wants_to_reload( *this, *node ) ) {
             return VisitResponse::NEXT;
         }
-        const auto it_loc = character_funcs::select_ammo( *this, *node ).ammo;
+        const auto it_loc = reload_selection::prepare( *this, *node ).selected.ammo;
         if( it_loc && wants_to_reload_with( *node, *it_loc, ai_cache.danger > 0 ) ) {
             reloadable = node;
             return VisitResponse::ABORT;
@@ -1902,7 +1903,7 @@ item *npc::find_usable_ammo( item &weap )
         return nullptr;
     }
 
-    auto loc = character_funcs::select_ammo( *this, weap ).ammo;
+    auto loc = reload_selection::prepare( *this, weap ).selected.ammo;
     if( !loc || !wants_to_reload_with( weap, *loc, ai_cache.danger > 0 ) ) {
         return nullptr;
     }
@@ -2660,44 +2661,41 @@ void npc::move_to( const tripoint_bub_ms &pt, bool no_bashing, std::set<tripoint
 {
     auto p = pt;
 
-    {
-        std::unique_lock lock( cata::lua_lock );
-        const auto hook_results = cata::run_hooks(
-                                      "on_npc_try_move",
-        [ &, this]( sol::table & params ) {
-            params["npc"] = this;
-            params["from"] = cata::detail::lua_coords::to_lua( bub_pos() );
-            params["to"] = cata::detail::lua_coords::to_lua( p );
-            params["movement_mode"] = get_movement_mode();
-            params["via_ramp"] = false;
-            if( is_mounted() ) {
-                params["mounted"] = true;
-                params["mount"] = mounted_creature.get();
-            } else {
-                params["mounted"] = false;
-            }
-        } );
-
-        const auto char_hook_results = cata::run_hooks(
-                                           "on_character_try_move",
-        [ &, this]( sol::table & params ) {
-            params["char"] = static_cast<Character *>( this );
-            params["from"] = cata::detail::lua_coords::to_lua( bub_pos() );
-            params["to"] = cata::detail::lua_coords::to_lua( p );
-            params["movement_mode"] = get_movement_mode();
-            params["via_ramp"] = false;
-            if( is_mounted() ) {
-                params["mounted"] = true;
-                params["mount"] = mounted_creature.get();
-            } else {
-                params["mounted"] = false;
-            }
-        } );
-
-        if( !hook_results.get_or( "allowed", true ) ||
-            !char_hook_results.get_or( "allowed", true ) ) {
-            return;
+    const auto hook_results = cata::run_hooks(
+                                  "on_npc_try_move",
+    [ &, this]( sol::table & params ) {
+        params["npc"] = this;
+        params["from"] = cata::detail::lua_coords::to_lua( bub_pos() );
+        params["to"] = cata::detail::lua_coords::to_lua( p );
+        params["movement_mode"] = get_movement_mode();
+        params["via_ramp"] = false;
+        if( is_mounted() ) {
+            params["mounted"] = true;
+            params["mount"] = mounted_creature.get();
+        } else {
+            params["mounted"] = false;
         }
+    } );
+
+    const auto char_hook_results = cata::run_hooks(
+                                       "on_character_try_move",
+    [ &, this]( sol::table & params ) {
+        params["char"] = static_cast<Character *>( this );
+        params["from"] = cata::detail::lua_coords::to_lua( bub_pos() );
+        params["to"] = cata::detail::lua_coords::to_lua( p );
+        params["movement_mode"] = get_movement_mode();
+        params["via_ramp"] = false;
+        if( is_mounted() ) {
+            params["mounted"] = true;
+            params["mount"] = mounted_creature.get();
+        } else {
+            params["mounted"] = false;
+        }
+    } );
+
+    if( !hook_results.get_or( "allowed", true ) ||
+        !char_hook_results.get_or( "allowed", true ) ) {
+        return;
     }
 
     map &here = get_map();
@@ -5027,7 +5025,7 @@ void npc::do_reload( item &it )
         move_pause();
         return;
     }
-    item_reload_option reload_opt = character_funcs::select_ammo( *this, it );
+    auto reload_opt = reload_selection::prepare( *this, it ).selected;
 
     if( !reload_opt ) {
         debugmsg( "do_reload failed: no usable ammo for %s", it.tname() );

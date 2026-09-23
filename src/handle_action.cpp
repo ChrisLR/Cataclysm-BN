@@ -28,8 +28,6 @@
 #include "diary.h"
 #include "distraction_manager.h"
 #include "faction.h"
-#include "field.h"
-#include "field_type.h"
 #include "flag.h"
 #include "fstream_utils.h"
 #include "game.h" // IWYU pragma: associated
@@ -48,13 +46,15 @@
 #include "item_hauling.h"
 #include "itype.h"
 #include "iuse.h"
-#include "lightmap.h"
 #include "line.h"
 #include "magic/magic.h"
 #include "make_static.h"
-#include "map.h"
-#include "map_selector.h"
-#include "mapdata.h"
+#include "map/field.h"
+#include "map/field_type.h"
+#include "map/lightmap.h"
+#include "map/map.h"
+#include "map/map_selector.h"
+#include "map/mapdata.h"
 #include "mapsharing.h"
 #include "messages.h"
 #include "monster.h"
@@ -112,6 +112,7 @@
 static const activity_id ACT_FERTILIZE_PLOT( "ACT_FERTILIZE_PLOT" );
 static const activity_id ACT_MOVE_LOOT( "ACT_MOVE_LOOT" );
 static const activity_id ACT_MULTIPLE_BUTCHER( "ACT_MULTIPLE_BUTCHER" );
+static const activity_id ACT_MULTIPLE_DISSECT( "ACT_MULTIPLE_DISSECT" );
 static const activity_id ACT_MULTIPLE_CHOP_PLANKS( "ACT_MULTIPLE_CHOP_PLANKS" );
 static const activity_id ACT_MULTIPLE_CHOP_TREES( "ACT_MULTIPLE_CHOP_TREES" );
 static const activity_id ACT_MULTIPLE_CONSTRUCTION( "ACT_MULTIPLE_CONSTRUCTION" );
@@ -729,7 +730,7 @@ static void close()
 static auto jump() -> void
 {
     auto &you = get_avatar();
-    if( !iexamine::can_start_jump_over_tile( you, true ) ) {
+    if( !iexamine::can_start_jump_over_tile( you ) ) {
         return;
     }
 
@@ -1406,7 +1407,8 @@ static void loot()
         Multideconvehicle = 1024,
         Multirepairvehicle = 2048,
         MultiButchery = 4096,
-        MultiMining = 8192
+        MultiMining = 8192,
+        MultiDissect = 16384
     };
 
     player &u = g->u;
@@ -1434,6 +1436,7 @@ static void loot()
     flags |= g->check_near_zone( zone_type_id( "VEHICLE_REPAIR" ),
                                  u.bub_pos() ) ? Multirepairvehicle : 0;
     flags |= g->check_near_zone( zone_type_id( "LOOT_CORPSE" ), u.bub_pos() ) ? MultiButchery : 0;
+    flags |= g->check_near_zone( zone_type_id( "LOOT_CORPSE" ), u.bub_pos() ) ? MultiDissect : 0;
     flags |= g->check_near_zone( zone_type_id( "MINING" ), u.bub_pos() ) ? MultiMining : 0;
     if( flags == 0 ) {
         add_msg( m_info, _( "There is no compatible zone nearby." ) );
@@ -1486,10 +1489,15 @@ static void loot()
         menu.addentry_desc( MultiButchery, true, 'B', _( "Butcher corpses" ),
                             _( "Auto-butcher anything in corpse loot zones - auto-fetch tools." ) );
     }
+    if( flags & MultiDissect ) {
+        menu.addentry_desc( MultiDissect, true, 'D', _( "Dissect corpses" ),
+                            _( "Auto-dissect anything in corpse loot zones - auto-fetch tools." ) );
+    }
     if( flags & MultiMining ) {
         menu.addentry_desc( MultiMining, true, 'M', _( "Mine Area" ),
                             _( "Auto-mine anything in mining zone - auto-fetch tools." ) );
     }
+
 
     menu.query();
     flags = ( menu.ret >= 0 ) ? menu.ret : None;
@@ -1524,6 +1532,9 @@ static void loot()
             break;
         case MultiButchery:
             u.assign_activity( ACT_MULTIPLE_BUTCHER );
+            break;
+        case MultiDissect:
+            u.assign_activity( ACT_MULTIPLE_DISSECT );
             break;
         case MultiMining:
             u.assign_activity( ACT_MULTIPLE_MINE );

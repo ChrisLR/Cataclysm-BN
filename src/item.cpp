@@ -33,7 +33,6 @@
 #include "explosion.h"
 #include "faction.h"
 #include "fault.h"
-#include "field_type.h"
 #include "fire.h"
 #include "flag.h"
 #include "game.h"
@@ -53,10 +52,9 @@
 #include "line.h"
 #include "locations.h"
 #include "magic/magic.h"
-#include "map.h"
-#include "mapbuffer.h"
-#include "mapbuffer_registry.h"
-#include "mapdata.h"
+#include "map/field_type.h"
+#include "map/map.h"
+#include "map/mapbuffer.h"
 #include "martialarts.h"
 #include "material.h"
 #include "melee.h"
@@ -831,7 +829,6 @@ auto item::prepare_for_location_removal() -> void
                 .root_cellar = tile->get_ter() == t_rootcellar,
                 .fridge = furn.has_flag( TFLAG_FRIDGE ),
                 .freezer = furn.has_flag( TFLAG_FREEZER ),
-                .incubator = furn.has_flag( TFLAG_INCUBATOR ),
             } );
         } else {
             storage_temperature = rot::temp::for_location( get_map(), *this );
@@ -2124,12 +2121,6 @@ void item::food_info( const item *food_item, std::vector<iteminfo> &info,
                     case temperature_flag::TEMP_HEATER: {
                         temperature_description = _( "* Current storage conditions <bad>do not</bad> "
                                                      "protect this item from rot." );
-                    }
-                    break;
-                    case temperature_flag::TEMP_INCUBATOR: {
-                        temperature_description = _( "* Current storage conditions <bad>accelerate</bad> this "
-                                                     "item\'s decay. It will go bad in <info>%s</info>." );
-                        print_freshness_duration = true;
                     }
                     break;
                     case temperature_flag::TEMP_FRIDGE:
@@ -5153,19 +5144,18 @@ void item::on_damage( int qty, damage_type )
     }
 }
 
-void item::on_map_placement( const map &m, const tripoint_bub_ms &p )
+void item::on_map_placement( const tripoint_abs_ms &abs_pos )
 {
 
     // TODO: Move to reveal_map_actor
     if( is_map() && !has_var( "reveal_map_center_omt" ) ) {
-        const auto abs_pos = map_local_to_abs( m, p );
         set_var( "reveal_map_center_omt", project_to<coords::omt>( abs_pos ) );
     }
 
     for( const auto &func : type->use_methods | std::views::values ) {
         const auto actor = func.get_actor_ptr();
         if( actor != nullptr ) {
-            actor->on_placed( *this, m, p );
+            actor->on_placed( *this, abs_pos );
         }
     }
 }
@@ -6609,8 +6599,6 @@ auto temperature_flag_to_highest_temperature( temperature_flag temperature ) -> 
         case temperature_flag::TEMP_NORMAL:
         case temperature_flag::TEMP_HEATER:
             return units::temperature_max;
-        case temperature_flag::TEMP_INCUBATOR:
-            return temperatures::hot;
         case temperature_flag::TEMP_FRIDGE:
             return temperatures::fridge;
         case temperature_flag::TEMP_FREEZER:
@@ -8126,11 +8114,16 @@ double item::bonus_from_enchantments( double base, enchantment_value_id value,
 
 const std::vector<relic_recharge> &item::get_relic_recharge_scheme() const
 {
-    if( is_relic( true ) ) {
-        return relic_data->get_recharge_scheme();
-    } else {
-        return type->relic_data->get_recharge_scheme();
+    std::vector<relic_recharge> recharge_schemes;
+    if( type->relic_data ) {
+        recharge_schemes = type->relic_data->get_recharge_scheme();
     }
+    if( is_relic( true ) ) {
+        std::vector<relic_recharge> dynamic_recharge_schemes = relic_data->get_recharge_scheme();
+        recharge_schemes.insert( recharge_schemes.end(), dynamic_recharge_schemes.begin(),
+                                 dynamic_recharge_schemes.end() );
+    }
+    return recharge_schemes;
 }
 
 bool item::can_contain( const item &it ) const
@@ -9220,81 +9213,6 @@ bool item::units_sufficient( const Character &ch, int qty ) const
     return units_remaining( ch, qty ) == qty;
 }
 
-item_reload_option::item_reload_option( const item_reload_option & ) = default;
-
-item_reload_option &item_reload_option::operator=( const item_reload_option & ) = default;
-
-item_reload_option::item_reload_option( const player *who, item *target, const item *parent,
-                                        item &ammo ) :
-    who( who ), target( target ), ammo( &ammo ), parent( parent )
-{
-    if( this->target->is_ammo_belt() ) {
-        const auto &linkage = this->target->type->magazine->linkage ;
-        if( linkage ) {
-            max_qty = this->who->charges_of( *linkage );
-        }
-    }
-    qty( max_qty );
-}
-
-int item_reload_option::moves() const
-{
-    int mv = ammo->obtain_cost( *who, qty() ) + who->item_reload_cost( *target, *ammo, qty() );
-    if( parent != target ) {
-        if( parent->is_gun() ) {
-            mv += parent->get_reload_time();
-        } else if( parent->is_tool() ) {
-            mv += 100;
-        }
-    }
-    return mv;
-}
-
-void item_reload_option::qty( int val )
-{
-    bool ammo_in_ammo_container = ammo->is_ammo_container();
-    bool ammo_in_container = ammo->is_container();
-    item &ammo_obj = ( ammo_in_ammo_container || ammo_in_container ) ?
-                     ammo->contents.front() : *ammo;
-
-    if( ammo_in_ammo_container && !ammo_obj.is_ammo() ) {
-        debugmsg( "Invalid reload option: %s", ammo_obj.tname() );
-        return;
-    }
-
-    // Checking ammo capacity implicitly limits guns with removable magazines to capacity 0.
-    // This gets rounded up to 1 later.
-    int remaining_capacity = 0;
-    if( target->is_watertight_container() && ammo_obj.made_of( LIQUID ) ) {
-        remaining_capacity = target->get_remaining_capacity_for_liquid( ammo_obj, true );
-    } else if( target->is_container() && ammo_obj.is_comestible() ) {
-        remaining_capacity = ammo_obj.charges_per_volume( target->get_container_capacity() );
-        if( !target->is_container_empty() ) {
-            remaining_capacity -= target->ammo_remaining();
-        }
-    } else {
-        remaining_capacity = target->ammo_capacity() - target->ammo_remaining();
-    }
-    if( target->has_flag( flag_RELOAD_ONE ) && !ammo->has_flag( flag_SPEEDLOADER ) ) {
-        remaining_capacity = 1;
-    }
-    if( ammo_obj.type->ammo ) {
-        if( ammo_obj.ammo_type() == ammo_plutonium ) {
-            remaining_capacity = remaining_capacity / PLUTONIUM_CHARGES +
-                                 ( remaining_capacity % PLUTONIUM_CHARGES != 0 );
-        }
-    }
-
-    bool ammo_by_charges = ammo_obj.is_ammo() || ammo_in_container || ammo->is_comestible();
-    int available_ammo = ammo_by_charges ? ammo_obj.charges : ammo_obj.ammo_remaining();
-    // constrain by available ammo, target capacity and other external factors (max_qty)
-    // @ref max_qty is currently set when reloading ammo belts and limits to available linkages
-    qty_ = std::min( { val, available_ammo, remaining_capacity, max_qty } );
-
-    // always expect to reload at least one charge
-    qty_ = std::max( qty_, 1 );
-
-}
 
 int item::casings_count() const
 {
@@ -10140,30 +10058,6 @@ auto item::actualize_rot( detached_ptr<item> &&self,
     return actualize_rot( std::move( self ), context, false );
 }
 
-// ALL ROT HAPPENS HERE (unless I missed some)
-auto item::do_rot_step( detached_ptr<item> &&self,
-                        const rot_context &context,
-                        const bool seals, player *carrier ) -> detached_ptr<item>
-{
-    auto removed_snapshot = self->is_comestible() || self->is_corpse() ?
-                            item::spawn( *self ) : detached_ptr<item>();
-
-    auto result = process_rot( std::move( self ), {
-        .seals = seals,
-        .carrier = carrier,
-        .context = context,
-    } );
-
-    if( !result && removed_snapshot ) {
-        map &here = get_map();
-        MAPBUFFER_REGISTRY.get( here.get_bound_dimension() ).handle_rotten_away_item(
-        context.position, *removed_snapshot, {
-            .mode = mapbuffer_lookup_mode::resident_only,
-        } );
-    }
-    return result;
-}
-
 auto item::actualize_rot( detached_ptr<item> &&self,
                           const rot_context &context, const bool seals ) -> detached_ptr<item>
 {
@@ -10177,7 +10071,11 @@ auto item::actualize_rot( detached_ptr<item> &&self,
         return std::move( self );
     }
     if( self->goes_bad() ) {
-        return do_rot_step( std::move( self ), context, seals, nullptr );
+        return process_rot( std::move( self ), {
+            .seals = seals,
+            .carrier = nullptr,
+            .context = context,
+        } );
     } else if( self->type->container && self->type->container->preserves ) {
         // Containers like tin cans preserve all items inside; they do not rot at all.
         return std::move( self );
@@ -10383,8 +10281,6 @@ static units::temperature clip_by_temperature_flag( units::temperature temperatu
             return std::min( temperature, temperatures::freezer );
         case temperature_flag::TEMP_HEATER:
             return std::max( temperature, temperatures::normal );
-        case temperature_flag::TEMP_INCUBATOR:
-            return std::max( temperature, temperatures::hot );
         case temperature_flag::TEMP_ROOT_CELLAR:
             return temperatures::root_cellar;
         default:
@@ -11446,12 +11342,16 @@ detached_ptr<item> item::process_internal( detached_ptr<item> &&self, player *ca
     // Rot automatically applies ticks, no need to catch up
     if( ( self->is_food() || self->is_corpse() ) ) {
         ZoneScopedN( "item_process_rot" );
-        self = do_rot_step( std::move( self ), {
-            .position = bub_to_abs( pos ),
-            .temperature = flag,
-            .weather = &weather_generator,
-            .local_temperature = g != nullptr && !g->new_game ? here.get_temperature( pos ) : 0,
-        }, seals, carrier );
+        auto removed_snapshot = self->is_comestible() || self->is_corpse() ?
+                                item::spawn( *self ) : detached_ptr<item>();
+        self = process_rot( std::move( self ), seals, pos, carrier, flag, weather_generator );
+        // If the item has rotted away, then self becomes a null pointer.
+        if( !self && removed_snapshot ) {
+            MAPBUFFER_REGISTRY.get( here.get_bound_dimension() ).handle_rotten_away_item(
+            map_local_to_abs( here, pos ), *removed_snapshot, {
+                .mode = mapbuffer_lookup_mode::resident_only,
+            } );
+        }
     }
     return std::move( self );
 }

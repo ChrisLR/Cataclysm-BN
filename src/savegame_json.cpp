@@ -33,8 +33,6 @@
 #include "enums.h" // IWYU pragma: associated
 #include "event.h"
 #include "faction.h"
-#include "field.h"
-#include "field_type.h"
 #include "flag.h"
 #include "flat_set.h"
 #include "game.h"
@@ -50,9 +48,12 @@
 #include "lru_cache.h"
 #include "magic/magic.h"
 #include "magic/magic_teleporter_list.h"
-#include "map.h"
+#include "map/field.h"
+#include "map/field_type.h"
+#include "map/map.h"
+#include "map/mapdata.h"
+#include "map/submap.h"
 #include "map_memory.h"
-#include "mapdata.h"
 #include "mattack_common.h"
 #include "mission.h"
 #include "monster.h"
@@ -83,7 +84,6 @@
 #include "stats_tracker.h"
 #include "stomach.h"
 #include "string_id.h"
-#include "submap.h"
 #include "text_snippets.h"
 #include "tileray.h"
 #include "trait_group.h"
@@ -4346,6 +4346,7 @@ void stats_tracker::deserialize( JsonIn &jsin )
 void submap::store( JsonOut &jsout ) const
 {
     jsout.member( "turn_last_touched", last_touched );
+    jsout.member( "turn_last_actualized", last_actualized );
     jsout.member( "temperature", temperature );
 
     // Terrain is saved using a simple RLE scheme.  Legacy saves don't have
@@ -4613,6 +4614,10 @@ void submap::load( JsonIn &jsin, const std::string &member_name, int version,
         last_touched = calendar::turn_zero + time_duration::from_turns( jsin.get_int() );
         // Guard against corrupted saves: last_touched must not be in the future.
         last_touched = std::min( last_touched, calendar::turn );
+    } else if( member_name == "turn_last_actualized" ) {
+        last_actualized = calendar::turn_zero + time_duration::from_turns( jsin.get_int() );
+        // Guard against corrupted saves: last_touched must not be in the future.
+        last_actualized = std::min( last_actualized, calendar::turn );
     } else if( member_name == "temperature" ) {
         temperature = jsin.get_int();
     } else if( member_name == "terrain" ) {

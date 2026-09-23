@@ -20,7 +20,6 @@
 #include "enums.h"
 #include "event.h"
 #include "event_bus.h"
-#include "field_type.h"
 #include "flag.h"
 #include "game.h"
 #include "gates.h"
@@ -32,10 +31,11 @@
 #include "json.h"
 #include "line.h"
 #include "locations.h"
-#include "map.h"
+#include "map/field_type.h"
+#include "map/map.h"
+#include "map/map_selector.h"
+#include "map/mapdata.h"
 #include "map_iterator.h"
-#include "map_selector.h"
-#include "mapdata.h"
 #include "messages.h"
 #include "npc.h"
 #include "options.h"
@@ -44,6 +44,8 @@
 #include "player_activity.h"
 #include "point.h"
 #include "ranged.h"
+#include "reload/reload.h"
+#include "reload/reload_ui.h"
 #include "recipe.h"
 #include "recipe_dictionary.h"
 #include "rng.h"
@@ -377,8 +379,8 @@ bool aim_activity_actor::load_RAS_weapon()
         }
         return true;
     };
-    item_reload_option opt = ammo_location_is_valid() ? item_reload_option( &you, weapon,
-                             weapon, *you.ammo_location ) : character_funcs::select_ammo( you, *gun );
+    auto opt = ammo_location_is_valid() ? item_reload_option( &you, weapon, weapon,
+               *you.ammo_location ) : reload_ui::select_ammo( you, *gun );
     if( !opt ) {
         // Menu canceled
         return false;

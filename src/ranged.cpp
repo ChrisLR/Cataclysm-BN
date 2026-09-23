@@ -9,7 +9,6 @@
 #include "calendar.h"
 #include "cata_utility.h"
 #include "catacharset.h"
-#include "catalua.h"
 #include "catalua_coord.h"
 #include "catalua_hooks.h"
 #include "catalua_icallback_actor.h"
@@ -38,7 +37,7 @@
 #include "itype.h"
 #include "line.h"
 #include "magic/magic.h"
-#include "map.h"
+#include "map/map.h"
 #include "material.h"
 #include "math_defines.h"
 #include "messages.h"
@@ -51,6 +50,8 @@
 #include "panels.h"
 #include "player.h"
 #include "player_activity.h"
+#include "reload/reload.h"
+#include "reload/reload_ui.h"
 #include "point.h"
 #include "projectile.h"
 #include "rng.h"
@@ -1575,7 +1576,6 @@ int ranged::fire_gun( Character &who, const tripoint_bub_ms &target, int max_sho
         }
     }
 
-    std::unique_lock lock( cata::lua_lock );
     cata::run_hooks( "on_shoot", [ & ]( auto & params ) {
         params["shooter"] = &who;
         params["target_pos"] = cata::detail::lua_coords::to_lua( target );
@@ -1986,7 +1986,6 @@ dealt_projectile_attack throw_item( Character &who, const tripoint_bub_ms &targe
     who.last_target_pos = std::nullopt;
     who.recoil = MAX_RECOIL;
 
-    std::unique_lock lock( cata::lua_lock );
     cata::run_hooks( "on_throw", [ & ]( auto & params ) {
         params["thrower"] = &who;
         params["target_pos"] = cata::detail::lua_coords::to_lua( target );
@@ -4653,7 +4652,13 @@ auto ranged::gunmode_checks_weapon( avatar &you, const map &m, std::vector<std::
 
 void ranged::prompt_select_default_ammo_for( avatar &u, item &w )
 {
-    item_reload_option opt = character_funcs::select_ammo( u, w, false, true, true );
+    auto opt = reload_ui::select_ammo( u, w, {
+        .prompt = false,
+        .discovery = {
+            .include_empty_mags = true,
+            .include_potential = true
+        }
+    } );
     if( opt ) {
         if( u.ammo_location && opt.ammo == &*u.ammo_location ) {
             u.add_msg_if_player( _( "Cleared ammo preferences for %s." ), w.tname() );

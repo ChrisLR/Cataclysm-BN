@@ -6,6 +6,11 @@
   },
   {
     "type": "construction_group",
+    "id": "place_nanofab_portable",
+    "name": "Place Portable Nanofab"
+  },
+  {
+    "type": "construction_group",
     "id": "add_mattress_to_bed_frame",
     "name": "Add Mattress to Bed Frame"
   },
@@ -736,6 +741,11 @@
   },
   {
     "type": "construction_group",
+    "id": "build_utility_shelf",
+    "name": "Build Utility Shelf"
+  },
+  {
+    "type": "construction_group",
     "id": "build_rain_collector",
     "name": "Build Rain Collector"
   },
@@ -1033,11 +1043,6 @@
     "type": "construction_group",
     "id": "install_glass_refrigerator",
     "name": "Plug In Glass Refrigerator"
-  },
-  {
-    "type": "construction_group",
-    "id": "install_incubator",
-    "name": "Plug In Incubator"
   },
   {
     "type": "construction_group",
