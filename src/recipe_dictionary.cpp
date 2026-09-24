@@ -807,7 +807,7 @@ int recipe_subset::get_custom_difficulty( const recipe *r ) const
 void recipe_dictionary::resolve_lua_callbacks(
     const std::map<std::string, std::unique_ptr<lua_recipe_actor>> &actors ) const
 {
-    for( const auto recipe_pair : recipes ) {
+    for( auto &recipe_pair : recipes ) {
         auto it = actors.find( recipe_pair.first.str() );
         if( it != actors.end() ) {
             recipe_pair.second.lua_callbacks = it->second.get();
