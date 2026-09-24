@@ -327,6 +327,20 @@ auto apply_craft_result_hooks( const craft_result_hook_options &opts ) -> void
         params["dehydrated_result"] = opts.rec.dehydrate_result();
         params["crafting_menu"] = true;
     } );
+    if( opts.rec.lua_callbacks ) {
+        opts.rec.lua_callbacks->call_on_craft(
+            lua_recipe_actor::RecipeCraftResult{
+            opts.crafter,
+            opts.result,
+            food_contained,
+            opts.rec,
+            opts.batch_size,
+            opts.rec.hot_result(),
+            opts.rec.dehydrate_result(),
+            true
+            }
+        );
+    }
 }
 
 auto expand_nested_recipes( std::vector<const recipe *> &out_current,
