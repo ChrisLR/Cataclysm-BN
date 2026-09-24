@@ -1213,7 +1213,6 @@ void complete_craft( Character &who, item &craft )
                 batch_size,
                 should_heat,
                 is_dehydrated,
-                false
             }
             );
         }

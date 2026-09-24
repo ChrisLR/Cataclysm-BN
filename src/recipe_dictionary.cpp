@@ -10,6 +10,7 @@
 #include "utils/algo.h"
 #include "cata_utility.h"
 #include "debug.h"
+#include "fmtlib_core.h"
 #include "init.h"
 #include "input.h"
 #include "item.h"
@@ -808,6 +809,8 @@ void recipe_dictionary::resolve_lua_callbacks(
 {
     for( const auto recipe_pair : recipes ) {
         auto it = actors.find( recipe_pair.first.str() );
-        if( it != actors.end() ) { recipe_pair.second.lua_callbacks = it->second.get(); }
+        if( it != actors.end() ) {
+            recipe_pair.second.lua_callbacks = it->second.get();
+        }
     }
 }

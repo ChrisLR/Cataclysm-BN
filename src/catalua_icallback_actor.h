@@ -316,7 +316,6 @@ class lua_recipe_actor
             const int &batch_size;
             const bool &hot_result;
             const bool &dehydrated_result;
-            const bool &crafting_menu;
         };
         /** Returns false to block casting. */
         void call_on_craft( const RecipeCraftResult &craft_result ) const;

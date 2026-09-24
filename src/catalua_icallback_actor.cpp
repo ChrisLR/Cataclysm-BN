@@ -948,7 +948,6 @@ void lua_recipe_actor::call_on_craft( const RecipeCraftResult &craft_result ) co
         params["batch_size"] = &craft_result.batch_size;
         params["hot_result"] = &craft_result.hot_result;
         params["dehydrated_result"] = &craft_result.dehydrated_result;
-        params["crafting_menu"] = &craft_result.crafting_menu;
 
         sol::protected_function_result res = on_craft_func( params );
         check_func_result( res );
