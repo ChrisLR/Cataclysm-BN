@@ -927,12 +927,13 @@ void lua_monster_callback_actor::call_on_examine_menu_entry( Character &who, mon
 }
 
 lua_recipe_actor::lua_recipe_actor( const std::string &recipe_id,
-        sol::protected_function &&on_craft
-        )
+                                    sol::protected_function &&on_craft
+                                  )
     : recipe_str_id( recipe_id ),
       on_craft_func( std::move( on_craft ) ) {}
 
-void lua_recipe_actor::call_on_craft( const RecipeCraftResult &craft_result ) const {
+void lua_recipe_actor::call_on_craft( const RecipeCraftResult &craft_result ) const
+{
     if( on_craft_func == sol::lua_nil ) {
         return;
     }
@@ -941,7 +942,8 @@ void lua_recipe_actor::call_on_craft( const RecipeCraftResult &craft_result ) co
         auto params = lua.create_table();
         params["crafter"] = &craft_result.crafter;
         params["craft"] = &craft_result.craft;
-        params["item"] = &craft_result.food_contained;  // Not sure why we chose this param, but that is what the hook receives so...
+        params["item"] =
+            &craft_result.food_contained;  // Not sure why we chose this param, but that is what the hook receives so...
         params["recipe"] = &craft_result.recipe;
         params["batch_size"] = &craft_result.batch_size;
         params["hot_result"] = &craft_result.hot_result;

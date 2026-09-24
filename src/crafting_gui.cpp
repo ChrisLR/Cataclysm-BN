@@ -329,7 +329,7 @@ auto apply_craft_result_hooks( const craft_result_hook_options &opts ) -> void
     } );
     if( opts.rec.lua_callbacks ) {
         opts.rec.lua_callbacks->call_on_craft(
-            lua_recipe_actor::RecipeCraftResult{
+        lua_recipe_actor::RecipeCraftResult{
             opts.crafter,
             opts.result,
             food_contained,
@@ -338,7 +338,7 @@ auto apply_craft_result_hooks( const craft_result_hook_options &opts ) -> void
             opts.rec.hot_result(),
             opts.rec.dehydrate_result(),
             true
-            }
+        }
         );
     }
 }

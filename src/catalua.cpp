@@ -1127,8 +1127,8 @@ void reg_lua_icallback_actors( lua_state &state, Item_factory &ifactory )
                 const auto tbl = ref.second.as<sol::table>();
                 auto on_craft = tbl.get_or<sol::function>( "on_craft", sol::lua_nil );
                 recipe_callback_actors[key] = std::make_unique<lua_recipe_actor>(
-                                                   key, std::move( on_craft )
-                                               );
+                                                  key, std::move( on_craft )
+                                              );
 
             } catch( std::runtime_error &e ) {
                 debugmsg( "Failed to extract recipe_functions k='%s': %s", key, e.what() );

@@ -1205,7 +1205,7 @@ void complete_craft( Character &who, item &craft )
         } );
         if( making.lua_callbacks ) {
             making.lua_callbacks->call_on_craft(
-                lua_recipe_actor::RecipeCraftResult{
+            lua_recipe_actor::RecipeCraftResult{
                 who,
                 craft,
                 food_contained,
@@ -1214,7 +1214,7 @@ void complete_craft( Character &who, item &craft )
                 should_heat,
                 is_dehydrated,
                 false
-                }
+            }
             );
         }
 

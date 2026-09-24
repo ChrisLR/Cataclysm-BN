@@ -179,7 +179,7 @@ class recipe
 
         /** Lua callback actor (non-owning, owned by catalua.cpp static maps).
          *  Mutable because it is wired post-construction through const factory references. */
-        mutable const lua_recipe_actor* lua_callbacks = nullptr;
+        mutable const lua_recipe_actor *lua_callbacks = nullptr;
 
     private:
         void add_requirements( const std::vector<std::pair<requirement_id, int>> &reqs );
