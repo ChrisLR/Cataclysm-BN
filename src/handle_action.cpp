@@ -13,6 +13,7 @@
 #include "calendar.h"
 #include "catacharset.h"
 #include "catalua.h"
+#include "catalua_hooks.h"
 #include "character.h"
 #include "character_display.h"
 #include "character_martial_arts.h"
@@ -108,8 +109,6 @@
 #include <set>
 #include <sstream>
 #include <utility>
-
-#include "catalua_hooks.h"
 
 static const activity_id ACT_FERTILIZE_PLOT( "ACT_FERTILIZE_PLOT" );
 static const activity_id ACT_MOVE_LOOT( "ACT_MOVE_LOOT" );
