@@ -1,5 +1,6 @@
 #include "map.h"
 
+#include "../overmap/overmapbuffer.h"
 #include "active_item_cache.h"
 #include "active_tile_data.h"
 #include "ammo.h"
@@ -74,7 +75,6 @@
 #include "npc.h"
 #include "options.h"
 #include "output.h"
-#include "overmapbuffer.h"
 #include "player.h"
 #include "point.h"
 #include "point_float.h"
@@ -5251,7 +5251,7 @@ void map::add_item(const tripoint_bub_ms& p, detached_ptr<item>&& new_item) {
             project_to<coords::sm>(abs_pos), resident_item_lookup());
     }
 
-    new_item->on_map_placement(*this, p);
+    new_item->on_map_placement(abs_pos);
 
     current_submap->get_items(l).push_back(std::move(new_item));
     return;

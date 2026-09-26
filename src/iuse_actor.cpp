@@ -67,15 +67,17 @@
 #include "npc.h"
 #include "options.h"
 #include "output.h"
-#include "overmap.h"
-#include "overmap_special.h"
-#include "overmap_ui.h"
+#include "overmap/overmap.h"
+#include "overmap/overmap_special.h"
+#include "overmap/overmap_ui.h"
 #include "player.h"
 #include "player_activity.h"
 #include "pldata.h"
 #include "popup.h"
 #include "recipe.h"
 #include "recipe_dictionary.h"
+#include "reload/reload.h"
+#include "reload/reload_ui.h"
 #include "requirements.h"
 #include "rng.h"
 #include "skill.h"
@@ -3126,7 +3128,7 @@ bool bandolier_actor::reload( player &p, item &obj ) const
         return item_reload_option( &p, &obj, &obj, *e );
     } );
 
-    item_reload_option sel = character_funcs::select_ammo( p, obj, std::move( opts ) );
+    auto sel = reload_ui::select_ammo( p, obj, std::move( opts ) );
     if( !sel ) {
         return false; // canceled menu
     }
@@ -3234,7 +3236,7 @@ int ammobelt_actor::use( player &p, item &, bool, const tripoint_bub_ms & ) cons
         return 0;
     }
 
-    item_reload_option opt = character_funcs::select_ammo( p, *mag, true );
+    auto opt = reload_ui::select_ammo( p, *mag, { .prompt = true } );
     if( opt ) {
         p.assign_activity( ACT_RELOAD, opt.moves(), opt.qty() );
         p.activity->targets.emplace_back( &*mag );
@@ -8485,12 +8487,12 @@ void iuse_paint_stuff::info( const item &it, std::vector<iteminfo> &inf ) const
     }
 }
 
-void iuse_paint_stuff::on_placed( item &it, const map &, const tripoint_bub_ms & ) const
+void iuse_paint_stuff::on_placed( item &it, const tripoint_abs_ms & ) const
 {
     get_paint_color( it );
 }
 
-void iuse_paint_stuff_config::on_placed( item &it, const map &, const tripoint_bub_ms & ) const
+void iuse_paint_stuff_config::on_placed( item &it, const tripoint_abs_ms & ) const
 {
     get_paint_layer( it, false );
 }
