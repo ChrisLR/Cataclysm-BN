@@ -875,9 +875,9 @@ void cata::detail::reg_character( sol::state &lua )
         SET_FX_T( mutation_ok, bool( const trait_id &, bool, bool ) const );
 
         luna::set_fx( ut, "mutate_category", sol::overload(
-                  sol::resolve<void( const mutation_category_id & )>( &UT_CLASS::mutate_category ),
-                  sol::resolve<void( const mutation_category_id &, bool )>( &UT_CLASS::mutate_category )
-                  ));
+                          sol::resolve<void( const mutation_category_id & )>( &UT_CLASS::mutate_category ),
+                          sol::resolve<void( const mutation_category_id &, bool )>( &UT_CLASS::mutate_category )
+                      ) );
 
         luna::set_fx( ut, "mutate_towards", sol::overload(
                           sol::resolve<bool( std::vector<trait_id>, int )>( &UT_CLASS::mutate_towards ),

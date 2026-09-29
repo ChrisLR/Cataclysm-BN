@@ -1132,11 +1132,11 @@ void Character::old_mutate()
 
 void Character::mutate_category( const mutation_category_id &cat, const bool cross_thresh )
 {
-    if (!cross_thresh){mutate_category(cat); return;}
+    if( !cross_thresh ) {mutate_category( cat ); return;}
 
-    mutate_category(cat);
+    mutate_category( cat );
     const auto cat_obj = &cat.obj();
-    if( !cat_obj->threshold_muts.empty()) {
+    if( !cat_obj->threshold_muts.empty() ) {
         const auto max_tier = cat_obj->threshold_muts.size() - 1;
         test_crossing_threshold( *this, *cat_obj, max_tier );
     }
@@ -2017,9 +2017,10 @@ std::string Character::visible_mutations( const int visibility_cap ) const
     return trait_str;
 }
 
-std::vector<trait_id> mutation_category_trait::get_mutations( ) const {
-    auto it = mutations_category.find(id);
-    if (it != mutations_category.end()) {
+std::vector<trait_id> mutation_category_trait::get_mutations( ) const
+{
+    auto it = mutations_category.find( id );
+    if( it != mutations_category.end() ) {
         return it->second;
     }
     return std::vector<trait_id>();
