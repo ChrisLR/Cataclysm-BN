@@ -1130,18 +1130,6 @@ void Character::old_mutate()
     }
 }
 
-void Character::mutate_category( const mutation_category_id &cat, const bool cross_thresh )
-{
-    if( !cross_thresh ) {mutate_category( cat ); return;}
-
-    mutate_category( cat );
-    const auto cat_obj = &cat.obj();
-    if( !cat_obj->threshold_muts.empty() ) {
-        const auto max_tier = cat_obj->threshold_muts.size() - 1;
-        test_crossing_threshold( *this, *cat_obj, max_tier );
-    }
-}
-
 void Character::mutate_category( const mutation_category_id &cat )
 {
     // Hacky ID comparison is better than separate hardcoded branch used before
@@ -1150,7 +1138,6 @@ void Character::mutate_category( const mutation_category_id &cat )
         mutate();
         return;
     }
-
 
     bool force_bad = one_in( 3 ) && !get_option<bool>( "BALANCED_MUTATIONS" );
     bool force_good = false;
@@ -1178,8 +1165,6 @@ void Character::mutate_category( const mutation_category_id &cat )
     }
 
     mutate_towards( valid, 2 );
-    // Serums also check afterward, copied their behavior
-
 }
 
 static std::vector<trait_id> get_all_mutation_prereqs( const trait_id &id )
@@ -1233,26 +1218,8 @@ bool Character::mutate_towards( const trait_id &mut )
     std::vector<trait_id> all_prereqs = get_all_mutation_prereqs( mut );
 
     // Check mutations of the same type - except for the ones we might need for pre-reqs
-    // Also don't cancel mutations that are replacements for our prerequisites
     for( const auto &consider : same_type ) {
-        if( std::ranges::contains( all_prereqs, consider ) ) {
-            continue;
-        }
-        // Check if this mutation is a replacement for any of our prerequisites
-        bool is_replacement = false;
-        for( const auto &pre : prereq ) {
-            if( std::ranges::contains( pre.obj().replacements, consider ) ) {
-                is_replacement = true;
-                break;
-            }
-        }
-        for( const auto &pre : prereqs2 ) {
-            if( std::ranges::contains( pre.obj().replacements, consider ) ) {
-                is_replacement = true;
-                break;
-            }
-        }
-        if( !is_replacement ) {
+        if( !std::ranges::contains( all_prereqs, consider ) ) {
             cancel.push_back( consider );
         }
     }
@@ -1284,30 +1251,12 @@ bool Character::mutate_towards( const trait_id &mut )
     for( size_t i = 0; ( !prereq1 ) && i < prereq.size(); i++ ) {
         if( has_trait( prereq[i] ) ) {
             prereq1 = true;
-        } else {
-            // Check if we have any mutation that this prerequisite can change into
-            const auto &pre_mdata = prereq[i].obj();
-            for( const trait_id &t : pre_mdata.replacements ) {
-                if( has_trait( t ) ) {
-                    prereq1 = true;
-                    break;
-                }
-            }
         }
     }
 
     for( size_t i = 0; ( !prereq2 ) && i < prereqs2.size(); i++ ) {
         if( has_trait( prereqs2[i] ) ) {
             prereq2 = true;
-        } else {
-            // Check if we have any mutation that this prerequisite can change into
-            const auto &pre_mdata = prereqs2[i].obj();
-            for( const trait_id &t : pre_mdata.replacements ) {
-                if( has_trait( t ) ) {
-                    prereq2 = true;
-                    break;
-                }
-            }
         }
     }
 
@@ -1317,48 +1266,9 @@ bool Character::mutate_towards( const trait_id &mut )
 
     if( !has_prereqs && ( !prereq.empty() || !prereqs2.empty() ) ) {
         if( !prereq1 && !prereq.empty() ) {
-            if( !mutate_towards( prereq ) ) {
-                return false;
-            }
-            // Re-check prereq1 after adding prerequisites
-            prereq1 = false;
-            for( size_t i = 0; !prereq1 && i < prereq.size(); i++ ) {
-                if( has_trait( prereq[i] ) ) {
-                    prereq1 = true;
-                } else {
-                    const auto &pre_mdata = prereq[i].obj();
-                    for( const trait_id &t : pre_mdata.replacements ) {
-                        if( has_trait( t ) ) {
-                            prereq1 = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        if( !prereq2 && !prereqs2.empty() ) {
-            if( !mutate_towards( prereqs2 ) ) {
-                return false;
-            }
-            // Re-check prereq2 after adding prerequisites
-            prereq2 = false;
-            for( size_t i = 0; !prereq2 && i < prereqs2.size(); i++ ) {
-                if( has_trait( prereqs2[i] ) ) {
-                    prereq2 = true;
-                } else {
-                    const auto &pre_mdata = prereqs2[i].obj();
-                    for( const trait_id &t : pre_mdata.replacements ) {
-                        if( has_trait( t ) ) {
-                            prereq2 = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        has_prereqs = ( prereq.empty() || prereq1 ) && ( prereqs2.empty() || prereq2 );
-        if( !has_prereqs ) {
-            return false;
+            return mutate_towards( prereq );
+        } else if( !prereq2 && !prereqs2.empty() ) {
+            return mutate_towards( prereqs2 );
         }
     }
 
