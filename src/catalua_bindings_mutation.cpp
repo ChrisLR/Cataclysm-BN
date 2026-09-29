@@ -214,7 +214,7 @@ void cata::detail::mod_mutation_category_trait( sol::state &lua )
         SET_MEMB_RO( iv_sleep_dur );
 
         DOC( "Returns a list of all mutations in this category." );
-        luna::set_fx( ut, "get_mutations", []( const UT_CLASS & mut )  -> std::vector<trait_id> { return get_mutations_in_type(mut.id.str()); } );
+        luna::set_fx( ut, "get_mutations", []( const UT_CLASS & mut )  -> std::vector<trait_id> { return mut.get_mutations();} );
 
         // The string conversion function references this object's str_id.
         luna::set_fx( ut, sol::meta_function::to_string,

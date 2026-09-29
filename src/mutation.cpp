@@ -2016,3 +2016,11 @@ std::string Character::visible_mutations( const int visibility_cap ) const
     } );
     return trait_str;
 }
+
+std::vector<trait_id> mutation_category_trait::get_mutations( ) const {
+    auto it = mutations_category.find(id);
+    if (it != mutations_category.end()) {
+        return it->second;
+    }
+    return std::vector<trait_id>();
+}
