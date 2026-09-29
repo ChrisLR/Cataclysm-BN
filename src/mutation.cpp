@@ -1130,6 +1130,18 @@ void Character::old_mutate()
     }
 }
 
+void Character::mutate_category( const mutation_category_id &cat, const bool cross_thresh )
+{
+    if( !cross_thresh ) {mutate_category( cat ); return;}
+
+    mutate_category( cat );
+    const auto cat_obj = &cat.obj();
+    if( !cat_obj->threshold_muts.empty() ) {
+        const auto max_tier = cat_obj->threshold_muts.size() - 1;
+        test_crossing_threshold( *this, *cat_obj, max_tier );
+    }
+}
+
 void Character::mutate_category( const mutation_category_id &cat )
 {
     // Hacky ID comparison is better than separate hardcoded branch used before
