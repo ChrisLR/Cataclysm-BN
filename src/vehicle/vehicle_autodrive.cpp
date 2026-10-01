@@ -120,11 +120,14 @@
  * perform visibility checks. Not being able to see anything in front of the vehicle will
  * immediately cancel (or fail to start) autodrive. If the driver has only partial visibility
  * of the front of the vehicle, safe mode will engage limiting the speed. Furthermore, the
- * driver needs to either see or have map memory for the map tiles in the current OMT; all
- * unseen tiles will be treated as obstacles during pathfinding. In practice, this means
- * that driving at night should only be possible through familiar terrain with limited
- * lights / night vision or through unfamiliar terrain but with good headlights / excellent
- * night vision.
+ * driver needs to either see or have map memory for the map tiles in the current OMT. Tiles
+ * that are neither visible nor memorized are treated as "unknown": pathfinding may plan a
+ * route across them (otherwise darkness or the driver's own vehicle blocking their view
+ * could make route planning fail spuriously), but any route that crosses them forces safe
+ * mode speed and the per-turn collision checks treat them cautiously. In practice, this
+ * means that driving at night is possible through familiar terrain at limited speed or
+ * through unfamiliar terrain at the minimum speed, as long as the driver can see what is
+ * directly ahead.
  */
 
 static constexpr int OMT_SIZE = coords::map_squares_per(coords::omt);
@@ -282,6 +285,9 @@ struct auto_navigation_data {
     std::array<vehicle_profile, NUM_ORIENTATIONS> profiles;
     // known obstacles on the view map
     bool is_obstacle[NAV_VIEW_SIZE_X][NAV_VIEW_SIZE_Y];
+    // tiles on the view map that the driver can neither see nor remember;
+    // passable for pathfinding, but any route crossing them forces safe mode speed
+    bool is_unknown[NAV_VIEW_SIZE_X][NAV_VIEW_SIZE_Y];
     // where on the nav map the vehicle pivot may be placed
     bool valid_positions[NUM_ORIENTATIONS][NAV_MAP_SIZE_X][NAV_MAP_SIZE_Y];
     // node addresses that are valid end positions
@@ -330,6 +336,8 @@ private:
 
     void compute_coordinates();
     auto check_drivable(tripoint_bub_ms pt) const -> bool;
+    auto is_tile_known(tripoint_bub_ms pt) const -> bool;
+    auto route_crosses_unknown(const std::vector<navigation_step>& path) const -> bool;
     void compute_obstacles();
     auto compute_profile(orientation facing) const -> vehicle_profile;
     void compute_valid_positions();
@@ -571,7 +579,8 @@ auto vehicle::autodrive_controller::compute_profile(orientation facing) const ->
 
 
 // Return true if the map tile at the given position (in map coordinates)
-// can be driven on (not an obstacle).
+// can be driven on (not an obstacle). This is a purely physical check;
+// what the driver can or cannot see is handled by is_tile_known().
 // The logic should match what is in vehicle::part_collision().
 auto vehicle::autodrive_controller::check_drivable(tripoint_bub_ms pt) const -> bool {
     const map& here = get_map();
@@ -585,23 +594,6 @@ auto vehicle::autodrive_controller::check_drivable(tripoint_bub_ms pt) const -> 
         // as safe and may collide with it by turning; however if we mark it unsafe
         // we'll have no viable paths away from the starting point.
         return &ovp->vehicle() == &driven_veh;
-    }
-
-    const auto pt_abs = bub_to_abs(pt);
-    const tripoint_abs_omt pt_omt = project_to<coords::omt>(pt_abs);
-    // only check visibility for the current OMT, we'll check other OMTs when
-    // we reach them
-    if (pt_omt == data.current_omt) {
-        // driver must see the tile or have seen it before in order to plan a route over it
-        if (!driver.sees(pt)) {
-            if (!driver.is_avatar()) {
-                return false;
-            } else if (!driver.as_avatar()->has_memorized_tile_for_autodrive(pt_abs)) {
-                // apparently open air doesn't get memorized, so pretend it is or else
-                // we can't fly helicopters due to the many unseen tiles behind the driver
-                if (!(data.air_ok && here.ter(pt) == t_open_air)) { return false; }
-            }
-        }
     }
 
     // check for creatures
@@ -646,13 +638,52 @@ auto vehicle::autodrive_controller::check_drivable(tripoint_bub_ms pt) const -> 
     return true;
 }
 
-void vehicle::autodrive_controller::compute_obstacles() {
+// Return true if the driver knows what's on the map tile at the given position
+// (in map coordinates): they can either currently see it or remember it from a
+// previous visit. Tiles outside the current OMT are assumed to be known; they
+// will be checked once we reach them.
+auto vehicle::autodrive_controller::is_tile_known(tripoint_bub_ms pt) const -> bool {
     const map& here = get_map();
+
+    const auto pt_abs = bub_to_abs(pt);
+    const tripoint_abs_omt pt_omt = project_to<coords::omt>(pt_abs);
+    // only check visibility for the current OMT, we'll check other OMTs when
+    // we reach them
+    if (pt_omt != data.current_omt) { return true; }
+    if (driver.sees(pt)) { return true; }
+    if (!driver.is_avatar()) { return false; }
+    if (driver.as_avatar()->has_memorized_tile_for_autodrive(pt_abs)) { return true; }
+    // apparently open air doesn't get memorized, so pretend it is or else
+    // we can't fly helicopters due to the many unseen tiles behind the driver
+    return data.air_ok && here.ter(pt) == t_open_air;
+}
+
+// Return true if any position on the given route is on a tile that the driver
+// can neither see nor remember.
+auto vehicle::autodrive_controller::route_crosses_unknown(
+    const std::vector<navigation_step>& path) const -> bool {
+    const coord_transformation map_to_view = data.view_to_map.inverse();
+    return std::ranges::any_of(path, [&](const navigation_step& step) {
+        const point view_pt = map_to_view.transform(step.pos.raw().xy());
+        return data.view_bounds.contains(view_pt) && data.is_unknown[view_pt.x][view_pt.y];
+    });
+}
+
+void vehicle::autodrive_controller::compute_obstacles() {
     for (int dx = 0; dx < NAV_VIEW_SIZE_X; dx++) {
         for (int dy = 0; dy < NAV_VIEW_SIZE_Y; dy++) {
             // TODO: store z-values in the nav map and retrieve here (needed for ramp navigation)
             const auto abs_map_pt = data.view_to_map.transform(point(dx, dy), data.current_omt.z());
-            data.is_obstacle[dx][dy] = !check_drivable(abs_to_bub(tripoint_abs_ms(abs_map_pt)));
+            const tripoint_bub_ms pt = abs_to_bub(tripoint_abs_ms(abs_map_pt));
+            if (is_tile_known(pt)) {
+                data.is_obstacle[dx][dy] = !check_drivable(pt);
+                data.is_unknown[dx][dy] = false;
+            } else {
+                // The driver can't see this tile and doesn't remember it. Since
+                // Mark as unknown so it doesn't block
+                data.is_obstacle[dx][dy] = false;
+                data.is_unknown[dx][dy] = true;
+            }
         }
     }
 }
@@ -947,8 +978,15 @@ auto vehicle::autodrive_controller::check_collision_zone(orientation turn_dir)
     tdir.advance();
     point offset(tdir.dx(), tdir.dy());
     for (point p : profile.occupied_zone) { collision_zone.insert(p + offset); }
+    bool unknown_ahead = false;
     for (point p : collision_zone) {
         if (!check_drivable(veh_pos + p)) { return collision_check_result::close_obstacle; }
+        if (!is_tile_known(veh_pos + p)) { unknown_ahead = true; }
+    }
+    if (unknown_ahead) {
+        // We're about to move over tiles that the driver can't see and doesn't
+        // remember; they might be clear, but slow down just in case.
+        return collision_check_result::slow_down;
     }
 
     // finally check the area further ahead; we can still avoid those collisions by reducing speed
@@ -987,6 +1025,15 @@ auto vehicle::autodrive_controller::compute_next_step() -> std::optional<navigat
         }
         if (!new_path) { return std::nullopt; }
         data.path.swap(*new_path);
+        if (route_crosses_unknown(data.path)) {
+            // The route crosses tiles that the driver can't see and doesn't
+            // remember; we can plan over them, but only at safe mode speed.
+            reduce_speed();
+            data.path.clear();
+            new_path = compute_path(data.max_speed_tps);
+            if (!new_path) { return std::nullopt; }
+            data.path.swap(*new_path);
+        }
     }
     return data.path.back();
 }
@@ -994,7 +1041,7 @@ auto vehicle::autodrive_controller::compute_next_step() -> std::optional<navigat
 
 auto vehicle::get_debug_overlay_data() const
     -> std::vector<std::tuple<point_rel_ms, int, std::string>> {
-    static const std::vector<std::string> debug_what = {"valid_position", "omt"};
+    static const std::vector<std::string> debug_what = {"valid_position", "omt", "is_unknown"};
     std::vector<std::tuple<point_rel_ms, int, std::string>> ret;
 
     const tripoint_abs_ms veh_pos = abs_ms_location();
@@ -1027,6 +1074,14 @@ auto vehicle::get_debug_overlay_data() const
                     const int color = obstacle ? catacurses::red : catacurses::green;
                     const point pt = data.view_to_map.transform(point(dx, dy)) - veh_pos.raw().xy();
                     ret.emplace_back(pt, color, obstacle ? "o" : "x");
+                }
+            }
+        } else if (debug_str == "is_unknown") {
+            for (int dx = 0; dx < NAV_VIEW_SIZE_X; dx++) {
+                for (int dy = 0; dy < NAV_VIEW_SIZE_Y; dy++) {
+                    if (!data.is_unknown[dx][dy]) { continue; }
+                    const point pt = data.view_to_map.transform(point(dx, dy)) - veh_pos.raw().xy();
+                    ret.emplace_back(pt, catacurses::magenta, "?");
                 }
             }
         } else if (debug_str == "valid_position") {
@@ -1099,8 +1154,14 @@ auto vehicle::do_autodrive(Character& driver) -> autodrive_result {
     active_autodrive_controller->check_safe_speed();
     std::optional<navigation_step> next_step = active_autodrive_controller->compute_next_step();
     if (!next_step) {
-        // message handles pathfinding failure either due to obstacles or inability to see
-        driver.add_msg_if_player(_("Can't see a path forward."));
+        if (active_autodrive_controller->get_data().goal_zone.empty()) {
+            // there is no valid position to cross into the next OMT from
+            driver.add_msg_if_player(
+                m_warning, _("There is no way to reach the next overmap tile."));
+        } else {
+            // obstacles block every route to the goal zone
+            driver.add_msg_if_player(m_warning, _("The way forward is blocked."));
+        }
         stop_autodriving(false);
         return autodrive_result::abort;
     }
