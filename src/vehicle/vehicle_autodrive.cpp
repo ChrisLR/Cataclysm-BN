@@ -1156,8 +1156,8 @@ auto vehicle::do_autodrive(Character& driver) -> autodrive_result {
     if (!next_step) {
         if (active_autodrive_controller->get_data().goal_zone.empty()) {
             // there is no valid position to cross into the next OMT from
-            driver.add_msg_if_player(
-                m_warning, _("There is no way to reach the next overmap tile."));
+            driver
+                .add_msg_if_player(m_warning, _("There is no way to reach the next overmap tile."));
         } else {
             // obstacles block every route to the goal zone
             driver.add_msg_if_player(m_warning, _("The way forward is blocked."));
