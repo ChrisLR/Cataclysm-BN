@@ -640,8 +640,7 @@ auto vehicle::autodrive_controller::check_drivable(tripoint_bub_ms pt) const -> 
 
 // Return true if the driver knows what's on the map tile at the given position
 // (in map coordinates): they can either currently see it or remember it from a
-// previous visit. Tiles outside the current OMT are assumed to be known; they
-// will be checked once we reach them.
+// previous visit.
 auto vehicle::autodrive_controller::is_tile_known(tripoint_bub_ms pt) const -> bool {
     const map& here = get_map();
 
@@ -984,8 +983,6 @@ auto vehicle::autodrive_controller::check_collision_zone(orientation turn_dir)
         if (!is_tile_known(veh_pos + p)) { unknown_ahead = true; }
     }
     if (unknown_ahead) {
-        // We're about to move over tiles that the driver can't see and doesn't
-        // remember; they might be clear, but slow down just in case.
         return collision_check_result::slow_down;
     }
 
@@ -1026,8 +1023,6 @@ auto vehicle::autodrive_controller::compute_next_step() -> std::optional<navigat
         if (!new_path) { return std::nullopt; }
         data.path.swap(*new_path);
         if (route_crosses_unknown(data.path)) {
-            // The route crosses tiles that the driver can't see and doesn't
-            // remember; we can plan over them, but only at safe mode speed.
             reduce_speed();
             data.path.clear();
             new_path = compute_path(data.max_speed_tps);
@@ -1155,11 +1150,8 @@ auto vehicle::do_autodrive(Character& driver) -> autodrive_result {
     std::optional<navigation_step> next_step = active_autodrive_controller->compute_next_step();
     if (!next_step) {
         if (active_autodrive_controller->get_data().goal_zone.empty()) {
-            // there is no valid position to cross into the next OMT from
-            driver
-                .add_msg_if_player(m_warning, _("There is no way to reach the next overmap tile."));
+            driver.add_msg_if_player(m_warning, _("There is no way to reach the next overmap tile."));
         } else {
-            // obstacles block every route to the goal zone
             driver.add_msg_if_player(m_warning, _("The way forward is blocked."));
         }
         stop_autodriving(false);
