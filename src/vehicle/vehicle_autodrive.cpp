@@ -107,14 +107,16 @@
  * Since the navigation graph is cached and not updated in response to dynamic obstacles (such
  * as animals) autodrive will also perform collision detection at every turn, before taking
  * any action that may end the turn. If a possible collision is detected autodrive will enter
- * "safe mode", reducing speed and recomputing. If the speed is already at minimum it will
- * abort instead with a warning message.
+ * "safe mode", reducing speed and recomputing. If an obstacle is immediately ahead (in the
+ * area the vehicle is about to move into this very turn) autodrive will abort instead, with
+ * a warning message.
  *
  * In most cases when autodrive aborts it will not automatically stop the vehicle. Stopping
  * may be undesirable since nearby enemies could get into the vehicle. It is up to the player
  * to either stop or continue driving manually for a while. However, when aborting due to a
- * collision (which happened despite collision detection, i.e. there was a simulation discrepancy
- * near an obstacle) the brakes will be engaged.
+ * collision, whether imminent (an obstacle directly ahead) or actual (which happened despite
+ * collision detection, i.e. there was a simulation discrepancy near an obstacle), the brakes
+ * will be engaged.
  *
  * In order to prevent exploiting the system to navigate in the dark, autodrive will also
  * perform visibility checks. Not being able to see anything in front of the vehicle will
@@ -1179,7 +1181,7 @@ auto vehicle::do_autodrive(Character& driver) -> autodrive_result {
             return autodrive_result::abort;
         case collision_check_result::close_obstacle:
             driver.add_msg_if_player(m_warning, _("You're about to crash into something!"));
-            stop_autodriving(false);
+            stop_autodriving(true);
             return autodrive_result::abort;
         case collision_check_result::slow_down:
             active_autodrive_controller->reduce_speed();
