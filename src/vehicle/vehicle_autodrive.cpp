@@ -984,9 +984,7 @@ auto vehicle::autodrive_controller::check_collision_zone(orientation turn_dir)
         if (!check_drivable(veh_pos + p)) { return collision_check_result::close_obstacle; }
         if (!is_tile_known(veh_pos + p)) { unknown_ahead = true; }
     }
-    if (unknown_ahead) {
-        return collision_check_result::slow_down;
-    }
+    if (unknown_ahead) { return collision_check_result::slow_down; }
 
     // finally check the area further ahead; we can still avoid those collisions by reducing speed
     collision_zone.clear();
@@ -1152,7 +1150,8 @@ auto vehicle::do_autodrive(Character& driver) -> autodrive_result {
     std::optional<navigation_step> next_step = active_autodrive_controller->compute_next_step();
     if (!next_step) {
         if (active_autodrive_controller->get_data().goal_zone.empty()) {
-            driver.add_msg_if_player(m_warning, _("There is no way to reach the next overmap tile."));
+            driver
+                .add_msg_if_player(m_warning, _("There is no way to reach the next overmap tile."));
         } else {
             driver.add_msg_if_player(m_warning, _("The way forward is blocked."));
         }
