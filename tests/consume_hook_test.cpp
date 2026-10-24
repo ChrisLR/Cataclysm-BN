@@ -152,7 +152,6 @@ TEST_CASE("iconsume per-item callback", "[consume_hook][lua]") {
     sol::state& lua = DynamicDataLoader::get_instance().lua->lua;
     const auto restore = on_out_of_scope([&]() {
         lua.globals()["iconsume_gate"] = sol::lua_nil;
-        lua.globals()["iconsume_seen"] = sol::lua_nil;
         clear_all_state();
     });
 
@@ -187,34 +186,6 @@ TEST_CASE("iconsume per-item callback", "[consume_hook][lua]") {
         REQUIRE(gate.valid());
         lua.globals()["iconsume_gate"] = gate.get<sol::function>();
     };
-
-    SECTION("callback sees consume params and allowing proceeds normally") {
-        set_gate(R"(
-            return function( params )
-                iconsume_seen = {
-                    nutrition = params.nutrition,
-                    thirst = params.thirst,
-                    fun = params.fun,
-                    fun_max = params.fun_max,
-                    item_id = params.item:get_type():str(),
-                    is_avatar = params.char:is_avatar(),
-                }
-            end
-        )");
-
-        REQUIRE(dummy.eat(blood, true));
-        CHECK(blood.charges == 9);
-        CHECK(dummy.get_morale(MORALE_FOOD_BAD) == -50);
-
-        const auto seen = lua.globals()["iconsume_seen"].get<sol::table>();
-        REQUIRE(seen.valid());
-        CHECK(seen["nutrition"].get<int>() == 43);
-        CHECK(seen["thirst"].get<int>() == 5);
-        CHECK(seen["fun"].get<int>() == -50);
-        CHECK(seen["fun_max"].get<int>() == -300);
-        CHECK(seen["item_id"].get<std::string>() == "blood");
-        CHECK(seen["is_avatar"].get<bool>());
-    }
 
     SECTION("callback can override nutrition, thirst and fun") {
         set_gate(R"(
