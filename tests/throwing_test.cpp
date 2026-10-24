@@ -147,7 +147,7 @@ TEST_CASE("flung creatures only trigger landing traps if they cannot fly", "[thr
     clear_all_state();
     // Use a fixed player position so the test is independent of whatever
     // position prior tests in the same process left the avatar at.
-    g->u.setpos(tripoint_bub_ms{ 10, 10, 0 });
+    g->u.setpos(tripoint_bub_ms{10, 10, 0});
     // Moving the avatar can load submaps outside the previously cleared area.
     clear_map();
     // Deterministic seed: fling_creature consumes RNG, and the test outcome
@@ -155,8 +155,8 @@ TEST_CASE("flung creatures only trigger landing traps if they cannot fly", "[thr
     rng_set_engine_seed(1U);
 
     auto& here = g->m;
-    const auto start = tripoint_bub_ms{ 40, 30, 0 };
-    const auto landing = tripoint_bub_ms{ 41, 30, 0 };
+    const auto start = tripoint_bub_ms{40, 30, 0};
+    const auto landing = tripoint_bub_ms{41, 30, 0};
     const auto beartrap = trap_str_id("tr_beartrap");
     const auto effect_beartrap = efftype_id("beartrap");
 
