@@ -1167,8 +1167,7 @@ void Character::modify_morale( item &food, int nutr, const consume_overrides &ov
     if( fun.first < 0 ) {
         if( has_active_bionic( bio_taste_blocker ) &&
             get_power_level() > units::from_kilojoule( -fun.first ) ) {
-            const auto blocked_fun = overrides.fun ? *overrides.fun : fun_for( food ).first;
-            mod_power_level( units::from_kilojoule( std::min( 0, blocked_fun ) ) );
+            mod_power_level( units::from_kilojoule( std::min( 0, fun.first ) ) );
         } else {
             add_morale( MORALE_FOOD_BAD, fun.first, fun.second, morale_time, morale_time / 2, false,
                         food.type );
