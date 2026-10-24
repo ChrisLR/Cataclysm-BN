@@ -551,8 +551,8 @@ persist even if the checks then fail or the player declines, and the item is
 left alone unless the callback changed it — so the callback can implement its
 own consumption (`params.item:mod_charges( -1 )`) and return `false`.
 
-| Callbacks        | params fields                                                              |
-| ---------------- | -------------------------------------------------------------------------- |
+| Callbacks        | params fields                                                               |
+| ---------------- | --------------------------------------------------------------------------- |
 | `on_try_consume` | `char`, `item`, `nutrition`, `thirst`, `fun`, `fun_max`, `skip_cannibalism` |
 
 ```lua
