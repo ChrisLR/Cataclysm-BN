@@ -1,13 +1,9 @@
-{
-  "type": "mutation",
-  "id": "civ_feral_aggro",
-  "name": {
-    "str": "Enemy of the living"
-  },
-  "points": 1,
-  "description": "Survivors hate your guts.",
-  "starting_trait": false,
-  "anger_relations": [
-    [ "HUMAN", 100 ]
-  ]
-}
+[
+  {
+    "type": "mutation",
+    "id": "PROF_FERAL",
+    "copy-from": "PROF_FERAL",
+    "anger_relations": [ [ "HUMAN", 100 ] ]
+  }
+]
+
