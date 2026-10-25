@@ -2,14 +2,6 @@
   "type": "scenario",
   "id": "player_feral",
   "copy-from": "player_feral",
-  "forced_traits": [
-    "PROF_FERAL",
-    "civ_feral_aggro",
-    "PSYCHOPATH",
-    "SCHIZOPHRENIC",
-    "CARNIVORE",
-    "CANNIBAL"
-  ],
   "description": "The smell of fresh blood has awakened something in you, something that needs to kill.  You stagger out of your hiding place with a gnawing hunger, unsure if this is what living death is like.",
   "flags": [
     "CHALLENGE",
