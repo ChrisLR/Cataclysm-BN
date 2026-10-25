@@ -1,11 +1,13 @@
-{
-  "type": "scenario",
-  "id": "player_feral",
-  "copy-from": "player_feral",
-  "description": "The smell of fresh blood has awakened something in you, something that needs to kill.  You stagger out of your hiding place with a gnawing hunger, unsure if this is what living death is like.",
-  "flags": [
-    "CHALLENGE",
-    "LONE_START",
-    "CITY_START"
-  ]
-}
+[
+  {
+    "type": "scenario",
+    "id": "player_feral",
+    "copy-from": "player_feral",
+    "description": "The smell of fresh blood has awakened something in you, something that needs to kill.  You stagger out of your hiding place with a gnawing hunger, unsure if this is what living death is like.",
+    "flags": [
+      "CHALLENGE",
+      "LONE_START",
+      "CITY_START"
+    ]
+  }
+]
