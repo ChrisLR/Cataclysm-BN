@@ -455,6 +455,11 @@ TEST_CASE("lua_scenario_binding", "[lua]") {
     sol::table test_data = lua.create_table();
     lua.globals()["test_data"] = test_data;
 
+    // Restore the active scenario after the test: leaving g->scen null makes
+    // avatar::store omit the "scenario" member, which fails later save/load
+    // round-trips with "Tried to use non-existent scenario '(null)'".
+    const auto scen_cleanup = on_out_of_scope([]() { set_scenario(scenario::generic()); });
+
     set_scenario(&string_id<scenario>("hunted_start").obj());
     run_lua_test_script(lua, "scenario_binding_test.lua");
     CHECK(test_data.get<bool>("has_scenario"));
