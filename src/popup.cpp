@@ -6,8 +6,10 @@
 
 #include "cached_options.h"
 #include "catacharset.h"
+#include "cuboid_rectangle.h"
 #include "ime.h"
 #include "input.h"
+#include "mouse_utils.h"
 #include "output.h"
 #include "sdl_wrappers.h"
 #include "ui_manager.h"
@@ -239,6 +241,24 @@ void query_popup::show() const
     wnoutrefresh( win );
 }
 
+auto query_popup::find_button_at( const point &cell ) const -> std::optional<size_t>
+{
+    if( !win ) {
+        return std::nullopt;
+    }
+    const auto win_beg = point( catacurses::getbegx( win ), catacurses::getbegy( win ) );
+    for( size_t ind = 0; ind < buttons.size(); ++ind ) {
+        const auto &btn = buttons[ind];
+        // Button text is printed at btn.pos, offset by the window border.
+        const auto btn_beg = win_beg + btn.pos + point( border_width, border_width );
+        const auto btn_end = btn_beg + point( utf8_width( btn.text, true ) - 1, 0 );
+        if( inclusive_rectangle<point>( btn_beg, btn_end ).contains( cell ) ) {
+            return ind;
+        }
+    }
+    return std::nullopt;
+}
+
 std::shared_ptr<ui_adaptor> query_popup::create_or_get_adaptor( bool disable_below )
 {
     std::shared_ptr<ui_adaptor> ui = adaptor.lock();
@@ -285,6 +305,10 @@ query_popup::result query_popup::query_once()
         for( const auto &opt : options ) {
             ctxt.register_action( opt.action );
         }
+        // Mouse support for the option buttons: "SELECT" is bound to left
+        // mouse button (clicks), "MOUSE_MOVE" to cursor movement.
+        ctxt.register_action( "SELECT" );
+        ctxt.register_action( "MOUSE_MOVE" );
     }
     if( anykey ) {
         ctxt.register_action( "ANY_INPUT" );
@@ -301,6 +325,28 @@ query_popup::result query_popup::query_once()
     do {
         res.action = ctxt.handle_input();
         res.evt = ctxt.get_raw_input();
+
+        if( !options.empty() && res.evt.type == input_event_t::mouse ) {
+            // In tiles builds the raw mouse position is in window pixels,
+            // convert it to terminal cells for the hit test.
+            const auto cell = mouse_pos_to_screen_cell( res.evt.mouse_pos );
+            if( cell && res.action == "MOUSE_MOVE" ) {
+                // Hovering over an option button moves the cursor onto it.
+                if( const auto &ind = find_button_at( *cell ) ) {
+                    cur = *ind;
+                }
+            } else if( cell && res.action == "SELECT" ) {
+                // Left click on an option button activates it.
+                if( const auto &ind = find_button_at( *cell ) ) {
+                    cur = *ind;
+                    if( options[*ind].filter( res.evt ) ) {
+                        res.wait_input = false;
+                        res.action = options[*ind].action;
+                        break;
+                    }
+                }
+            }
+        }
     } while(
         // Always ignore mouse movement
         ( res.evt.type == input_event_t::mouse && res.evt.get_first_input() == MOUSE_MOVE ) ||

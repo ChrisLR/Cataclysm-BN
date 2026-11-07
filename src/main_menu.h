@@ -52,6 +52,11 @@ class main_menu
         // Play a sound *once* when an error occurs in the main menu or its tabs; sets errflag
         void on_error();
 
+        // Mouse support: moves the menu highlight to the hovered button
+        void handle_hover( const point &cell );
+        /// Selects (and activates, unless the tab has a sub menu) the clicked button
+        auto handle_click( const point &cell ) -> bool;
+
         // Tab functions. They return whether a game was started or not. The ones that can never
         // start a game have a void return type.
         bool new_character_tab();

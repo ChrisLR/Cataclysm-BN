@@ -21,6 +21,10 @@
 #include "string_utils.h"
 #include "ui_manager.h"
 
+#if defined(TILES)
+#include "sdltiles.h"
+#endif
+
 #if defined(__ANDROID__)
 #include <SDL3/SDL.h>
 
@@ -34,6 +38,51 @@ catacurses::window new_centered_win( int nlines, int ncols )
     point pos( ( TERMX - width ) / 2, ( TERMY - height ) / 2 );
     return catacurses::newwin( height, width, pos );
 }
+
+namespace
+{
+
+/// Convert the mouse position of a mouse input event to cell coordinates
+/// relative to the given window. Returns nullopt if the mouse is outside the window.
+auto mouse_pos_to_window_cell( const catacurses::window &win,
+                               const point &mouse_pos ) -> std::optional<point>
+{
+#if defined(TILES)
+    // In the tiles build the mouse position is in window pixels.
+    const window_dimensions dim = get_window_dimensions( win );
+    const inclusive_rectangle<point> bounds( dim.window_pos_pixel,
+            dim.window_pos_pixel + dim.window_size_pixel );
+    if( !bounds.contains( mouse_pos ) || dim.scaled_font_size.x <= 0 ||
+        dim.scaled_font_size.y <= 0 ) {
+        return std::nullopt;
+    }
+    const point rel = mouse_pos - dim.window_pos_pixel;
+    return point( rel.x / dim.scaled_font_size.x, rel.y / dim.scaled_font_size.y );
+#else
+    // In the curses builds the mouse position is already in terminal cells.
+    const point origin( getbegx( win ), getbegy( win ) );
+    const inclusive_rectangle<point> bounds( origin,
+            origin + point( getmaxx( win ), getmaxy( win ) ) );
+    if( !bounds.contains( mouse_pos ) ) {
+        return std::nullopt;
+    }
+    return mouse_pos - origin;
+#endif
+}
+
+/// Index of the entry whose drawn_rect contains the given window cell, or -1.
+auto entry_index_at_cell( const uilist &menu, const point &cell ) -> int
+{
+    for( int i = 0; i < static_cast<int>( menu.entries.size() ); ++i ) {
+        const auto &rect = menu.entries[static_cast<size_t>( i )].drawn_rect;
+        if( rect && rect->contains( cell ) ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+} // namespace
 
 /**
 * \defgroup UI "The UI Menu."
@@ -233,6 +282,7 @@ input_context uilist::create_main_input_context() const
         ctxt.register_action( "QUIT" );
     }
     ctxt.register_action( "SELECT" );
+    ctxt.register_action( "MOUSE_MOVE" );
     ctxt.register_action( "CONFIRM" );
     ctxt.register_action( "FILTER" );
     ctxt.register_action( "ANY_INPUT" );
@@ -836,6 +886,8 @@ void uilist::show( ui_adaptor &ui )
     for( int fei = vshift, si = 0; si < vmax; fei++, si++ ) {
         if( fei < static_cast<int>( fentries.size() ) ) {
             int ei = fentries [ fei ];
+            entries[ei].drawn_rect = inclusive_rectangle<point>( point( 0, estart + si ),
+                                        point( w_width - 1, estart + si ) );
             nc_color co;
             nc_color hk_co;
             if( ei == selected ) {
@@ -1073,7 +1125,29 @@ void uilist::query( bool loop, int timeout )
         keypress = event.get_first_input();
         const auto iter = keymap.find( keypress );
 
-        if( scrollby( scroll_amount_from_action( ret_act ) ) ) {
+        if( ret_act == "MOUSE_MOVE" || ( ret_act == "SELECT" && event.type == input_event_t::mouse ) ) {
+            const auto cell = mouse_pos_to_window_cell( window, event.mouse_pos );
+            const int hit = cell ? entry_index_at_cell( *this, *cell ) : -1;
+            if( ret_act == "MOUSE_MOVE" ) {
+                // Hovering over an entry moves the highlight to it.
+                if( hit >= 0 && hit != selected ) {
+                    set_selected( hit );
+                    if( callback != nullptr ) {
+                        callback->select( this );
+                    }
+                }
+            } else if( hit >= 0 ) {
+                // Left click on an entry selects it, like CONFIRM would.
+                set_selected( hit );
+                if( callback != nullptr ) {
+                    callback->select( this );
+                }
+                if( entries[hit].enabled || allow_disabled ) {
+                    ret = entries[hit].retval;
+                }
+            }
+            // Mouse input outside of any entry is ignored.
+        } else if( scrollby( scroll_amount_from_action( ret_act ) ) ) {
             /* nothing */
         } else if( filtering && ret_act == "FILTER" ) {
             inputfilter();

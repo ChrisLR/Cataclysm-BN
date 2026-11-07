@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -234,6 +235,8 @@ class query_popup
                     const std::string &category,
                     const std::vector<query_option> &options,
                     int max_width, int horz_padding );
+        /// Index of the option button at the given terminal cell, if any.
+        auto find_button_at( const point &cell ) const -> std::optional<size_t>;
         void invalidate_ui() const;
         void init() const;
 

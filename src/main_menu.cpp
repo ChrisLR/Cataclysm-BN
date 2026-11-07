@@ -21,6 +21,7 @@
 #include "map/mapbuffer.h"
 #include "mapsharing.h"
 #include "messages.h"
+#include "mouse_utils.h"
 #include "newcharacter.h"
 #include "options.h"
 #include "output.h"
@@ -82,6 +83,55 @@ void main_menu::on_move() const
 void main_menu::on_error()
 {
     sfx::play_variant_sound( "menu_error", "default", 100 );
+}
+
+void main_menu::handle_hover( const point &cell )
+{
+    for( const auto &btn : main_menu_button_map ) {
+        if( btn.first.contains( cell ) && btn.second != sel1 ) {
+            sel1 = btn.second;
+            sel2 = sel1 == getopt( main_menu_opts::LOADCHAR ) ?
+                   static_cast<int>( world_generator->get_world_index( world_generator->last_world_name ) ) : 0;
+            on_move();
+            return;
+        }
+    }
+    for( const auto &btn : main_menu_sub_button_map ) {
+        if( btn.first.contains( cell ) && btn.second.first == sel1 && btn.second.second != sel2 ) {
+            sel2 = btn.second.second;
+            on_move();
+            return;
+        }
+    }
+}
+
+auto main_menu::handle_click( const point &cell ) -> bool
+{
+    // Sub menu entries activate their action directly.
+    for( const auto &btn : main_menu_sub_button_map ) {
+        if( btn.first.contains( cell ) ) {
+            sel1 = btn.second.first;
+            sel2 = btn.second.second;
+            on_move();
+            return true;
+        }
+    }
+    for( const auto &btn : main_menu_button_map ) {
+        if( btn.first.contains( cell ) ) {
+            sel1 = btn.second;
+            sel2 = sel1 == getopt( main_menu_opts::LOADCHAR ) ?
+                   static_cast<int>( world_generator->get_world_index( world_generator->last_world_name ) ) : 0;
+            on_move();
+            // Top level tabs without a sub menu activate immediately,
+            // tabs with one open their sub menu.
+            const bool has_sub = std::ranges::any_of( main_menu_sub_button_map,
+            [this]( const auto &sub ) {
+                return sub.second.first == sel1;
+            } );
+            return !has_sub;
+        }
+    }
+    return false;
 }
 
 class sound_on_move_uilist_callback : public uilist_callback
@@ -676,6 +726,10 @@ bool main_menu::opening_screen()
     ctxt.register_action( "PAGE_DOWN" );
     ctxt.register_action( "CONFIRM" );
     ctxt.register_action( "QUIT" );
+    // Mouse support: "SELECT" is bound to left mouse button (clicks),
+    // "MOUSE_MOVE" is bound to cursor movement over the menu.
+    ctxt.register_action( "SELECT" );
+    ctxt.register_action( "MOUSE_MOVE" );
 
     // for the menu shortcuts
     ctxt.register_action( "ANY_INPUT" );
@@ -712,6 +766,18 @@ bool main_menu::opening_screen()
         const size_t last_world_pos = world_generator->get_world_index( world_generator->last_world_name );
         std::string action = ctxt.handle_input();
         input_event sInput = ctxt.get_raw_input();
+
+        // Mouse hover moves the highlight, left click selects/activates a button.
+        if( action == "MOUSE_MOVE" || ( action == "SELECT" && sInput.type == input_event_t::mouse ) ) {
+            const auto cell = mouse_pos_to_screen_cell( sInput.mouse_pos );
+            if( cell ) {
+                if( action == "MOUSE_MOVE" ) {
+                    handle_hover( *cell );
+                } else if( handle_click( *cell ) ) {
+                    action = "CONFIRM";
+                }
+            }
+        }
 
         // check automatic menu shortcuts
         for( int i = 0; static_cast<size_t>( i ) < vMenuHotkeys.size(); ++i ) {
