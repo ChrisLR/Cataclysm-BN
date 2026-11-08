@@ -1305,16 +1305,6 @@ tab_direction set_stats( avatar &u, points_left &points )
             }
             continue;
         }
-        if( action == "SELECT" || action == "MOUSE_MOVE" ) {
-            const input_event evt = ctxt.get_raw_input();
-            if( evt.type == input_event_t::mouse ) {
-                const auto cell = mouse_pos_to_screen_cell( evt.mouse_pos );
-                if( cell && cell->y >= 6 && cell->y <= 9 && cell->x >= 2 && cell->x <= 18 ) {
-                    sel = static_cast<unsigned char>( cell->y - 5 );
-                }
-                continue;
-            }
-        }
         if( action == "DOWN" ) {
             if( sel < 4 ) {
                 sel++;
@@ -1673,7 +1663,7 @@ tab_direction set_traits( avatar &u, points_left &points )
 
     do {
         ui_manager::redraw();
-        std::string action = ctxt.handle_input();
+        const std::string action = ctxt.handle_input();
         if( handle_char_tab_bar_mouse( ctxt, action, u.prof, _( "TRAITS" ) ) ) {
             if( pending_mouse_tab ) {
 #if defined(TILES)
@@ -1682,33 +1672,6 @@ tab_direction set_traits( avatar &u, points_left &points )
                 return tab_direction::NONE;
             }
             continue;
-        }
-        if( action == "SELECT" || action == "MOUSE_MOVE" ) {
-            const input_event evt = ctxt.get_raw_input();
-            if( evt.type == input_event_t::mouse ) {
-                const auto cell = mouse_pos_to_screen_cell( evt.mouse_pos );
-                if( cell && cell->y >= 5 && cell->x >= 2 &&
-                    cell->y < 5 + static_cast<int>( iContentHeight ) ) {
-                    const int page = std::min( ( cell->x - 2 ) / static_cast<int>( page_width ),
-                                               used_pages - 1 );
-                    const int idx = iStartPos[page] + ( cell->y - 5 );
-                    if( idx < static_cast<int>( traits_size[page] ) ) {
-                        const bool was_current = iCurWorkingPage == page && iCurrentLine[page] == idx;
-                        iCurWorkingPage = page;
-                        iCurrentLine[page] = idx;
-                        if( action == "SELECT" && was_current ) {
-                            // Clicking the already selected trait toggles it, like CONFIRM.
-                            action = "CONFIRM";
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
         }
 #if defined(TILES)
         if( action == "zoom_in" && use_character_preview ) {
@@ -2150,7 +2113,7 @@ tab_direction set_bionics( avatar &u, points_left &points )
 
     do {
         ui_manager::redraw();
-        std::string action = ctxt.handle_input();
+        const std::string action = ctxt.handle_input();
         if( handle_char_tab_bar_mouse( ctxt, action, u.prof, _( "BIONICS" ) ) ) {
             if( pending_mouse_tab ) {
 #if defined(TILES)
@@ -2159,33 +2122,6 @@ tab_direction set_bionics( avatar &u, points_left &points )
                 return tab_direction::NONE;
             }
             continue;
-        }
-        if( action == "SELECT" || action == "MOUSE_MOVE" ) {
-            const input_event evt = ctxt.get_raw_input();
-            if( evt.type == input_event_t::mouse ) {
-                const auto cell = mouse_pos_to_screen_cell( evt.mouse_pos );
-                if( cell && cell->y >= 5 && cell->x >= 2 &&
-                    cell->y < 5 + static_cast<int>( iContentHeight ) ) {
-                    const int page = std::min( ( cell->x - 2 ) / static_cast<int>( page_width ),
-                                               used_pages - 1 );
-                    const int idx = iStartPos[page] + ( cell->y - 5 );
-                    if( idx < static_cast<int>( bionics_size[page] ) ) {
-                        const bool was_current = iCurWorkingPage == page && iCurrentLine[page] == idx;
-                        iCurWorkingPage = page;
-                        iCurrentLine[page] = idx;
-                        if( action == "SELECT" && was_current ) {
-                            // Clicking the already selected bionic toggles it, like CONFIRM.
-                            action = "CONFIRM";
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
         }
 #if defined(TILES)
         if( action == "zoom_in" && use_character_preview ) {
@@ -2815,37 +2751,12 @@ tab_direction set_profession( avatar &u, points_left &points,
         }
 
         ui_manager::redraw();
-        std::string action = ctxt.handle_input();
+        const std::string action = ctxt.handle_input();
         if( handle_char_tab_bar_mouse( ctxt, action, u.prof, _( "PROFESSION" ) ) ) {
             if( pending_mouse_tab ) {
                 return tab_direction::NONE;
             }
             continue;
-        }
-        if( action == "SELECT" || action == "MOUSE_MOVE" ) {
-            const input_event evt = ctxt.get_raw_input();
-            if( evt.type == input_event_t::mouse ) {
-                const auto cell = mouse_pos_to_screen_cell( evt.mouse_pos );
-                if( cell && cell->y >= 5 && cell->x >= 2 && cell->x < TERMX / 2 &&
-                    cell->y < 5 + iContentHeight ) {
-                    const int idx = iStartPos + ( cell->y - 5 );
-                    if( idx < profs_length ) {
-                        const bool was_current = idx == cur_id;
-                        cur_id = idx;
-                        desc_offset = 0;
-                        if( action == "SELECT" && was_current ) {
-                            // Clicking the already selected profession picks it, like CONFIRM.
-                            action = "CONFIRM";
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
         }
         if( action == "DOWN" ) {
             cur_id++;
@@ -3148,22 +3059,6 @@ tab_direction set_skills( avatar &u, points_left &points )
             }
             continue;
         }
-        if( action == "SELECT" || action == "MOUSE_MOVE" ) {
-            const input_event evt = ctxt.get_raw_input();
-            if( evt.type == input_event_t::mouse ) {
-                const auto cell = mouse_pos_to_screen_cell( evt.mouse_pos );
-                if( cell && cell->y >= 5 && cell->x >= 2 ) {
-                    for( int i = 0; i < num_skills; ++i ) {
-                        if( 5 + skill_list[i].second - cur_offset == cell->y ) {
-                            cur_pos = i;
-                            currentSkill = skill_list[i].first;
-                            break;
-                        }
-                    }
-                }
-                continue;
-            }
-        }
         if( action == "DOWN" ) {
             cur_pos = modulo( cur_pos + 1, num_skills );
             currentSkill = skill_list[cur_pos].first;
@@ -3369,22 +3264,6 @@ tab_direction set_magic( avatar &u, points_left &points )
                 return tab_direction::NONE;
             }
             continue;
-        }
-        if( action == "SELECT" || action == "MOUSE_MOVE" ) {
-            const input_event evt = ctxt.get_raw_input();
-            if( evt.type == input_event_t::mouse ) {
-                const auto cell = mouse_pos_to_screen_cell( evt.mouse_pos );
-                if( cell && cell->y >= 5 && cell->x >= 2 ) {
-                    for( int i = 0; i < num_spells; ++i ) {
-                        if( 5 + spell_list[i].second - cur_offset == cell->y ) {
-                            cur_pos = i;
-                            current_spell = spell_list[i].first;
-                            break;
-                        }
-                    }
-                }
-                continue;
-            }
         }
         if( action == "DOWN" ) {
             cur_pos = modulo( cur_pos + 1, num_spells );
@@ -3771,36 +3650,12 @@ tab_direction set_scenario( avatar &u, points_left &points,
         }
 
         ui_manager::redraw();
-        std::string action = ctxt.handle_input();
+        const std::string action = ctxt.handle_input();
         if( handle_char_tab_bar_mouse( ctxt, action, u.prof, _( "SCENARIO" ) ) ) {
             if( pending_mouse_tab ) {
                 return tab_direction::NONE;
             }
             continue;
-        }
-        if( action == "SELECT" || action == "MOUSE_MOVE" ) {
-            const input_event evt = ctxt.get_raw_input();
-            if( evt.type == input_event_t::mouse ) {
-                const auto cell = mouse_pos_to_screen_cell( evt.mouse_pos );
-                if( cell && cell->y >= 5 && cell->x >= 2 && cell->x < TERMX / 2 &&
-                    cell->y < 5 + iContentHeight ) {
-                    const int idx = iStartPos + ( cell->y - 5 );
-                    if( idx < scens_length ) {
-                        const bool was_current = idx == cur_id;
-                        cur_id = idx;
-                        if( action == "SELECT" && was_current ) {
-                            // Clicking the already selected scenario picks it, like CONFIRM.
-                            action = "CONFIRM";
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
         }
         if( action == "DOWN" ) {
             cur_id++;
@@ -4446,7 +4301,7 @@ tab_direction set_description( avatar &you, const bool allow_reroll,
         max_allowed_age = new_max_age;
         you.set_base_age( clamp( you.base_age(), min_allowed_age, max_allowed_age ) );
         ui_manager::redraw();
-        std::string action = ctxt.handle_input();
+        const std::string action = ctxt.handle_input();
         if( handle_char_tab_bar_mouse( ctxt, action, you.prof, _( "OVERVIEW" ) ) ) {
             if( pending_mouse_tab ) {
 #if defined(TILES)
@@ -4455,38 +4310,6 @@ tab_direction set_description( avatar &you, const bool allow_reroll,
                 return tab_direction::NONE;
             }
             continue;
-        }
-        if( action == "SELECT" || action == "MOUSE_MOVE" ) {
-            const input_event evt = ctxt.get_raw_input();
-            if( evt.type == input_event_t::mouse ) {
-                const auto cell = mouse_pos_to_screen_cell( evt.mouse_pos );
-                if( cell ) {
-                    // The editable fields are drawn at fixed screen positions.
-                    if( cell->x >= 2 && cell->x < 44 && cell->y >= 5 && cell->y <= 7 ) {
-                        current_selector = char_creation::NAME;
-                    } else if( cell->x >= 46 && cell->x < 79 && cell->y >= 5 && cell->y <= 6 ) {
-                        if( action == "SELECT" ) {
-                            action = "CHANGE_GENDER";
-                        } else {
-                            continue;
-                        }
-                    } else if( cell->x >= 80 && cell->x < 100 && cell->y == 5 ) {
-                        current_selector = char_creation::HEIGHT;
-                    } else if( cell->x >= 80 && cell->x < 92 && cell->y == 6 ) {
-                        current_selector = char_creation::AGE;
-                    } else if( cell->x >= 100 && cell->x < 160 && cell->y >= 5 && cell->y <= 6 ) {
-                        if( action == "SELECT" ) {
-                            action = "CHOOSE_LOCATION";
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
         }
 #if defined(TILES)
         if( action == "zoom_in" && use_character_preview ) {
