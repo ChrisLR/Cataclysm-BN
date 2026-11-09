@@ -1,3 +1,4 @@
+local mod = game.mod_runtime[game.current_mod]
 local storage = game.mod_storage[game.current_mod]
 
 ---@class mod_option
@@ -156,6 +157,41 @@ end
 --- @field pulping_radius mod_option
 --- @field pulping_chance mod_option
 
+---@param opt mod_option
+---@return integer | string | boolean | nil
+local prompt_setting = function(opt)
+    local value = nil
+    if opt.type == "number" then
+        local prompt = PopupInputStr.new()
+        local current_value = opt.get_value()
+        prompt:desc(
+            string.format(
+                "%s\n\r<color_white>Min:%s\n\rMax:%s\n\rDefault:%s\n\rCurrent: %s</color>\n",
+                opt.desc,
+                opt.min_val,
+                opt.max_val,
+                opt.default,
+                current_value
+            )
+        )
+        prompt:title(opt.name)
+        value = prompt:query_str()
+        value = tonumber(value)
+        if value == 0 or value == nil then return current_value end
+        if value < opt.min_val then return nil end
+        if value > opt.max_val then return nil end
+    elseif opt.type == "boolean" then
+        local prompt = QueryPopup.new()
+        prompt:message(string.format("%s\n--------\n%s", opt.name, opt.desc))
+        value = prompt:query_ynq()
+        if value == "QUIT" then return nil end
+        if value == "YES" then return true end
+        if value == "NO" then return false end
+    end
+
+    return value
+end
+
 ---@type mod_options
 local export_options = {
   spawn_chance = OPT_SPAWN_CHANCE,
@@ -167,4 +203,25 @@ local export_options = {
   pulping_radius = OPT_PULPING_RADIUS,
   pulping_chance = OPT_PULPING_CHANCE,
 }
+
+mod.configure_options = function()
+    while true do
+        local menu = UiList.new()
+        local id_map = {}
+        menu:title("Configure Civilians Mod")
+        local opt_i = 1
+        for _, opt in pairs(export_options) do
+            menu:add_w_desc(opt_i, string.format("%s: %s", opt.name, opt.get_value()), opt.desc)
+            id_map[opt_i] = opt
+            opt_i = opt_i + 1
+        end
+
+        local choice = menu:query()
+        if choice < 0 then return end
+        local chosen_option = id_map[choice]
+        local value = prompt_setting(chosen_option)
+        if value ~= nil then chosen_option.set_value(value) end
+    end
+end
+
 return export_options
