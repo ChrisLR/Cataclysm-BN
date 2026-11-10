@@ -9,6 +9,20 @@ local ITM_COM_TYPE_DRINK = "DRINK"
 local ITM_COM_TYPE_MED = "MED"
 local ITM_MAT_ALCOHOL = MaterialTypeId.new("alcohol")
 
+
+---@param civ Monster
+---@return TimePoint
+function get_last_fed(civ)
+  local last_fed_str = civ:get_value("civ_last_fed")
+  if last_fed_str == nil or last_fed_str == "" then return gapi.turn_zero() end
+
+  local last_fed_turns = tonumber(last_fed_str)
+  if last_fed_turns == nil then return gapi.turn_zero() end
+
+  TimePoint.from_turn(last_fed_turns)
+
+end
+
 ---@param item Item
 ---@param likes_alcohol boolean
 ---@param likes_drugs boolean
@@ -17,11 +31,22 @@ local function filter_comestible(item, likes_alcohol, likes_drugs)
     local item_type_id = item:get_type()
     local item_type = item_type_id:obj()
     local item_comest_type_str = item_type:slot_comestible().comest_type
-    if item_type_id:str() ~= "COMESTIBLE" then return false end
-    if item:is_made_of(ITM_MAT_ALCOHOL) and not likes_alcohol then return false end
-    if item_comest_type_str == ITM_COM_TYPE_MED then return false end
+    -- if item_type.:str() ~= "COMESTIBLE" then
+    --     gdebug.log_info("not comestible")
+    --     return false
+    -- end
+    if item:is_made_of(ITM_MAT_ALCOHOL) and not likes_alcohol then
+        gdebug.log_info("is alcohol unliked")
+        return false
+    end
+    if item_comest_type_str == ITM_COM_TYPE_MED then
+        gdebug.log_info("is med")
+        return false
+    end
+    if item_comest_type_str == ITM_COM_TYPE_FOOD then return true end
+    if item_comest_type_str == ITM_COM_TYPE_DRINK then return true end
     -- TODO Support drugs
-    return true
+    return false
 end
 
 ---@param avatar Character
