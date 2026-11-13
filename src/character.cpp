@@ -9223,9 +9223,9 @@ void Character::shout( std::string msg, bool order )
             shout = "default";
         }
     } else {
-        add_msg_if_player( m_info, _( string_format( "You yell \"%s\"", msg ) ) );
-        msg = is_player() ? _( string_format( "yourself yell \"%s\"",
-                                              msg ) ) : _( string_format( "yell \"%s\"", msg ) );
+        add_msg_if_player( m_info, string_format( _( "You yell \"%s\"" ), msg ) );
+        msg = is_player() ? string_format( _( "yourself yell \"%s\"" ),
+                                           msg ) : string_format( _( "yell \"%s\"" ), msg );
     }
 
 
@@ -12590,6 +12590,12 @@ const recipe_subset &Character::get_learned_recipes() const
 bool Character::knows_recipe( const recipe *rec ) const
 {
     return get_learned_recipes().contains( *rec );
+}
+
+void Character::forget_all_recipes()
+{
+    *learned_recipes = recipe_subset();
+    *autolearn_skills_stamp = SkillLevelMap();
 }
 
 void Character::learn_recipe( const recipe *const rec )
